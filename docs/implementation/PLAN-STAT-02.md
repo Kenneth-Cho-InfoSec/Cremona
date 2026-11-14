@@ -15,17 +15,17 @@ Batch order: A (dummies + contrasts) -> B (factor auto-detection in
 
 ---
 
-## A. Dummy expansion + treatment contrasts (new `stdlib/factor_model.valvet`? No — extend `model.valvet`)
+## A. Dummy expansion + treatment contrasts (new `stdlib/factor_model.cremona`? No — extend `model.cremona`)
 
-Gap: `model_frame` (`stdlib/model.valvet`) parses every term as float;
+Gap: `model_frame` (`stdlib/model.cremona`) parses every term as float;
 a `group` column of `"a"/"b"` drops every row. R treats strings as
 factors with treatment contrasts.
 
-### Exact changes (`stdlib/model.valvet`, append; no signature changes)
+### Exact changes (`stdlib/model.cremona`, append; no signature changes)
 
 1. `pub fun factor_levels(col: Vec<String>) -> Vec<String>`: first-appearance
    order (matches the codebase's group-order precedent), skipping
-   `is_na`-like cells — add `import std::csv::is_na;` (`model.valvet`
+   `is_na`-like cells — add `import std::csv::is_na;` (`model.cremona`
    currently imports frame/math/dist only).
 2. `pub fun dummy_expand(col: Vec<String>, levels: Vec<String>) -> Vec<Vec<Float64>>`:
    one 0/1 column per level (reference level INCLUDED here; dropping
@@ -39,7 +39,7 @@ factors with treatment contrasts.
    first-appearance by the group-order law, note the difference in the
    fixture header).
 4. Fixtures: levels order, all-zero NA rows, reference-drop naming —
-   pure-Valvet, no oracle needed beyond eyeball values; R `model.matrix`
+   pure-Cremona, no oracle needed beyond eyeball values; R `model.matrix`
    agreement on a 3-level frame.
 5. No core changes. No `Formula` change yet (terms stay strings; a
    `C(group)` wrapper syntax is explicitly deferred — plain names work).
@@ -54,7 +54,7 @@ cap in v1; a `max_levels` guard is a one-line follow-up if wanted).
 Gap: the decision point. Today a string column in a term silently drops
 rows; after this batch it expands to dummies.
 
-### Exact changes (`stdlib/model.valvet`, `model_frame` only)
+### Exact changes (`stdlib/model.cremona`, `model_frame` only)
 
 1. Per term column: scan non-NA cells; if every one parses as float
    (existing `parse_float` method), keep the numeric path byte-for-byte
@@ -73,7 +73,7 @@ rows; after this batch it expands to dummies.
 4. Interactions (`PLAN-GAP-R.md` R3) over factor terms: product of dummy
    columns — falls out of the existing product loop with zero new code;
    add one R-oracle fixture (`y ~ a*b` with `b` categorical).
-5. Fixtures: `model_factor.valvet` (R `lm(y ~ group)` agreement incl.
+5. Fixtures: `model_factor.cremona` (R `lm(y ~ group)` agreement incl.
    reference-level choice), unchanged numeric fixtures re-run green,
    single-level-factor `Err` fixture, all-missing-column still `Err` as
    before (existing semantics preserved).
@@ -89,11 +89,11 @@ fixture relying on drop-strings breaks loudly at gate time — triage then
 
 Gap: no `weights=` anywhere; heteroscedastic data has no honest path.
 
-### Exact changes (`stdlib/model.valvet`, append)
+### Exact changes (`stdlib/model.cremona`, append)
 
 1. Factor the solve (from PLAN-STAT-01 batch C if landed, else inline +
    TODO): `fun ols_solve(x: &Mat, y: &Vec<Float64>) -> Result<(Vec<Float64>,
-   Mat), String>` returning `(beta, XtX_inv)` — check Valvet tuples first
+   Mat), String>` returning `(beta, XtX_inv)` — check Cremona tuples first
    (grammar has `tupleLit`; verify value-tuples exist in this tree during
    implementation — if not, return a small `pub struct OlsSolve { beta,
    xtx_inv }` instead; do NOT add language features for this).

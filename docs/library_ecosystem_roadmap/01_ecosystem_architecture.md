@@ -122,7 +122,7 @@ is settled:
 | `bench` tooling | Kernel benchmarks, allocation counters, codegen snapshots | Delivered by `TEST-01` |
 
 The names `ode`, `stochastic`, and so on are module names. Manifest names can
-be `valvet-ode` or `valvet_ode`; the exact mapping must follow the resolver's
+be `cremona-ode` or `cremona_ode`; the exact mapping must follow the resolver's
 rules when the first package is created. This is an open question, not a
 blocker.
 
@@ -171,7 +171,7 @@ foundations.
 be added as compiler methods, not as `std.numeric` functions. The method syntax
 below is illustrative; the semantics are the requirement.
 
-```valvet
+```cremona
 impl Vec<T> {
     pub fun with_capacity(n: Int64): Vec<T>
     pub fun reserve(v: &mut Vec<T>, n: Int64)
@@ -200,7 +200,7 @@ avoidable `realloc`, not to weaken safety.
 
 Two forms are needed:
 
-```valvet
+```cremona
 vec![a, b, c]       // exact capacity 3, one allocation
 vec![value; n]      // exact capacity n, one allocation, n copies
 ```
@@ -214,7 +214,7 @@ types in its first version. That restriction is an open design question.
 
 The preferred representation is compiler support:
 
-```valvet
+```cremona
 val p: [Float64; 2] = [x, y]
 val q: (Float64, Float64) = (x, y)
 ```
@@ -249,7 +249,7 @@ build a generic small-vector library on top of `Vec<T>`.
 
 The missing operation is general mutable element access. Add methods on `Mat`:
 
-```valvet
+```cremona
 pub struct ShapeError { row: Int64, col: Int64, rows: Int64, cols: Int64 }
 
 m.get(i: Int64, j: Int64): Option<Float64>
@@ -267,7 +267,7 @@ until complex matrices are actually needed.
 
 The first expansion covers the functions that the ports already hand-write:
 
-```valvet
+```cremona
 pub fun abs(x: Float64): Float64
 pub fun min(a: Float64, b: Float64): Float64
 pub fun max(a: Float64, b: Float64): Float64
@@ -312,7 +312,7 @@ after measurement.
 
 `std.numeric` is a concrete library for `Vec<Float64>`. The first version:
 
-```valvet
+```cremona
 module std.numeric;
 
 import std::math::sqrt;
@@ -436,7 +436,7 @@ extrapolation port is attempted. The current Radau3 port needs one 2x2 solve.
 
 The `ode` package should export protocol primitives, not a solver:
 
-```valvet
+```cremona
 pub struct OdeStatus {
     nf: Int64,
     nsolve: Int64,
@@ -460,7 +460,7 @@ evaluation.
 The `stochastic` package gets a narrow v1 from port 10, the only current
 weak-SDE consumer. Wider helpers wait for a second consumer:
 
-```valvet
+```cremona
 pub struct Wiener { dW: Vec<Float64>, dZ: Vec<Float64>, sqdt: Float64 }
 pub fun three_point_increment(sq3dt: Float64, quantile: Float64, dW_scaled: Float64): Float64
 ```
@@ -485,7 +485,7 @@ These are workflow components, not production dependencies. The harness is a
 small optional package; it can remain a repository script until independent
 versioning is needed. It depends on warning-free `println` output; `write` is
 optional and is not part of the three-line oracle protocol. Benchmark tooling
-is delivered by `TEST-01` and depends on a stable `valvet build` and a JSON
+is delivered by `TEST-01` and depends on a stable `cremona build` and a JSON
 result format. Benchmark tooling stays in `TEST-01`. Neither belongs in
 `std.*`.
 

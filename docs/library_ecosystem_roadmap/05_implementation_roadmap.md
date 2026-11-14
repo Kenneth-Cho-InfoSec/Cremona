@@ -45,18 +45,18 @@ residual helpers for the covered operations.
 
 | Task | Title | Effort | Critical path | Exact File Changes Required |
 | --- | --- | --- | --- | --- |
-| FND-01 | Expand `std.math` scalar foundation | M | Yes | Create `valvet-tests/compile-pass/math_scalar.valvet` and `.stdout`; modify `stdlib/math.valvet`. |
-| FND-02 | Fix `sqrt` for tiny normals | S | Yes | Create `scripts/sqrt_sweep.py`, `valvet-tests/compile-pass/math_sqrt_tiny.valvet` and `.stdout`; modify `stdlib/math.valvet` only if the sweep fails. |
-| FND-03 | Guarded `sqrt` builtin and FP flags | M | Yes | Create `crates/valvet_core/tests/codegen_fp.rs`, `valvet-tests/compile-pass/sqrt_builtin.valvet` and `.stdout`; modify `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/codegen.rs`. |
-| COL-01 | Exact `vec![...]` and repeat literal | M | Yes | Create `valvet-tests/compile-pass/vec_repeat.valvet` and `.stdout`, `valvet-tests/compile-pass/vec_literal_owned.valvet` and `.stdout`; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/codegen.rs`. |
-| COL-02 | `Vec` capacity, reserve, resize, fill, copy | M | Yes | Create `valvet-tests/compile-pass/vec_capacity.valvet` and `.stdout`, `valvet-tests/compile-pass/vec_owned_ops.valvet` and `.stdout`, `valvet-tests/compile-fail/vec_copy_from_short.valvet` and `.error`; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/codegen.rs`. |
-| COL-03 | Ordered string-keyed index | M | No | Create `docs/implementation/DICT_SPEC.md`, front-end tests, seven compile-pass and seven compile-fail fixtures with sidecars; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/codegen.rs`; update `README.md`, `docs/implementation/ARCHITECTURE.md`, and roadmap/status docs. See `docs/implementation/DICT_SPEC.md` for exact changes. |
-| NUM-01 | `std.numeric` exact-order vector core | M | Yes | Create `stdlib/numeric.valvet`, `valvet-tests/compile-pass/numeric_core.valvet` and `.stdout`. |
-| NUM-02 | `std.numeric` norms and scaled residuals | S | Yes | Modify `stdlib/numeric.valvet`; create `valvet-tests/compile-pass/numeric_residuals.valvet` and `.stdout`. |
-| IO-01 | Warning-free output and no-newline `write` | M | No | Create `valvet-tests/compile-pass/write_no_newline.valvet` and `.stdout`; modify `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/codegen.rs`. |
-| PERF-01 | Dev function/data sections and gc | S | No | Create `crates/valvet_core/tests/codegen_fp.rs`; modify `crates/valvet_core/src/codegen.rs` (`cc_build_profile`, new `cc_flags`). |
-| DX-01 | Integer literal contextual inference | L | No | Create `valvet-tests/compile-pass/literal_context.valvet` and `.stdout`, `valvet-tests/compile-fail/literal_narrowing.valvet` and `.error`; modify `crates/valvet_core/src/sema.rs`, `crates/valvet_core/tests/front_end.rs`. |
-| DX-02 | Accept dotted import spelling | S | No | Modify `crates/valvet_core/src/parser.rs`, `valvet-tests/multi-file/dotted/main.valvet`; add `valvet-tests/multi-file/dotted/math.valvet` and `valvet-tests/multi-file/dotted/main.valvet.stdout`; delete `valvet-tests/multi-file/dotted/main.valvet.error`; add `valvet-tests/multi-file/dotted-std/main.valvet` and `valvet-tests/multi-file/dotted-std/main.valvet.stdout`. |
+| FND-01 | Expand `std.math` scalar foundation | M | Yes | Create `cremona-tests/compile-pass/math_scalar.cremona` and `.stdout`; modify `stdlib/math.cremona`. |
+| FND-02 | Fix `sqrt` for tiny normals | S | Yes | Create `scripts/sqrt_sweep.py`, `cremona-tests/compile-pass/math_sqrt_tiny.cremona` and `.stdout`; modify `stdlib/math.cremona` only if the sweep fails. |
+| FND-03 | Guarded `sqrt` builtin and FP flags | M | Yes | Create `crates/cremona_core/tests/codegen_fp.rs`, `cremona-tests/compile-pass/sqrt_builtin.cremona` and `.stdout`; modify `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/codegen.rs`. |
+| COL-01 | Exact `vec![...]` and repeat literal | M | Yes | Create `cremona-tests/compile-pass/vec_repeat.cremona` and `.stdout`, `cremona-tests/compile-pass/vec_literal_owned.cremona` and `.stdout`; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/codegen.rs`. |
+| COL-02 | `Vec` capacity, reserve, resize, fill, copy | M | Yes | Create `cremona-tests/compile-pass/vec_capacity.cremona` and `.stdout`, `cremona-tests/compile-pass/vec_owned_ops.cremona` and `.stdout`, `cremona-tests/compile-fail/vec_copy_from_short.cremona` and `.error`; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/codegen.rs`. |
+| COL-03 | Ordered string-keyed index | M | No | Create `docs/implementation/DICT_SPEC.md`, front-end tests, seven compile-pass and seven compile-fail fixtures with sidecars; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/codegen.rs`; update `README.md`, `docs/implementation/ARCHITECTURE.md`, and roadmap/status docs. See `docs/implementation/DICT_SPEC.md` for exact changes. |
+| NUM-01 | `std.numeric` exact-order vector core | M | Yes | Create `stdlib/numeric.cremona`, `cremona-tests/compile-pass/numeric_core.cremona` and `.stdout`. |
+| NUM-02 | `std.numeric` norms and scaled residuals | S | Yes | Modify `stdlib/numeric.cremona`; create `cremona-tests/compile-pass/numeric_residuals.cremona` and `.stdout`. |
+| IO-01 | Warning-free output and no-newline `write` | M | No | Create `cremona-tests/compile-pass/write_no_newline.cremona` and `.stdout`; modify `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/codegen.rs`. |
+| PERF-01 | Dev function/data sections and gc | S | No | Create `crates/cremona_core/tests/codegen_fp.rs`; modify `crates/cremona_core/src/codegen.rs` (`cc_build_profile`, new `cc_flags`). |
+| DX-01 | Integer literal contextual inference | L | No | Create `cremona-tests/compile-pass/literal_context.cremona` and `.stdout`, `cremona-tests/compile-fail/literal_narrowing.cremona` and `.error`; modify `crates/cremona_core/src/sema.rs`, `crates/cremona_core/tests/front_end.rs`. |
+| DX-02 | Accept dotted import spelling | S | No | Modify `crates/cremona_core/src/parser.rs`, `cremona-tests/multi-file/dotted/main.cremona`; add `cremona-tests/multi-file/dotted/math.cremona` and `cremona-tests/multi-file/dotted/main.cremona.stdout`; delete `cremona-tests/multi-file/dotted/main.cremona.error`; add `cremona-tests/multi-file/dotted-std/main.cremona` and `cremona-tests/multi-file/dotted-std/main.cremona.stdout`. |
 | VER-01 | Port oracle harness | M | Yes | Create `scripts/compare_oracles.py`, `scripts/oracle_schema.json`, `scripts/README.md`, `scripts/tests/test_compare_oracles.py`; no repository oracle data. |
 
 ### Prerequisites
@@ -99,7 +99,7 @@ residual helpers for the covered operations.
 
 ### Phase 0 verification
 
-- `valvet test valvet-tests` debug and release.
+- `cremona test cremona-tests` debug and release.
 - New math fixtures and tiny-normal sweep.
 - Import-spelling and integer-literal inference fixtures.
 - Port 08 and port 10 oracle comparison.
@@ -121,21 +121,21 @@ workarounds.
 
 | Task | Title | Effort | Critical path | Exact File Changes Required |
 | --- | --- | --- | --- | --- |
-| FND-04 | Math special functions (`sincos`, `hypot`, `ldexp`, `evalpoly`) | M | No | Modify `stdlib/math.valvet`; create `valvet-tests/compile-pass/math_special.valvet` and `.stdout`. |
-| CPLX-01 | Adopt `std.complex` in port 09 | S | Yes | No `stdlib/complex.valvet` change confirmed; create `valvet-tests/compile-pass/complex_pow.valvet` and `.stdout`. Port 09 source is external and not in this checkout. |
-| NUM-03 | Consolidate private stdlib vector/scalar helpers | M | No | Modify `stdlib/model.valvet`, `stdlib/plot.valvet`, `stdlib/infer.valvet`, `stdlib/numeric.valvet`; add `valvet-tests/compile-pass/numeric_reductions.valvet` and `.stdout`. |
-| ARR-01 | Fixed arrays `[T; N]` | L | Yes | Create `valvet-tests/compile-pass/fixed_array_basic.valvet` and `.stdout`, `valvet-tests/compile-pass/fixed_array_owned.valvet` and `.stdout`, `valvet-tests/compile-fail/fixed_array_len_mismatch.valvet` and `.error`; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/codegen.rs`, `docs/implementation/ARCHITECTURE.md`. |
-| ARR-02 | Tuple returns and destructuring | L | Yes | Create `valvet-tests/compile-pass/tuple_return.valvet` and `.stdout`, `valvet-tests/compile-pass/tuple_owned.valvet` and `.stdout`, `valvet-tests/compile-fail/tuple_arity.valvet` and `.error`; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/codegen.rs`. |
-| ARR-03 | Runtime-rank N-dimensional arrays `ArrayD<T>` | M | No | Create the `arrayd_*` compile-pass and compile-fail fixtures; modify `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/codegen.rs`, `crates/valvet_core/tests/front_end.rs`, `docs/implementation/ARCHITECTURE.md`. |
-| ARR-04 | Compile-time-rank arrays `Array<T, N>` | L | No | Create `array_fixed_*` fixtures; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/codegen.rs`, `docs/implementation/ARCHITECTURE.md`. |
-| MAT-01 | `Mat` multi-index get/set | M | No | Create `valvet-tests/compile-pass/mat_get_set.valvet` and `.stdout`, `valvet-tests/compile-pass/mat_index_oob.valvet` and `.exit`; create `valvet-tests/compile-fail/mat_index_arity.valvet` and `.error`, `valvet-tests/compile-fail/mat_index_type.valvet` and `.error`, `valvet-tests/compile-fail/vec_index_arity.valvet` and `.error`; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/resolver.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/codegen.rs`, `crates/valvet_core/tests/front_end.rs`. |
-| LINALG-01 | Complex 2x2 solve wrapper | S | Yes | Create `stdlib/linalg.valvet`, `valvet-tests/compile-pass/linalg_complex2.valvet` and `.stdout`. Port 09 source is external. |
-| PERF-02 | Inline-friendly `Vec` kernels | M | Yes | Modify `crates/valvet_core/src/codegen.rs` (`emit_adts` prototype block, `emit_vec_fns`, `emit_vec_method`); add assertions to `crates/valvet_core/tests/codegen_fp.rs`. |
-| PERF-03 | Constant-index bounds elision or `@inbounds` | L | No | Create `valvet-tests/compile-pass/inbounds_array.valvet` and `.stdout`, `valvet-tests/compile-fail/inbounds_outside_fn.valvet` and `.error`; modify `crates/valvet_core/src/ast.rs`, `crates/valvet_core/src/parser.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/codegen.rs`. |
-| PERF-06 | Literal print fast path and peephole | M | No | Create `valvet-tests/compile-pass/print_literal_alloc.valvet` and `.stdout`; modify `crates/valvet_core/src/codegen.rs` (`emit_block_body_only`, print branch). |
-| DX-03 | Borrow and temporary lifetime ergonomics | L | No | Create `valvet-tests/compile-pass/borrow_temp_let.valvet` and `.stdout`, `valvet-tests/compile-fail/borrow_temp_escape.valvet` and `.error`; move `valvet-tests/compile-fail/borrow_temp.valvet` and `.error` to `valvet-tests/compile-pass/borrow_temp.valvet` and `.stdout`; modify `crates/valvet_core/src/ownership.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/src/codegen.rs`. |
-| DX-04 | Diagnostic quality pass | M | No | Create `valvet-tests/compile-fail/diag_arity.valvet` and `.error`, `valvet-tests/compile-fail/diag_borrow_site.valvet` and `.error`, `valvet-tests/compile-fail/diag_redundant_cast.valvet` and `.error`; modify `crates/valvet_core/src/diag.rs`, `crates/valvet_core/src/pipeline.rs`, `crates/valvet_core/src/sema.rs`, `crates/valvet_core/tests/front_end.rs`. |
-| TEST-01 | Benchmark and codegen snapshot harness | M | Yes | Create `crates/valvet_cli/src/bench.rs`, `scripts/alloc_count.c`, `scripts/compare_bench.py`, `benchmarks/kernels/axpy.valvet` and `.stdout`; modify `crates/valvet_cli/src/main.rs`. |
+| FND-04 | Math special functions (`sincos`, `hypot`, `ldexp`, `evalpoly`) | M | No | Modify `stdlib/math.cremona`; create `cremona-tests/compile-pass/math_special.cremona` and `.stdout`. |
+| CPLX-01 | Adopt `std.complex` in port 09 | S | Yes | No `stdlib/complex.cremona` change confirmed; create `cremona-tests/compile-pass/complex_pow.cremona` and `.stdout`. Port 09 source is external and not in this checkout. |
+| NUM-03 | Consolidate private stdlib vector/scalar helpers | M | No | Modify `stdlib/model.cremona`, `stdlib/plot.cremona`, `stdlib/infer.cremona`, `stdlib/numeric.cremona`; add `cremona-tests/compile-pass/numeric_reductions.cremona` and `.stdout`. |
+| ARR-01 | Fixed arrays `[T; N]` | L | Yes | Create `cremona-tests/compile-pass/fixed_array_basic.cremona` and `.stdout`, `cremona-tests/compile-pass/fixed_array_owned.cremona` and `.stdout`, `cremona-tests/compile-fail/fixed_array_len_mismatch.cremona` and `.error`; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/codegen.rs`, `docs/implementation/ARCHITECTURE.md`. |
+| ARR-02 | Tuple returns and destructuring | L | Yes | Create `cremona-tests/compile-pass/tuple_return.cremona` and `.stdout`, `cremona-tests/compile-pass/tuple_owned.cremona` and `.stdout`, `cremona-tests/compile-fail/tuple_arity.cremona` and `.error`; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/codegen.rs`. |
+| ARR-03 | Runtime-rank N-dimensional arrays `ArrayD<T>` | M | No | Create the `arrayd_*` compile-pass and compile-fail fixtures; modify `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/codegen.rs`, `crates/cremona_core/tests/front_end.rs`, `docs/implementation/ARCHITECTURE.md`. |
+| ARR-04 | Compile-time-rank arrays `Array<T, N>` | L | No | Create `array_fixed_*` fixtures; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/codegen.rs`, `docs/implementation/ARCHITECTURE.md`. |
+| MAT-01 | `Mat` multi-index get/set | M | No | Create `cremona-tests/compile-pass/mat_get_set.cremona` and `.stdout`, `cremona-tests/compile-pass/mat_index_oob.cremona` and `.exit`; create `cremona-tests/compile-fail/mat_index_arity.cremona` and `.error`, `cremona-tests/compile-fail/mat_index_type.cremona` and `.error`, `cremona-tests/compile-fail/vec_index_arity.cremona` and `.error`; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/resolver.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/codegen.rs`, `crates/cremona_core/tests/front_end.rs`. |
+| LINALG-01 | Complex 2x2 solve wrapper | S | Yes | Create `stdlib/linalg.cremona`, `cremona-tests/compile-pass/linalg_complex2.cremona` and `.stdout`. Port 09 source is external. |
+| PERF-02 | Inline-friendly `Vec` kernels | M | Yes | Modify `crates/cremona_core/src/codegen.rs` (`emit_adts` prototype block, `emit_vec_fns`, `emit_vec_method`); add assertions to `crates/cremona_core/tests/codegen_fp.rs`. |
+| PERF-03 | Constant-index bounds elision or `@inbounds` | L | No | Create `cremona-tests/compile-pass/inbounds_array.cremona` and `.stdout`, `cremona-tests/compile-fail/inbounds_outside_fn.cremona` and `.error`; modify `crates/cremona_core/src/ast.rs`, `crates/cremona_core/src/parser.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/codegen.rs`. |
+| PERF-06 | Literal print fast path and peephole | M | No | Create `cremona-tests/compile-pass/print_literal_alloc.cremona` and `.stdout`; modify `crates/cremona_core/src/codegen.rs` (`emit_block_body_only`, print branch). |
+| DX-03 | Borrow and temporary lifetime ergonomics | L | No | Create `cremona-tests/compile-pass/borrow_temp_let.cremona` and `.stdout`, `cremona-tests/compile-fail/borrow_temp_escape.cremona` and `.error`; move `cremona-tests/compile-fail/borrow_temp.cremona` and `.error` to `cremona-tests/compile-pass/borrow_temp.cremona` and `.stdout`; modify `crates/cremona_core/src/ownership.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/src/codegen.rs`. |
+| DX-04 | Diagnostic quality pass | M | No | Create `cremona-tests/compile-fail/diag_arity.cremona` and `.error`, `cremona-tests/compile-fail/diag_borrow_site.cremona` and `.error`, `cremona-tests/compile-fail/diag_redundant_cast.cremona` and `.error`; modify `crates/cremona_core/src/diag.rs`, `crates/cremona_core/src/pipeline.rs`, `crates/cremona_core/src/sema.rs`, `crates/cremona_core/tests/front_end.rs`. |
+| TEST-01 | Benchmark and codegen snapshot harness | M | Yes | Create `crates/cremona_cli/src/bench.rs`, `scripts/alloc_count.c`, `scripts/compare_bench.py`, `benchmarks/kernels/axpy.cremona` and `.stdout`; modify `crates/cremona_cli/src/main.rs`. |
 
 ### Prerequisites
 
@@ -190,10 +190,10 @@ the standard library into a solver framework.
 
 | Task | Title | Effort | Critical path | Exact File Changes Required |
 | --- | --- | --- | --- | --- |
-| ODE-01 | `ode` package counters, FSAL, convergence, norm adapters | M | No | Create `packages/ode/valvet.toml`, `packages/ode/ode.valvet`, `packages/ode/README.md`, `valvet-tests/multi-file/ode-package/valvet.toml`, `valvet-tests/multi-file/ode-package/main.valvet`, `valvet-tests/multi-file/ode-package/main.valvet.stdout`. |
-| HARNESS-01 | `harness` package label emitter | S | No | Create `packages/harness/valvet.toml`, `packages/harness/harness.valvet`, `packages/harness/README.md`, `valvet-tests/multi-file/harness-package/valvet.toml`, `valvet-tests/multi-file/harness-package/main.valvet`, `valvet-tests/multi-file/harness-package/main.valvet.stdout`. |
-| STOCH-01 | `stochastic` package weak SRK helpers | M | No | Create `packages/stochastic/valvet.toml`, `packages/stochastic/stochastic.valvet`, `packages/stochastic/README.md`, `valvet-tests/multi-file/stochastic-package/valvet.toml`, `valvet-tests/multi-file/stochastic-package/main.valvet`, `valvet-tests/multi-file/stochastic-package/main.valvet.stdout`; defer the body until the port 10 helper is recovered. |
-| NUM-04 | Trixi `log_mean` and `inv_log_mean` | S | No | Modify `stdlib/numeric.valvet`; create `valvet-tests/compile-pass/log_mean.valvet` and `.stdout`; requires Trixi source recovery. |
+| ODE-01 | `ode` package counters, FSAL, convergence, norm adapters | M | No | Create `packages/ode/cremona.toml`, `packages/ode/ode.cremona`, `packages/ode/README.md`, `cremona-tests/multi-file/ode-package/cremona.toml`, `cremona-tests/multi-file/ode-package/main.cremona`, `cremona-tests/multi-file/ode-package/main.cremona.stdout`. |
+| HARNESS-01 | `harness` package label emitter | S | No | Create `packages/harness/cremona.toml`, `packages/harness/harness.cremona`, `packages/harness/README.md`, `cremona-tests/multi-file/harness-package/cremona.toml`, `cremona-tests/multi-file/harness-package/main.cremona`, `cremona-tests/multi-file/harness-package/main.cremona.stdout`. |
+| STOCH-01 | `stochastic` package weak SRK helpers | M | No | Create `packages/stochastic/cremona.toml`, `packages/stochastic/stochastic.cremona`, `packages/stochastic/README.md`, `cremona-tests/multi-file/stochastic-package/cremona.toml`, `cremona-tests/multi-file/stochastic-package/main.cremona`, `cremona-tests/multi-file/stochastic-package/main.cremona.stdout`; defer the body until the port 10 helper is recovered. |
+| NUM-04 | Trixi `log_mean` and `inv_log_mean` | S | No | Modify `stdlib/numeric.cremona`; create `cremona-tests/compile-pass/log_mean.cremona` and `.stdout`; requires Trixi source recovery. |
 
 ### Prerequisites
 
@@ -233,11 +233,11 @@ loops without weakening exactness or safety.
 
 | Task | Title | Effort | Critical path | Exact File Changes Required |
 | --- | --- | --- | --- | --- |
-| PERF-04 | Large aggregate by pointer or move elision | L | No | Create `docs/implementation/PORT-PERF-04.md`, `valvet-tests/compile-pass/large_state_borrow.valvet` and `.stdout`; change port 07 source outside this repository. |
-| PERF-05 | Optional `-O3` profile | S | No | Modify `crates/valvet_core/src/codegen.rs` (`cc_build_profile`, new `cc_flags`), `crates/valvet_cli/src/main.rs` (help and profile validation), `docs/implementation/IMPLEMENTATION_STATUS.md`; add flag assertions to `crates/valvet_core/tests/codegen_fp.rs`. |
-| PERF-02 follow-up | Inline and code-size tuning | M | No | Modify `crates/valvet_core/src/codegen.rs`; extend `crates/valvet_core/tests/codegen_fp.rs`. |
-| PERF-03 follow-up | Bounds-check proof and `@inbounds` hardening | L | No | Modify `crates/valvet_core/src/codegen.rs` proof helper and `crates/valvet_core/src/ownership.rs` tests; add `valvet-tests/compile-pass/inbounds_proof.valvet` and `.stdout`. |
-| PERF-06 follow-up | Print buffering and allocation review | M | No | Modify `crates/valvet_core/src/codegen.rs` print buffering; extend `valvet-tests/compile-pass/print_literal_alloc.valvet`. |
+| PERF-04 | Large aggregate by pointer or move elision | L | No | Create `docs/implementation/PORT-PERF-04.md`, `cremona-tests/compile-pass/large_state_borrow.cremona` and `.stdout`; change port 07 source outside this repository. |
+| PERF-05 | Optional `-O3` profile | S | No | Modify `crates/cremona_core/src/codegen.rs` (`cc_build_profile`, new `cc_flags`), `crates/cremona_cli/src/main.rs` (help and profile validation), `docs/implementation/IMPLEMENTATION_STATUS.md`; add flag assertions to `crates/cremona_core/tests/codegen_fp.rs`. |
+| PERF-02 follow-up | Inline and code-size tuning | M | No | Modify `crates/cremona_core/src/codegen.rs`; extend `crates/cremona_core/tests/codegen_fp.rs`. |
+| PERF-03 follow-up | Bounds-check proof and `@inbounds` hardening | L | No | Modify `crates/cremona_core/src/codegen.rs` proof helper and `crates/cremona_core/src/ownership.rs` tests; add `cremona-tests/compile-pass/inbounds_proof.cremona` and `.stdout`. |
+| PERF-06 follow-up | Print buffering and allocation review | M | No | Modify `crates/cremona_core/src/codegen.rs` print buffering; extend `cremona-tests/compile-pass/print_literal_alloc.cremona`. |
 
 ### Prerequisites
 
@@ -270,17 +270,17 @@ loops without weakening exactness or safety.
 
 ### Intended outcome
 
-A discoverable, repeatable workflow for writing and porting Valvet code.
+A discoverable, repeatable workflow for writing and porting Cremona code.
 
 ### Tasks
 
 | Task | Title | Effort | Critical path | Exact File Changes Required |
 | --- | --- | --- | --- | --- |
-| DOC-01 | Standard-library API reference | M | No | Create `docs/stdlib/README.md`, `docs/stdlib/math.md`, `docs/stdlib/numeric.md`, `docs/stdlib/complex.md`, `docs/stdlib/linalg.md`, `scripts/check_stdlib_docs.py`, `examples/numeric_core.valvet` and `examples/numeric_core.valvet.stdout`. |
-| DOC-02 | Porting guide and project template | M | No | Create `docs/porting/README.md`, `docs/porting/ORACLE.md`, `docs/porting/JULIA_TO_VALVET.md`, `docs/porting/template/valvet.toml`, `docs/porting/template/main.valvet`, `docs/porting/template/oracle.py`, `docs/porting/template/README.md`. |
-| PKG-01 | Package discovery and naming conventions | S | No | Create `docs/packages/README.md`, `docs/packages/MANIFEST.md`, `valvet-tests/multi-file/pkg-example/valvet.toml`, `valvet-tests/multi-file/pkg-example/main.valvet`, `valvet-tests/multi-file/pkg-example/main.valvet.stdout`, and `valvet-tests/multi-file/pkg-example/libs/math2/`. |
+| DOC-01 | Standard-library API reference | M | No | Create `docs/stdlib/README.md`, `docs/stdlib/math.md`, `docs/stdlib/numeric.md`, `docs/stdlib/complex.md`, `docs/stdlib/linalg.md`, `scripts/check_stdlib_docs.py`, `examples/numeric_core.cremona` and `examples/numeric_core.cremona.stdout`. |
+| DOC-02 | Porting guide and project template | M | No | Create `docs/porting/README.md`, `docs/porting/ORACLE.md`, `docs/porting/JULIA_TO_CREMONA.md`, `docs/porting/template/cremona.toml`, `docs/porting/template/main.cremona`, `docs/porting/template/oracle.py`, `docs/porting/template/README.md`. |
+| PKG-01 | Package discovery and naming conventions | S | No | Create `docs/packages/README.md`, `docs/packages/MANIFEST.md`, `cremona-tests/multi-file/pkg-example/cremona.toml`, `cremona-tests/multi-file/pkg-example/main.cremona`, `cremona-tests/multi-file/pkg-example/main.cremona.stdout`, and `cremona-tests/multi-file/pkg-example/libs/math2/`. |
 | LANG-01 | Generics and closures research | M | No | Create `docs/implementation/GENERICS_CLOSURES_RESEARCH.md`; no compiler or library change. |
-| TOOL-01 | CI benchmark and codegen regression gates | M | No | Modify `.github/workflows/ci.yml`; create `scripts/compare_bench.py`, `benchmarks/baseline.json`, `benchmarks/kernels/axpy.valvet` and `.stdout`. |
+| TOOL-01 | CI benchmark and codegen regression gates | M | No | Modify `.github/workflows/ci.yml`; create `scripts/compare_bench.py`, `benchmarks/baseline.json`, `benchmarks/kernels/axpy.cremona` and `.stdout`. |
 
 ### Prerequisites
 
@@ -436,7 +436,7 @@ Every implementation batch, regardless of phase, must pass:
 - `cargo fmt --all --check`.
 - `cargo clippy --workspace --all-targets -- -D warnings`.
 - `cargo test --workspace`.
-- `valvet test valvet-tests` in debug and release.
+- `cremona test cremona-tests` in debug and release.
 - ASan/UBSan/LSan on generated C for affected paths.
 - Zero `<error>` markers in generated C.
 - Oracle comparison for any arithmetic change.

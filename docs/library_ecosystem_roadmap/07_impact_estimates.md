@@ -16,7 +16,7 @@ The plan does not treat a source-line reduction as a performance result.
 
 | Metric | Value | Class | Source |
 | --- | ---: | --- | --- |
-| Total Valvet port lines | 14,956 | Measured | XRD 2.1 |
+| Total Cremona port lines | 14,956 | Measured | XRD 2.1 |
 | Generated tableaus and batteries | at least 4,149 | Measured | XRD 2.1 |
 | Hand-written port lines | about 10,807 or less | Derived | 14,956 minus at least 4,149 |
 | Defensible duplicated lines | 1,200 to 1,500 | Estimated | XRD 2.5, after overlap removal |
@@ -25,8 +25,8 @@ The plan does not treat a source-line reduction as a performance result.
 | Complete-source ports | 07, 08, 09, 10 | Measured | XRD 2.1 |
 | Report-only ports | 01, 02, 03, 04 | Measured | XRD 2.1 |
 | Partial-source ports | 05, 06 | Measured | XRD 2.1 |
-| Standard-library modules | 29 | Measured | `stdlib/*.valvet` file count |
-| Standard-library lines | 8,623 | Measured | `wc -l stdlib/*.valvet` |
+| Standard-library modules | 29 | Measured | `stdlib/*.cremona` file count |
+| Standard-library lines | 8,623 | Measured | `wc -l stdlib/*.cremona` |
 | Retained `as Int64` occurrences | 589 | Measured | Port source count; 241 generated |
 | Compiler version | 0.4.0 | Measured | `crates/*/Cargo.toml` |
 | Port 07 oracle labels | 10,374; 10,356 exact, 18 one-ulp | Measured | XRD 5 |

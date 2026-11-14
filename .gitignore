@@ -17,4 +17,4 @@ __pycache__/
 .taste-skill/
 
 # Reproducibility locks are build artifacts (written beside the entry)
-valvet.lock
+cremona.lock

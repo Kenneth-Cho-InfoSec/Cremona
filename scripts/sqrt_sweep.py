@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exhaustive-style binary64 sqrt sweep for the Valvet std.math.sqrt wrapper.
+"""Exhaustive-style binary64 sqrt sweep for the Cremona std.math.sqrt wrapper.
 
 The sweep samples positive finite bit patterns, starting with zero and the
 subnormal range, and compares every printed result bit-for-bit with the
@@ -74,11 +74,11 @@ def make_source(values: list[float], path: Path) -> None:
     path.write_text("\n".join(lines) + "\n")
 
 
-def run_batch(valvet: str, values: list[float], batch_dir: Path, index: int) -> list[float]:
-    source = batch_dir / f"batch_{index}.valvet"
+def run_batch(cremona: str, values: list[float], batch_dir: Path, index: int) -> list[float]:
+    source = batch_dir / f"batch_{index}.cremona"
     make_source(values, source)
     proc = subprocess.run(
-        [valvet, "run", str(source)],
+        [cremona, "run", str(source)],
         cwd=batch_dir,
         text=True,
         capture_output=True,
@@ -86,7 +86,7 @@ def run_batch(valvet: str, values: list[float], batch_dir: Path, index: int) -> 
     )
     if proc.returncode != 0:
         raise RuntimeError(
-            f"valvet run failed for batch {index}:\n{proc.stdout}\n{proc.stderr}"
+            f"cremona run failed for batch {index}:\n{proc.stdout}\n{proc.stderr}"
         )
     lines = proc.stdout.splitlines()
     if len(lines) != len(values):
@@ -100,23 +100,23 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--count", type=int, default=1_000_000)
     ap.add_argument("--batch", type=int, default=10_000)
-    ap.add_argument("--valvet", default=os.environ.get("VALVET", "target/debug/valvet"))
+    ap.add_argument("--cremona", default=os.environ.get("CREMONA", "target/debug/cremona"))
     ap.add_argument("--json", type=Path, default=None)
     ap.add_argument("--fail-fast", action="store_true")
     args = ap.parse_args()
 
-    valvet = str(Path(args.valvet).resolve())
-    if not Path(valvet).exists():
-        raise SystemExit(f"valvet binary not found: {valvet}")
+    cremona = str(Path(args.cremona).resolve())
+    if not Path(cremona).exists():
+        raise SystemExit(f"cremona binary not found: {cremona}")
     bits = sample_bits(args.count)
     mismatches: list[dict[str, object]] = []
     checked = 0
-    with tempfile.TemporaryDirectory(prefix="valvet-sqrt-") as td:
+    with tempfile.TemporaryDirectory(prefix="cremona-sqrt-") as td:
         batch_dir = Path(td)
         for start in range(0, len(bits), args.batch):
             chunk = bits[start:start + args.batch]
             values = [bits_to_float(b) for b in chunk]
-            results = run_batch(valvet, values, batch_dir, start // args.batch)
+            results = run_batch(cremona, values, batch_dir, start // args.batch)
             for b, value, got in zip(chunk, values, results):
                 checked += 1
                 expected = math.sqrt(value)
@@ -133,7 +133,7 @@ def main() -> int:
             if args.fail_fast and mismatches:
                 break
     summary = {
-        "schema": "valvet-sqrt-sweep-v1",
+        "schema": "cremona-sqrt-sweep-v1",
         "requested": args.count,
         "checked": checked,
         "mismatches": len(mismatches),

@@ -1,4 +1,4 @@
-# Implementation Status: Valvet 0.5.0 local tree (2026-10-26)
+# Implementation Status: Cremona 0.5.0 local tree (2026-10-26)
 
 Toolchain: rustc 1.99.0 + user-local GCC 16 (`~/.local/vgcc`, system binutils/ld/glibc).
 Backend: C11 emission + GCC link (ADR-001, ARCHITECTURE.md). No LLVM/Cranelift in env.
@@ -6,9 +6,9 @@ Backend: C11 emission + GCC link (ADR-001, ARCHITECTURE.md). No LLVM/Cranelift i
 ## Test totals (0.5.0 local tree)
 - `cargo test --workspace`: 223 front-end, 9 codegen FP, 6 core unit,
   5 CLI security, and 3 fuzz tests passed, 0 failed (246 total).
-- `valvet test valvet-tests`: 432/432 through the debug driver and 432/432
+- `cremona test cremona-tests`: 432/432 through the debug driver and 432/432
   through the release driver. Generated C uses release flags either way.
-- `valvet test --doc`: 17/17 through both drivers.
+- `cremona test --doc`: 17/17 through both drivers.
 - `scripts/fuzz_binary_formats.py`: 266 deterministic mutation cases,
   0 crashes or hangs.
 - ASan/UBSan/LSan: clean on 88 typed-frame, grouped, join, window, Parquet,
@@ -80,7 +80,7 @@ layout is claimed.
 
 ## Test totals (0.3.0)
 - `cargo test --workspace`: 185 front-end passed, plus 2 fuzz-soup, 0 failed.
-- `valvet test valvet-tests`: 258/258 debug, 258/258 release (clean tree).
+- `cremona test cremona-tests`: 258/258 debug, 258/258 release (clean tree).
 - ASan/UBSan on generated C: clean on threaded/popen/decoder paths and new
   stdlib paths (SQL, dist extras, wrangling, selection, causal), outputs
   byte-exact. Every numeric claim oracled against Python/R at 1e-12
@@ -102,7 +102,7 @@ layout is claimed.
 
 ## Test totals (0.1.0 baseline, superseded by the 0.3.0 totals above)
 - `cargo test --workspace`: 100 passed (98 front-end + 2 fuzz), 0 failed.
-- `valvet test valvet-tests`: 93/93 debug, 93/93 release.
+- `cremona test cremona-tests`: 93/93 debug, 93/93 release.
 - ASan/UBSan on generated C: clean on the full pass sweep, the multi-file
   projects, and nested composites (borrow/String/Vec/Option/Result paths),
   outputs byte-exact.
@@ -133,7 +133,7 @@ fuzz jobs, and any further binary-format coverage. No blocker.
 
 ## Post-0.1.0 codegen fixes (found via an R `cars` translation, 2026-10-11)
 - Fn-body Copy tails materialize before scope frees (was: silent `inf`/wrong
-  reads of owned locals). Fixture: `tail_owned_read.valvet`.
+  reads of owned locals). Fixture: `tail_owned_read.cremona`.
 - `mat_str` no longer wraps deref lvalues in droppable temps (was: double-free
   on `(*v).len()`). Same fixture.
 - One codegen-shape test updated (`codegen_int_main_returns`: tails now

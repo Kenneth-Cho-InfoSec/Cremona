@@ -1,12 +1,12 @@
-VALVET WEBSITE: PLAIN-TEXT SNAPSHOT
+CREMONA WEBSITE: PLAIN-TEXT SNAPSHOT
 
 What this is
-  The deployed Valvet Pages site stripped to plain text for a revamp.
+  The deployed Cremona Pages site stripped to plain text for a revamp.
   HTML tags, scripts, buttons, and navigation chrome are removed.
   Headings, paragraphs, lists, tables, links, and code blocks remain.
 
 Live site
-  https://kenneth-cho-infosec.github.io/Valvet/
+  https://kenneth-cho-infosec.github.io/Cremona/
 
 Files
   index.txt        home page
@@ -22,9 +22,9 @@ Provenance
   site/ directory on the website branch at commit e040a3a.
 
 Refresh
-  mkdir -p /tmp/valvet-pages && cd /tmp/valvet-pages
-  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/index.html
-  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/docs.html
-  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/examples.html
-  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/style.css
+  mkdir -p /tmp/cremona-pages && cd /tmp/cremona-pages
+  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/index.html
+  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/docs.html
+  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/examples.html
+  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/style.css
   python3 /path/to/source-text/_extract_pages.py . /path/to/source-text

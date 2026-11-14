@@ -40,7 +40,7 @@ yet.
 
 Current, repeated in six ports:
 
-```valvet
+```cremona
 struct DD { hi: Float64, lo: Float64 }
 
 fun two_sum(a: Float64, b: Float64): DD { ... }
@@ -55,7 +55,7 @@ fun wv_sqrt_cr(x: Float64): Float64 { ... }
 
 Proposed:
 
-```valvet
+```cremona
 import std::math::sqrt;
 
 val y = sqrt(x);
@@ -71,7 +71,7 @@ do not grow. This is the largest single source reduction.
 
 Current:
 
-```valvet
+```cremona
 fun wv_zeros8(n: Int64): Vec<Float64> {
     var v: Vec<Float64> = vec![];
     var i = 0 as Int64;
@@ -85,7 +85,7 @@ fun wv_zeros8(n: Int64): Vec<Float64> {
 
 Proposed:
 
-```valvet
+```cremona
 import std::numeric::zeros;
 
 val v = zeros(n);
@@ -93,7 +93,7 @@ val v = zeros(n);
 
 or, at the collection level:
 
-```valvet
+```cremona
 val v = vec![0.0; n];
 ```
 
@@ -105,7 +105,7 @@ FIRK about 17.
 
 Current:
 
-```valvet
+```cremona
 fun wv_clone8(v: &Vec<Float64>): Vec<Float64> {
     var out: Vec<Float64> = vec![];
     var i = 0 as Int64;
@@ -119,7 +119,7 @@ fun wv_clone8(v: &Vec<Float64>): Vec<Float64> {
 
 Proposed:
 
-```valvet
+```cremona
 val copy = v.clone();
 ```
 
@@ -131,7 +131,7 @@ This removes the push loop and per-element bounds checks. Estimated reduction:
 
 Current:
 
-```valvet
+```cremona
 fun wv_axpy4(a: Float64, x: &Vec<Float64>, b: Float64, y: &Vec<Float64>,
              c: Float64, z: &Vec<Float64>, d: Float64, w: &Vec<Float64>): Vec<Float64> {
     var out: Vec<Float64> = vec![];
@@ -146,7 +146,7 @@ fun wv_axpy4(a: Float64, x: &Vec<Float64>, b: Float64, y: &Vec<Float64>,
 
 Proposed:
 
-```valvet
+```cremona
 import std::numeric::axpy4;
 
 val out = axpy4(a, x, b, y, c, z, d, w);
@@ -154,7 +154,7 @@ val out = axpy4(a, x, b, y, c, z, d, w);
 
 Or, in a hot loop:
 
-```valvet
+```cremona
 axpy4_into(dst, a, x, b, y, c, z, d, w);
 ```
 
@@ -165,7 +165,7 @@ evaluation order is documented and tested once.
 
 Current:
 
-```valvet
+```cremona
 fun wv_res9(x: &Vec<Float64>, u0: &Vec<Float64>, u1: &Vec<Float64>,
             alpha: Float64, rho: Float64): Vec<Float64> {
     var out: Vec<Float64> = vec![];
@@ -191,7 +191,7 @@ fun wv_rms9(x: &Vec<Float64>): Float64 {
 
 Proposed:
 
-```valvet
+```cremona
 import std::numeric::scaled_residual;
 import std::numeric::rms;
 
@@ -206,7 +206,7 @@ parentheses live in one tested place.
 
 Current:
 
-```valvet
+```cremona
 fun wv_abs_f8(x: Float64): Float64 {
     if (x < 0.0) {
         return 0.0 - x;
@@ -217,7 +217,7 @@ fun wv_abs_f8(x: Float64): Float64 {
 
 Proposed:
 
-```valvet
+```cremona
 import std::math::abs;
 
 val a = abs(x);
@@ -230,7 +230,7 @@ ports, plus 17 abs-like patterns in the standard library itself.
 
 Current:
 
-```valvet
+```cremona
 if (iter == (1 as Int64)) { ... }
 st.s.max_order = 6 as Int64;
 st.c.n_old = 4 as Int64;
@@ -239,7 +239,7 @@ while (i < (n as Int64)) { ... }
 
 Proposed:
 
-```valvet
+```cremona
 if (iter == 1) { ... }
 st.s.max_order = 6;
 st.c.n_old = 4;
@@ -258,14 +258,14 @@ it needs its own fixtures and a careful migration note.
 
 Current, from port 09:
 
-```valvet
+```cremona
 val u1 = wv_add9v(&st.s.uprev, &st.c.z1);
 wv_f9i(md, &mut st.c.ff1, &u1, ...);
 ```
 
 Proposed:
 
-```valvet
+```cremona
 wv_f9i(md, &mut st.c.ff1, &wv_add9v(&st.s.uprev, &st.c.z1), ...);
 ```
 
@@ -278,13 +278,13 @@ construction. Port 09 has many such sites.
 
 Current:
 
-```valvet
+```cremona
 st.c.J = wv_calc_j9(&st);   // rejected: assignment target borrowed by call
 ```
 
 Workaround:
 
-```valvet
+```cremona
 val J9 = wv_calc_j9(&st);
 st.c.J = J9;
 ```
@@ -297,7 +297,7 @@ pattern. This is a borrow-checker ergonomics issue, not a library issue.
 
 Current:
 
-```valvet
+```cremona
 struct C09 { re: Float64, im: Float64 }
 
 fun wv_add9(a: C09, b: C09): C09 { ... }
@@ -308,7 +308,7 @@ fun wv_div9(a: C09, b: C09): C09 { ... }
 
 Proposed:
 
-```valvet
+```cremona
 import std::complex::Complex;
 import std::complex::cnew;
 import std::complex::cadd;
@@ -325,7 +325,7 @@ type.
 
 Current:
 
-```valvet
+```cremona
 struct V2 { x: Float64, y: Float64 }
 
 fun v2_add(a: V2, b: V2): V2 {
@@ -335,7 +335,7 @@ fun v2_add(a: V2, b: V2): V2 {
 
 Proposed:
 
-```valvet
+```cremona
 val a: [Float64; 2] = [1.0, 2.0];
 val b: [Float64; 2] = [3.0, 4.0];
 val c = [a[0] + b[0], a[1] + b[1]];
@@ -349,14 +349,14 @@ reduction for ports 01 and 02 is unverified because their sources are missing.
 
 Current, from port 03's flattened representation:
 
-```valvet
+```cremona
 val idx = i * cols + j;
 m[idx] = value;
 ```
 
 Proposed:
 
-```valvet
+```cremona
 m.set(i, j, value)?;
 val maybe_x: Option<Float64> = m.get(i, j);
 ```
@@ -371,7 +371,7 @@ of a parallel flat representation.
 
 Current:
 
-```valvet
+```cremona
 print(label);       // W1002
 print("=");         // W1002
 println(value);
@@ -379,7 +379,7 @@ println(value);
 
 Proposed:
 
-```valvet
+```cremona
 println(label);
 println("=");
 println(value);
@@ -387,7 +387,7 @@ println(value);
 
 or:
 
-```valvet
+```cremona
 import std::harness::emit_label;
 emit_label(label, value);
 ```
@@ -400,13 +400,13 @@ deliberate no-newline fragment; it is not a replacement for these three calls.
 
 Current accepted spelling:
 
-```valvet
+```cremona
 import std::math::sqrt;
 ```
 
 Observed first guess:
 
-```valvet
+```cremona
 import std.math::sqrt;   // rejected E0602
 ```
 
@@ -447,11 +447,11 @@ The ports currently use manual `compare*.py` scripts, manual ASan commands,
 and manual allocation counters. A standard tool should provide:
 
 ```sh
-valvet test valvet-tests
-valvet test --filter math
-valvet bench <file> --json
-valvet build <file> --emit-c
-valvet build <file> --emit-asm
+cremona test cremona-tests
+cremona test --filter math
+cremona bench <file> --json
+cremona build <file> --emit-c
+cremona build <file> --emit-asm
 ```
 
 The benchmark runner should report:
@@ -478,7 +478,7 @@ Add:
   signatures, semantics, allocation behavior, and exact-order notes.
 - A short "numeric cookbook" with vector operations, norms, residuals, and
   matrix access.
-- A porting guide that maps Julia constructs to Valvet idioms and states which
+- A porting guide that maps Julia constructs to Cremona idioms and states which
   gaps are deliberate.
 - A template for a new port with an oracle runner and a label printer.
 - Examples that use `std.numeric`, not private helper blocks.
@@ -491,13 +491,13 @@ need a documentation compiler in Phase 0.
 The manifest already supports path and git dependencies, version bounds, a
 lockfile, and vendoring. The DX gaps are discoverability and convention:
 
-- `valvet new` should produce a project with a manifest, a source file, a test
+- `cremona new` should produce a project with a manifest, a source file, a test
   file, and a README.
 - The template should show a path dependency on a local package.
 - Documentation should state which offline and hermetic workflows are
   supported today and which are not.
 - Package naming and module naming rules should be documented.
-- A package should be able to declare its Valvet version requirement.
+- A package should be able to declare its Cremona version requirement.
 
 Do not build a public registry until there is a real distribution problem.
 
@@ -507,15 +507,15 @@ A future port should follow this sequence:
 
 1. Read the Julia source and identify the exact slice.
 2. Record the Julia commit or MD5.
-3. Write an independent oracle. Do not share helpers with the Valvet port.
-4. Write a small Valvet battery before porting the full kernel.
+3. Write an independent oracle. Do not share helpers with the Cremona port.
+4. Write a small Cremona battery before porting the full kernel.
 5. Import `std.math`, `std.numeric`, and `std.complex` before writing local
    helpers.
 6. Use `Vec.with_capacity` or exact literals for known sizes.
 7. Keep algorithm-specific caches and branches local.
 8. Use `println` for the three label lines; use `write` only for a deliberate
    no-newline fragment.
-9. Run `valvet fmt`, `valvet check`, and `valvet build`.
+9. Run `cremona fmt`, `cremona check`, and `cremona build`.
 10. Compare every label, then run ASan/UBSan/LSan on the generated C.
 11. Record allocation counts and generated-code `<error>` count.
 12. Delete local helpers only after the oracle passes.

@@ -55,7 +55,7 @@ publishing.
 
 **Why it matters:** COL-01 needs a parser and codegen rule. Cloning an owned
 element `n` times requires a clone function or a `Copy`-like distinction that
-Valvet may not have.
+Cremona may not have.
 
 **Options:**
 
@@ -283,7 +283,7 @@ fixture can validate the branch. Do not put it in the P0 core.
 ### Q18. What is the safety model for unchecked indexing?
 
 **Why it matters:** PERF-03 can remove bounds checks, but a general `@inbounds`
-block can turn a bug into memory corruption. Valvet currently favors safety.
+block can turn a bug into memory corruption. Cremona currently favors safety.
 
 **Options:**
 
@@ -476,10 +476,10 @@ evidence takes precedence when they conflict.
 
 - Julia Mathematics documentation: https://docs.julialang.org/en/v1/base/math/
   Used for `abs`, `min`, `max`, rounding, `sincos`, `evalpoly`, and special
-  function semantics. Do not copy Julia names that do not fit Valvet.
+  function semantics. Do not copy Julia names that do not fit Cremona.
 - Julia Performance Tips: https://docs.julialang.org/en/v1/manual/performance-tips/
   Used for the general lesson that type stability and allocation avoidance
-  matter more than surface syntax. Valvet's static types already remove some of
+  matter more than surface syntax. Cremona's static types already remove some of
   Julia's dynamic dispatch problems.
 - Julia Style Guide: https://docs.julialang.org/en/v1/manual/style-guide/
   Used for naming and API consistency questions, not as a mandate.
@@ -488,7 +488,7 @@ evidence takes precedence when they conflict.
 
 - Rust `Vec`: https://doc.rust-lang.org/std/vec/struct.Vec.html
   Used for `with_capacity`, `reserve`, `resize`, `fill`, and exact allocation
-  semantics. Valvet does not need Rust's full API.
+  semantics. Cremona does not need Rust's full API.
 - Rust `Vec::with_capacity`: https://doc.rust-lang.org/std/vec/struct.Vec.html#method.with_capacity
   Used for the allocation contract.
 - Rust API Guidelines, naming: https://rust-lang.github.io/api-guidelines/naming.html
@@ -515,7 +515,7 @@ evidence takes precedence when they conflict.
 - GCC Warning Options: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
   Used for the output and warning policy.
 - C `sqrt`: https://en.cppreference.com/w/c/numeric/math/sqrt
-  Used for edge-case behavior. The library contract still follows Valvet and
+  Used for edge-case behavior. The library contract still follows Cremona and
   Julia port requirements.
 - C `fmin`/`fmax`: https://en.cppreference.com/w/c/numeric/math/fmin
   Used for the NaN and signed-zero discussion. Do not assume C semantics match
@@ -528,7 +528,7 @@ evidence takes precedence when they conflict.
   port sources are the authority for exact formulas.
 - Julia `evalpoly` documentation: https://docs.julialang.org/en/v1/base/math/
   Used for Horner-order expectations. The coefficient order must be explicit in
-  the Valvet API.
+  the Cremona API.
 
 ## 8. Research tasks
 

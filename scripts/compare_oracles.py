@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare Valvet port oracle output using the three-line label protocol.
+"""Compare Cremona port oracle output using the three-line label protocol.
 
 Each record is:
 
@@ -21,7 +21,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "valvet-oracle-compare-v1"
+SCHEMA = "cremona-oracle-compare-v1"
 
 
 def parse_records(path: Path) -> tuple[dict[str, str], int]:

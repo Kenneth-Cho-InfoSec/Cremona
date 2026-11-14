@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://valvet.dev/schemas/oracle-manifest-v1.json",
-  "title": "Valvet oracle manifest",
+  "$id": "https://cremona.dev/schemas/oracle-manifest-v1.json",
+  "title": "Cremona oracle manifest",
   "type": "object",
   "required": ["ports"],
   "properties": {
-    "schema": { "const": "valvet-oracle-manifest-v1" },
+    "schema": { "const": "cremona-oracle-manifest-v1" },
     "ports": {
       "type": "object",
       "additionalProperties": {

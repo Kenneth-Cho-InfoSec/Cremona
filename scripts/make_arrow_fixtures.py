@@ -11,7 +11,7 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "valvet-tests" / "data"
+OUT = ROOT / "cremona-tests" / "data"
 
 
 class FB:

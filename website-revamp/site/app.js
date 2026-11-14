@@ -1,5 +1,5 @@
 /* ============================================================
-   Valvet website interactions
+   Cremona website interactions
    No dependencies. Everything degrades without JavaScript.
    ============================================================ */
 
@@ -43,11 +43,11 @@
   function setTheme(theme) {
     root.dataset.theme = theme;
     try {
-      localStorage.setItem("valvet-theme", theme);
+      localStorage.setItem("cremona-theme", theme);
     } catch (error) {}
     if (metaTheme) metaTheme.setAttribute("content", theme === "dark" ? "#0b0714" : "#f7f3ff");
     updateThemeButton();
-    document.dispatchEvent(new CustomEvent("valvet:theme", { detail: theme }));
+    document.dispatchEvent(new CustomEvent("cremona:theme", { detail: theme }));
   }
 
   if (themeToggle) {
@@ -217,7 +217,7 @@
     return '<span class="' + className + '">' + escapeHtml(text) + "</span>";
   }
 
-  function highlightValvetLine(line) {
+  function highlightCremonaLine(line) {
     var out = "";
     var i = 0;
 
@@ -435,7 +435,7 @@
     var html = lines
       .map(function (line) {
         var content;
-        if (safeLang === "valvet") content = highlightValvetLine(line);
+        if (safeLang === "cremona") content = highlightCremonaLine(line);
         else if (safeLang === "c") content = highlightCLine(line);
         else if (safeLang === "bash") content = highlightBashLine(line);
         else content = escapeHtml(line);
@@ -871,7 +871,7 @@
       else if (visible) startParticles();
     });
 
-    document.addEventListener("valvet:theme", function () {
+    document.addEventListener("cremona:theme", function () {
       if (!particleFrame) startParticles();
     });
   }
@@ -1138,5 +1138,5 @@
 
   /* ---------- Initial theme event ---------- */
 
-  document.dispatchEvent(new CustomEvent("valvet:theme", { detail: currentTheme() }));
+  document.dispatchEvent(new CustomEvent("cremona:theme", { detail: currentTheme() }));
 })();

@@ -1,23 +1,23 @@
-VALVET WEBSITE / ALL PAGES
+CREMONA WEBSITE / ALL PAGES
 
-Live site: https://kenneth-cho-infosec.github.io/Valvet/
+Live site: https://kenneth-cho-infosec.github.io/Cremona/
 Source branch: website @ e040a3a
 Fetched: 2026-10-20
 
 ========================================================================
 
 PAGE 1/3: INDEX
-Source: https://kenneth-cho-infosec.github.io/Valvet/index.html
-Page title: Valvet: a small, safe, compiled language for data work
+Source: https://kenneth-cho-infosec.github.io/Cremona/index.html
+Page title: Cremona: a small, safe, compiled language for data work
 ========================================================================
 
-# Valvet
+# Cremona
 
 A small, safe, compiled language for data work. Native binaries, no garbage collector, no runtime.
 
 [Get Started](docs.html) [Install](#install)
 
-## Why Valvet
+## Why Cremona
 
 ### Safe
 
@@ -33,8 +33,8 @@ One coherent core: vectors, structs, enums, pattern matching, modules. Programs 
 
 ## Thirty seconds
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun mean(v: Vec<Float64>): Float64 {
     var total = 0.0
     for (x in v) {
@@ -103,7 +103,7 @@ Validation contracts, causal helpers (DiD, 2SLS, propensity, HC0), meta-analysis
 
 ### Ergonomics
 
-Sources in `.valvet`, `.vv`, `.vvt`; `run --watch` re-runs on change; `fmt` normalizes whitespace.
+Sources in `.cremona`, `.vv`, `.vvt`; `run --watch` re-runs on change; `fmt` normalizes whitespace.
 
 ## New in 0.2.0
 
@@ -131,17 +131,17 @@ Bash:
 ```bash
 # clone the repo, then
 cargo build --release
-./target/release/valvet run hello.valvet
+./target/release/cremona run hello.cremona
 ```
 
 Commands: `check`, `build`, `run`, `run --watch`, `fmt`, `test`, `new`, `repl`, `-e`. Programs are scripts by default: top-level statements run directly, and `mode exp;` keeps the strict classic entry. See the [docs](docs.html) for the tour.
 
-Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/valvet).
+Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/cremona).
 
 
 PAGE 2/3: DOCS
-Source: https://kenneth-cho-infosec.github.io/Valvet/docs.html
-Page title: Valvet Docs
+Source: https://kenneth-cho-infosec.github.io/Cremona/docs.html
+Page title: Cremona Docs
 ========================================================================
 
 ## Documentation
@@ -155,51 +155,51 @@ Install stable Rust and a C compiler, clone the repo, and build:
 Bash:
 ```bash
 cargo build --release
-./target/release/valvet run hello.valvet
+./target/release/cremona run hello.cremona
 ```
 
-Two toolchains cooperate here, and each has one job. Rust builds the `valvet` compiler itself: parsing, type checking, borrow checking, and C lowering all run as safe Rust code. The C compiler handles only the last mile, turning generated C11 into a native binary. A missing C compiler therefore fails only `build` and `run`; `check` and the whole test suite frontend keep working. For day-to-day work, debug builds compile faster while release builds produce the binaries you benchmark.
+Two toolchains cooperate here, and each has one job. Rust builds the `cremona` compiler itself: parsing, type checking, borrow checking, and C lowering all run as safe Rust code. The C compiler handles only the last mile, turning generated C11 into a native binary. A missing C compiler therefore fails only `build` and `run`; `check` and the whole test suite frontend keep working. For day-to-day work, debug builds compile faster while release builds produce the binaries you benchmark.
 
-A Valvet program is a script by default: top-level statements run from top to bottom with no wrapper. Functions and types still live at the top level beside them:
+A Cremona program is a script by default: top-level statements run from top to bottom with no wrapper. Functions and types still live at the top level beside them:
 
-Input · Valvet:
-```valvet
-println("hello, valvet")
+Input · Cremona:
+```cremona
+println("hello, cremona")
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
 ### Script and explicit modes
 
-The entry file runs in `imp` mode unless told otherwise: statements at the top level are the program, and helper functions sit beside them. Writing `mode imp;` as the first line states the default explicitly and changes nothing. Writing `mode exp;` instead opts into the strict classic rule: the entry must define `fun main()`, and top-level statements are rejected with E0604. Mixing both forms in one entry is also E0604. Imported files always hold items only, never statements. The mode changes entry rules alone: types, ownership, and generated code are identical either way, so there is no runtime cost to either choice. `valvet new` scaffolds explicit-mode projects.
+The entry file runs in `imp` mode unless told otherwise: statements at the top level are the program, and helper functions sit beside them. Writing `mode imp;` as the first line states the default explicitly and changes nothing. Writing `mode exp;` instead opts into the strict classic rule: the entry must define `fun main()`, and top-level statements are rejected with E0604. Mixing both forms in one entry is also E0604. Imported files always hold items only, never statements. The mode changes entry rules alone: types, ownership, and generated code are identical either way, so there is no runtime cost to either choice. `cremona new` scaffolds explicit-mode projects.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode exp;
 fun main() {
-    println("hello, valvet")
+    println("hello, cremona")
 }
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
 Top-level statements under `mode exp` stop with a diagnostic, not a half-built binary:
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode exp;
 println("nope");
 ```
 
 Error:
 ```text
-error[E0604]: top-level statements need imp mode (this file declares `mode exp`) --> hello.valvet:2:1
+error[E0604]: top-level statements need imp mode (this file declares `mode exp`) --> hello.cremona:2:1
 ```
 
 A bare `return n;` at the top level sets the process exit status, and `?` propagates through a synthesized `Result` entry whose message prints on failure.
@@ -214,8 +214,8 @@ Statements end at newlines, and a semicolon separates two statements on one line
 
 Numbers are lexed generously and typed strictly. Underscores may separate any digits (`1_000_000`), and an out-of-range integer literal is E0010 rather than a silent wrap. Adjacent suffixes such as `42i64` lex successfully but do not change typing: the type always follows the value, as the Types section explains. Multiline strings use triple quotes and keep newlines verbatim, which suits embedded text blocks. Character literals are lexed but explicitly unsupported (E0800): there is no `Char` type yet, so the compiler tells you so instead of accepting a value it cannot type.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val t = """line one
 line two"""
 println(t)
@@ -231,8 +231,8 @@ line two
 70000
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 // line comment runs to end of line
 /* block comments nest /* like this */ still comment */
 println(0x2A)
@@ -266,8 +266,8 @@ Integers come in two widths. `Int32` spans -2147483648 to 2147483647 and `Int64`
 
 Convert between numeric types with `as`, as in `total / (v.len() as Float64)`. Every conversion is infallible and never traps. Integer to integer wraps by truncating high bits. Float to integer truncates toward zero and saturates: NaN becomes 0 and out-of-range values clamp to the target minimum or maximum. Integer to float rounds to nearest, which can lose precision on very large values. There are no implicit conversions: mixing types without `as` is E0201.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 println(7.9 as Int32) // truncate toward zero
 println((0.0 / 0.0) as Int32) // NaN saturates to 0
 println(42 as Float64 + 0.5) // int to float rounds
@@ -288,8 +288,8 @@ Output:
 
 Mutation has a second gate besides `var`: the place being written must be exclusively owned. Assigning through a shared reference or into a `val` struct field is E0205, with a hint pointing at `var` and `&mut`. Compound assignment (`+= -= *= /= %=`) works on numeric bindings and desugars to read, operate, and write back through the same exclusive path. Note one sharp edge: compound assignment on `String` is not supported by the backend, so write `s = s + "cd"` in full.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 var y = 1
 y *= 6 // 6
 y -= 2 // 4
@@ -307,9 +307,9 @@ Output:
 abcd
 ```
 
-Input · Valvet:
-```valvet
-val name = "valvet"
+Input · Cremona:
+```cremona
+val name = "cremona"
 var count = 0
 count += 41
 println(name)
@@ -319,7 +319,7 @@ println(count as Float64 / 2.0)
 
 Output:
 ```text
-valvet
+cremona
 41
 20.5
 ```
@@ -328,8 +328,8 @@ valvet
 
 Parameters and returns are always annotated. A trailing expression is the return value; `return` exits early.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun fib(n: Int32): Int32 {
     if (n < 2) { n } else { fib(n - 1) + fib(n - 2) }
 }
@@ -348,8 +348,8 @@ Assignment sits at the very bottom of the table and groups right, so `a = b = 1`
 
 From tightest to loosest: calls, field access, and indexing; unary minus, logical not, dereference, and borrowing; `as` casts; `* / %`; `+ -` (with `+` also concatenating strings); ranges `..` and `..=`; shifts; bitwise `& ^ |`; comparisons, which never chain (`a < b < c` is rejected); short-circuit `&&` then `||`; assignment last. Integer division truncates toward zero and panics on division by zero; float division follows IEEE, so `0.0 / 0.0` is NaN rather than an error.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 println(2 + 3 * 4) // * binds tighter: 14
 println((2 + 3) * 4) // parens override: 20
 println(10 % 3) // remainder: 1
@@ -370,8 +370,8 @@ true
 
 `if` is an expression when both branches yield values, and both branches must agree on one type. An `if` without `else` used as a value is E0201: there is no unit to fall back on silently. Conditions are always `Bool`; assignment inside a condition is rejected rather than warned about. `for` iterates ranges and vectors alike. Iterating a vector borrows it, so the vector stays fully usable after the loop, and the loop variable takes each element in turn. `while` repeats on a `Bool` condition. `loop` repeats until `break`, which can carry a value out and turn the whole loop into an expression. A `break` or `continue` outside any loop is E0005. `return` exits the function immediately, running every pending free on its way out.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val v = vec![10, 20, 30]
 var total = 0
 for (x in v) { // borrows v; v stays usable
@@ -387,8 +387,8 @@ Output:
 3
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 var total = 0
 for (i in 1..=5) {
     total += i
@@ -424,8 +424,8 @@ Style note: a branch that ends in a `println` call needs a trailing `;` so the c
 
 Named-field, tuple, and unit structs; enums with payload variants. Construction names every field or payload in order, and field access uses the same dot syntax for reads and writes. Writing a field needs a `var` root: the struct value itself must be mutable and exclusively owned, otherwise the assignment is E0205. Structs, enums, and functions share one qualified namespace per module, so a struct and a function may not claim the same name in one module. Recursive types (a struct containing itself by value) are rejected, since the C layout would be infinitely large. There are no user-written methods or implementation blocks: the only methods that exist are the builtin `Vec`, `String`, and `Rng` kernels, which keeps method resolution trivial and total.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 struct Cell { v: Int32 }
 
 var c = Cell { v: 1 } // var root: fields writable
@@ -438,8 +438,8 @@ Output:
 42
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 struct Point { x: Float64, y: Float64 }
 
 enum Shape { Circle(Float64), Rect(Float64, Float64), Point }
@@ -465,8 +465,8 @@ Output:
 
 Structs also come in tuple and unit forms. A tuple struct wraps values without field names and reads them back with numeric access (`.0`, `.1`). Fields are private to their module unless marked `pub`.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 struct Meters(Float64);
 
 val m = Meters(1.5) // wrap
@@ -480,8 +480,8 @@ Output:
 
 `Option` and `Result` participate in the same `match`, and `?` propagates errors out of functions that return them.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun half(n: Int32): Result<Int32, String> {
     if (n == 0) {
         return Err("zero");
@@ -504,8 +504,8 @@ Arms are checked for exhaustiveness: miss a variant and the program does not com
 
 The checker distinguishes value matches from statement matches. A `match` used as a value must cover every case and every arm must yield the same type; a statement match only requires unit arms. Coverage is precise rather than textual: `Bool` needs both `true` and `false`, `Option` needs `Some(_)` plus `None`, and an enum needs every variant at the right arity. Guards never count toward coverage, so a guarded arm plus a wildcard still needs the wildcard. A constructor with a literal inside, like `Some(0)`, covers only that literal, not the whole variant. When coverage fails, the diagnostic lists what is missing and suggests adding a `_` arm.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun name(n: Int32): String {
     match (n) {
         0 -> "zero", // literal pattern
@@ -526,8 +526,8 @@ many
 1
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 struct Point { x: Int32, y: Int32 }
 
 fun quad(p: Point): String {
@@ -560,8 +560,8 @@ other
 
 Method receivers always borrow: calling a kernel never consumes the vector, whatever the method returns. `push` is the one method that moves its argument into the buffer, transferring the element. `get` clones the element on the way out, so the copy you hold is fully independent of the buffer. `pop` moves the last element out as an `Option`, yielding `None` when empty. Arithmetic kernels (`add`, `mul`, `dot`) check shapes at runtime and report mismatch as `Result` carrying the expected and found lengths, so the caller learns both numbers. `dot` exists only for `Float64` vectors; `add_scalar` broadcasts one constant across numeric vectors.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val a = vec![1.0, 2.0, 3.0]
 val b = vec![4.0, 5.0, 6.0]
 val d = match (a.dot(b)) { Ok(v) -> v, Err(e) -> -1.0, }
@@ -589,8 +589,8 @@ Some(4)
 
 Scalars (`Bool`, integers, `Float64`) copy on assignment; `String` does not. Shared references (`&T`) copy too, while exclusive references (`&mut T`) move. A struct or enum whose every field is `Copy` is itself `Copy`, so small value types stay cheap without annotation. Everything else has exactly one owner: assigning a `Vec`, `String`, struct, or enum moves it, and the old binding is gone. Moves happen at more places than assignment: function arguments move (except into `print` and `println`, which borrow), return values and tail expressions move out, and `push` moves its element into the buffer. String concatenation and comparison, by contrast, only borrow: `+` and `==` never take ownership of either side. Reading a moved value is E0301 at compile time, as is moving a field and then using the whole value. Moves also refuse to run through live borrows: moving a value while it is borrowed is E0301 with the loan named. Branch merging stays conservative, so a value moved on any path counts as moved after the join. Sharing is explicit: `.clone()` deep-duplicates, and there is no silent aliasing anywhere in the language. This is the core design bet borrowed from systems languages: memory safety by construction, with no collector and no reference counting in safe code.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val a = vec![1, 2, 3]
 val b = a // move: a is gone here
 println(b.len())
@@ -608,8 +608,8 @@ Output:
 
 Borrow with `&` (shared) or `&mut` (exclusive, needs a `var` root). A borrow ends at its last use, so the owner is usable again right after. Dereference with `*`.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 var y = 20
 val m = &mut y
 *m = *m + 5
@@ -623,8 +623,8 @@ Output:
 
 Borrowing is non-lexical: a borrow ends at its last use, so the owner becomes usable again on the very next line. Shared borrows (`&`) allow many readers; a mutable borrow (`&mut`) is exclusive and needs a `var` root. Borrows are field-precise: borrowing one field does not lock the others.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 var x = 1
 val r = &x // shared borrow starts
 println(*r) // last use: borrow ends here
@@ -640,8 +640,8 @@ Output:
 
 Lifetimes elide in the common single-input case; ambiguous signatures take explicit `&'a T` annotations that tie each output reference to its input. Returning a reference to a local is E0303, as is borrowing a temporary past its statement: the compiler proves no dangling reference escapes, and the diagnostic names the offending lifetime. The exact elision rule: when the output contains an elided borrow, exactly one borrow across the inputs may be elided or named, and the output ties to it. Zero input borrows, or two or more candidate borrows, demand explicit names on the output. Every declared lifetime must appear in the inputs, and references may only appear at the top level of a signature: nested references and references inside generic arguments are rejected. Taking `&mut` of an immutable binding is E0205, which points back at declaring a `var` root.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun first(a: &'a Int32, b: &'b Int32): &'a Int32 {
     a // tied to the first input by 'a
 }
@@ -666,9 +666,9 @@ The project root is the entry file's directory. Each non-entry file declares its
 
 Structs, enums, and functions share one qualified namespace per module, keyed as `module::name`, so cross-kind collisions are impossible to miss. Everything is private by default and cross-module access needs `pub` on the item itself; there is no field-level visibility, only item-level. Touching a private item is E0401, as is redefining an imported name locally or importing a name that does not exist. Imports rename with `as` and group with braces (`import shapes::{Point as Pt, origin};`). Cycles are rejected (E0601) with the load stack shown; diamonds, where two modules import one shared module, load once and are fine. A missing file is E0701. Units are parsed separately so errors attribute per file, then checked jointly with one environment per module.
 
-Input · Valvet:
-```valvet
-// main.valvet
+Input · Cremona:
+```cremona
+// main.cremona
 import math::double as db; // rename on import
 println(db(20))
 ```
@@ -678,10 +678,10 @@ Output:
 40
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 
-// math.valvet
+// math.cremona
 module math;
 
 pub fun double(n: Int32): Int32 {
@@ -689,9 +689,9 @@ pub fun double(n: Int32): Int32 {
 }
 ```
 
-Input · Valvet:
-```valvet
-// main.valvet
+Input · Cremona:
+```cremona
+// main.cremona
 import math::double;
 println(double(21))
 ```
@@ -701,10 +701,10 @@ Output:
 42
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 
-// math.valvet
+// math.cremona
 module math;
 
 pub fun double(n: Int32): Int32 {
@@ -716,8 +716,8 @@ pub fun double(n: Int32): Int32 {
 
 Annotate a numeric binding, parameter, return, or cast with `@unit` and the dimension becomes part of the type. Same dimensions unify; compatible scales convert silently with the left side winning; dimensionless literals coerce. Multiplying and dividing composes dimensions, and mismatches are E0201 at compile time instead of wrong numbers at runtime. Struct fields and vector element types stay dimensionless; `expr as @unit` asserts and converts explicitly.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun speed(d: Float64 @m, t: Float64 @s): Float64 @m/s {
     d / t
 }
@@ -740,8 +740,8 @@ Output:
 
 The standard library turns CSV tables into data frames with borrowed views, then groups and joins them. Missing cells stay explicit (`NA` is skipped by sums, never silently zero), and joins never silently drop rows: every join returns the frame plus an audit of matched, left-only, and right-only counts, printable with `audit_summary`. A missing key column is `Err`, not an empty frame.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 import std::csv::CsvTable;
 import std::frame::frame_from_table;
 import std::frame::frame_col;
@@ -774,8 +774,8 @@ Output:
 
 Write the loss once over dual numbers, seed each dimension, and read the derivative back out. The `Dual` type carries value plus tangent through ordinary arithmetic, so gradients come from the same code that computes the objective, with no separate backward pass to keep in sync.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 import std::autodiff::Dual;
 import std::autodiff::dual_mul;
 import std::autodiff::seed;
@@ -797,8 +797,8 @@ Output:
 
 `par_sum` adds a `Vec<Float64>` on a thread pool with fixed-size blocks and ordered combining, so every thread count agrees bit for bit. There is no runtime to configure and no nondeterminism to average away: one thread or eight, the sum in this example is 10 either way.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val v = vec![1.0, 2.0, 3.0, 4.0];
 println(par_sum(v.clone(), 1 as Int64));
 println(par_sum(v.clone(), 4 as Int64));
@@ -812,7 +812,7 @@ Output:
 
 ### Standard library and REPL
 
-The library ships as Valvet sources under `stdlib/` with explicit imports and no prelude. Set `VALVET_STDLIB` to override the search path. For exploration, `valvet repl` keeps definitions across lines: type `println(6 * 7);` and it answers `42`.
+The library ships as Cremona sources under `stdlib/` with explicit imports and no prelude. Set `CREMONA_STDLIB` to override the search path. For exploration, `cremona repl` keeps definitions across lines: type `println(6 * 7);` and it answers `42`.
 
 | Module | Contents |
 | --- | --- |
@@ -846,45 +846,45 @@ The library ships as Valvet sources under `stdlib/` with explicit imports and no
 
 ## Build pipeline
 
-One Valvet program becomes one C translation unit. The frontend (lex, parse, type check, borrow check) runs first; only checked code lowers to readable C11 with deterministic frees, which a plain C compiler then links into a dependency-free binary. There is no separate compilation and no runtime library to deploy: the prelude (strings, vectors, printing, numeric helpers) is emitted into the same file. `check` stops before linking, so it needs only Rust. `build` and `run` need a C compiler, found in order as `VALVET_CC`, then a user-local install, then `gcc` or `cc` on PATH. Compilation uses `-std=c11 -O2 -fwrapv -pthread` with no other hidden flags. Generated artifacts land in `target/valvet/` next to the project, never inside the source tree.
+One Cremona program becomes one C translation unit. The frontend (lex, parse, type check, borrow check) runs first; only checked code lowers to readable C11 with deterministic frees, which a plain C compiler then links into a dependency-free binary. There is no separate compilation and no runtime library to deploy: the prelude (strings, vectors, printing, numeric helpers) is emitted into the same file. `check` stops before linking, so it needs only Rust. `build` and `run` need a C compiler, found in order as `CREMONA_CC`, then a user-local install, then `gcc` or `cc` on PATH. Compilation uses `-std=c11 -O2 -fwrapv -pthread` with no other hidden flags. Generated artifacts land in `target/cremona/` next to the project, never inside the source tree.
 
-Inside the translation unit, layout is deliberate. Algebraic types are ordered topologically so every definition precedes its uses, then forward declarations cover every function except `main`, which fixes forward calls in any order. Drop, clone, vector-kernel, and print helpers are emitted only for the type instantiations the program actually uses, keeping binaries lean. Names are sanitized into an unambiguous C namespace: entry items keep plain names while cross-module items become `v_module___name`, so no Valvet program can collide with C keywords or with itself. Because the C is readable, a miscompilation can be inspected directly: the generated file sits next to the binary that came from it.
+Inside the translation unit, layout is deliberate. Algebraic types are ordered topologically so every definition precedes its uses, then forward declarations cover every function except `main`, which fixes forward calls in any order. Drop, clone, vector-kernel, and print helpers are emitted only for the type instantiations the program actually uses, keeping binaries lean. Names are sanitized into an unambiguous C namespace: entry items keep plain names while cross-module items become `v_module___name`, so no Cremona program can collide with C keywords or with itself. Because the C is readable, a miscompilation can be inspected directly: the generated file sits next to the binary that came from it.
 
 ## Testing
 
-`valvet test` runs the fixture suite: every `.valvet` file under the suite directory builds and executes, with `.stdout` and `.exit` sidecars pinning expected output and status. Compile-fail fixtures pin the expected error code in a `.error` sidecar instead. Fixtures are organized by kind: pass, fail, runtime behavior, conformance, regression, ownership, lexer, parser, diagnostics, and multi-file projects with their own directories. Release runs repeat the whole suite with optimizations on, so codegen differences between profiles cannot hide. The gates are strict: 103 unit tests, 152 out of 152 fixtures green in both debug and release, formatter and linter clean, and sanitizer-clean generated code. Adding a test means adding files: one `.valvet` plus its sidecars, no registration step.
+`cremona test` runs the fixture suite: every `.cremona` file under the suite directory builds and executes, with `.stdout` and `.exit` sidecars pinning expected output and status. Compile-fail fixtures pin the expected error code in a `.error` sidecar instead. Fixtures are organized by kind: pass, fail, runtime behavior, conformance, regression, ownership, lexer, parser, diagnostics, and multi-file projects with their own directories. Release runs repeat the whole suite with optimizations on, so codegen differences between profiles cannot hide. The gates are strict: 103 unit tests, 152 out of 152 fixtures green in both debug and release, formatter and linter clean, and sanitizer-clean generated code. Adding a test means adding files: one `.cremona` plus its sidecars, no registration step.
 
 ## CLI
 
 | Command | Effect |
 | --- | --- |
-| `valvet check <file>` | Parse and analyse, no linking |
-| `valvet build <file>` | Compile to `target/valvet/<name>` |
-| `valvet run <file>` | Build, execute, exit with program status |
-| `valvet run <file> -- args` | Run with script arguments in `args` |
-| `valvet run --watch <file>` | Re-run on file change |
-| `valvet fmt <file>` | Normalize whitespace and trailing newline |
-| `valvet -e 'expr'` | Evaluate a scriptlet and print its value |
-| `valvet test [dir]` | Run the fixture suite |
-| `valvet new <name>` | Scaffold a single-dir project |
-| `valvet repl` | Interactive session, definitions persist |
+| `cremona check <file>` | Parse and analyse, no linking |
+| `cremona build <file>` | Compile to `target/cremona/<name>` |
+| `cremona run <file>` | Build, execute, exit with program status |
+| `cremona run <file> -- args` | Run with script arguments in `args` |
+| `cremona run --watch <file>` | Re-run on file change |
+| `cremona fmt <file>` | Normalize whitespace and trailing newline |
+| `cremona -e 'expr'` | Evaluate a scriptlet and print its value |
+| `cremona test [dir]` | Run the fixture suite |
+| `cremona new <name>` | Scaffold a single-dir project |
+| `cremona repl` | Interactive session, definitions persist |
 
-`check` parses and analyses without linking, which makes it the fastest feedback loop and the one to run on every save. `build` compiles and links to `target/valvet/<name>` and prints the artifact path. `run` builds, executes, and exits with the program status, so a `main` returning `Ok(7)` yields exit 7. `test` runs the fixture suite in an optional directory (defaulting to the repo suite). `new` scaffolds an explicit-mode single-directory project with an entry file and a hint toward multi-file layout. `repl` opens an interactive session where definitions persist across lines with `:help`, `:reset`, and `:quit`. `run --watch` re-runs the file whenever it changes, `fmt` normalizes trailing whitespace, and `-e` evaluates a one-liner as either an expression (printed) or statements. Warnings never fail a build: they render to stderr with the same file and position format as errors while compilation succeeds. Exit codes: 0 success, 1 compilation failure, 2 usage error.
+`check` parses and analyses without linking, which makes it the fastest feedback loop and the one to run on every save. `build` compiles and links to `target/cremona/<name>` and prints the artifact path. `run` builds, executes, and exits with the program status, so a `main` returning `Ok(7)` yields exit 7. `test` runs the fixture suite in an optional directory (defaulting to the repo suite). `new` scaffolds an explicit-mode single-directory project with an entry file and a hint toward multi-file layout. `repl` opens an interactive session where definitions persist across lines with `:help`, `:reset`, and `:quit`. `run --watch` re-runs the file whenever it changes, `fmt` normalizes trailing whitespace, and `-e` evaluates a one-liner as either an expression (printed) or statements. Warnings never fail a build: they render to stderr with the same file and position format as errors while compilation succeeds. Exit codes: 0 success, 1 compilation failure, 2 usage error.
 
 ### Errors
 
 Errors never panic the compiler. They carry file, position, code, and help:
 
-Input · Valvet:
-```valvet
-error[E0205]: cannot assign through this place (immutable binding or shared reference) --> prog.valvet:3:5
+Input · Cremona:
+```cremona
+error[E0205]: cannot assign through this place (immutable binding or shared reference) --> prog.cremona:3:5
   help: use `var` bindings and `&mut` for mutation
 ```
 
 A `main` that can fail declares it: `fun main(): Result<Int32, String>` may use `?` directly, and the process exits with the `Ok` value as its status. The program below prints `hi` and exits 7.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun main(): Result<Int32, String> {
     println("hi");
     return Ok(7);
@@ -929,38 +929,38 @@ The table covers every code the compiler emits. Warnings like `W1002` never fail
 - Nothing in earlier versions needs relearning: frames are owned values with borrowed views, missing data is explicit, and every fallible operation returns `Result`.
 - Deliberately absent: closures, traits, user generics, and methods beyond the builtins. Each is a tracked future phase, not an oversight, and E0800 marks the boundary at compile time.
 
-Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/valvet).
+Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/cremona).
 
 
 PAGE 3/3: EXAMPLES
-Source: https://kenneth-cho-infosec.github.io/Valvet/examples.html
-Page title: Valvet Examples
+Source: https://kenneth-cho-infosec.github.io/Cremona/examples.html
+Page title: Cremona Examples
 ========================================================================
 
 ## Examples
 
-Every sample below runs as shown with `valvet run`.
+Every sample below runs as shown with `cremona run`.
 
 ### Hello
 
-A complete Valvet program needs only statements and an output call: top-level code runs directly with no wrapper, no imports, and no runtime to initialize. The compiler turns this into a dependency-free native binary.
+A complete Cremona program needs only statements and an output call: top-level code runs directly with no wrapper, no imports, and no runtime to initialize. The compiler turns this into a dependency-free native binary.
 
-Input · Valvet:
-```valvet
-println("hello, valvet") // top-level statements run directly
+Input · Cremona:
+```cremona
+println("hello, cremona") // top-level statements run directly
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
 ### Fibonacci and pattern matching
 
 Recursion works as expected, and `match` on `Option` forces both cases onto the page. Forget an arm or mix up the types and the compiler rejects the program before it ever runs. That guarantee is what makes refactoring fearless: add a variant anywhere and every match in the codebase must answer for it.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun fib(n: Int32): Int32 { // recursive Fibonacci, Int32 in and out
     if (n < 2) { n } else { fib(n - 1) + fib(n - 2) } // base case returns n, else sum the two recursions
 }
@@ -980,8 +980,8 @@ Output:
 
 The whole data routine in nine lines: a growable heap vector, a snapshot loop that cannot alias the buffer, and an explicit `as` conversion at the division. Nothing is hidden. The loop runs at C speed and the vector frees itself when `main` exits.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun mean(v: Vec<Float64>): Float64 { // average of a float vector
     var total = 0.0 // running sum, mutable
     for (x in v) { // snapshot each element
@@ -1002,8 +1002,8 @@ Output:
 
 Control flow that reads top to bottom: `if` is an expression, so each branch produces the word directly instead of assigning through flags. Ranges include or exclude their end on demand (`1..=15`). The trailing semicolons keep printing calls in statement position inside branches.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 for (i in 1..=15) { // inclusive range 1 to 15
         val w = if (i % 15 == 0) { // divisible by 3 and 5
             "FizzBuzz"
@@ -1047,8 +1047,8 @@ Calls that return nothing stay statements with a trailing `;` inside branches.
 
 Twenty iterations of Newton updates with mutable state, converging to full Float64 precision. Numerical recipes live in plain user code (the standard library also ships `std::math` with sqrt, exp, log, and pow).
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun sqrt_newton(x: Float64): Float64 { // Newton method square root
     var guess = x // start from x itself
     var i = 0 // iteration counter
@@ -1071,8 +1071,8 @@ Output:
 
 Kernels report failure as data, not exceptions: mismatched shapes come back as `Err` and the caller handles it in the same `match` it already uses everywhere else. Indexing with `get` is equally total, yielding `Some` or `None` instead of ever trapping.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val a = vec![1.0, 2.0, 3.0] // first vector, immutable
 val b = vec![4.0, 5.0, 6.0] // second vector
 val d = match (a.dot(b)) { Ok(v) -> v, Err(e) -> -1.0, } // dot returns Result, unwrap or -1 on shape error
@@ -1094,8 +1094,8 @@ Some(4)
 
 An enum carries different payloads per variant, and one `match` dispatches on all of them with each payload already unwrapped and typed. This is the pattern behind every heterogeneous result in larger programs: one type, all cases visible, zero runtime type tests.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 enum Shape { Circle(Float64), Rect(Float64, Float64), Point } // one type, three variants with payloads
 
 fun area(s: Shape): Float64 { // dispatch on variant
@@ -1120,8 +1120,8 @@ Output:
 
 A `loop` is an expression when it breaks with a value, so search-style code needs no result flag and no sentinel. The value flows straight into its binding with its type checked.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 var i = 0 // loop counter, mutable
 val v = loop { // loop is an expression when it breaks with a value
     i += 1 // count up
@@ -1141,16 +1141,16 @@ Output:
 
 Strings are owned values with content equality and concatenation, freed deterministically like everything else. There is no null string and no separate string-builder type for the common cases.
 
-Input · Valvet:
-```valvet
-val who = "valvet" // owned immutable string
+Input · Cremona:
+```cremona
+val who = "cremona" // owned immutable string
 println("hello, " + who) // concatenation with +
-println(who == "valvet") // content equality, prints true
+println(who == "cremona") // content equality, prints true
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 true
 ```
 
@@ -1158,8 +1158,8 @@ true
 
 The real thing in miniature: paired-column sums, the closed-form normal equations, and missing-safe indexing, using exactly the constructs the full 50-row ordinary least squares analysis uses. That analysis reproduces 16 out of 16 reference statistics, which is why this small version is worth trusting at scale.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val x = vec![1.0, 2.0, 3.0, 4.0] // predictor column
     val y = vec![2.0, 4.0, 5.0, 4.0] // response column
     val n = x.len() as Int32 // length as Int32 for the range
@@ -1184,65 +1184,65 @@ Output:
 0.69999999999999996
 ```
 
-Valvet prints full float precision: that is 0.7 in Float64.
+Cremona prints full float precision: that is 0.7 in Float64.
 
 ### Script and explicit modes
 
 Every example above runs in the default `imp` mode: top-level statements run directly. The same program states the mode explicitly with a header that changes nothing. For the strict classic entry, declare `mode exp;` and write `fun main`; top-level statements there are E0604, as is mixing both forms in one file. Imported files always hold items, never statements, in either mode.
 
-Input · Valvet:
-```valvet
-println("hello, valvet") // imp is the default: runs as shown
+Input · Cremona:
+```cremona
+println("hello, cremona") // imp is the default: runs as shown
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode imp; // explicit header, same behavior
-println("hello, valvet")
+println("hello, cremona")
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode exp; // strict classic entry
 fun main() {
-    println("hello, valvet")
+    println("hello, cremona")
 }
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
 Statements under `mode exp` fail before anything runs:
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode exp;
 println("nope");
 ```
 
 Error:
 ```text
-error[E0604]: top-level statements need imp mode (this file declares `mode exp`) --> hello.valvet:2:1
+error[E0604]: top-level statements need imp mode (this file declares `mode exp`) --> hello.cremona:2:1
 ```
 
 ### Units of measure
 
 Annotating a number with `@unit` makes its dimension part of the type. Compatible scales convert on assignment, and arithmetic composes dimensions, so unit mistakes become compile errors instead of wrong numbers.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun speed(d: Float64 @m, t: Float64 @s): Float64 @m/s { // meters over seconds
     d / t // division composes the dimension
 }
@@ -1263,8 +1263,8 @@ Output:
 
 The standard library turns CSV-shaped tables into data frames, then groups them with missing-aware statistics. `NA` cells are skipped, never silently zeroed, and group order follows first appearance.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 import std::csv::CsvTable; // table type from the CSV module
 import std::frame::frame_from_table; // build a frame
 import std::frame::frame_col; // read a column back
@@ -1297,8 +1297,8 @@ Output:
 
 The same grouping through the 0.3.0 SQL subset: the query plans down to frame verbs, so results match the verb form exactly. Anything outside the subset is a compile-time `Err`, never a silent misread.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 import std::frame::DynamicFrame; // frame type
 import std::sql::sql; // the SQL subset
 
@@ -1317,4 +1317,4 @@ Output:
 [40, 60]
 ```
 
-Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/valvet).
+Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/cremona).

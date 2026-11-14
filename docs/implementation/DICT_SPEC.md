@@ -49,7 +49,7 @@ Out of scope:
 
 ### 2.1 Type
 
-```valvet
+```cremona
 val idx = StringIndex::new()
 ```
 
@@ -58,7 +58,7 @@ name and cannot be redefined by a user struct or enum.
 
 ### 2.2 Constructor
 
-```valvet
+```cremona
 StringIndex::new(): StringIndex
 ```
 
@@ -92,7 +92,7 @@ vector.
 
 ### 2.4 Example
 
-```valvet
+```cremona
 val idx = StringIndex::new()
 println(idx.len())                 // 0
 println(idx.get("east"))           // None
@@ -106,7 +106,7 @@ println(idx.keys())                // [east, west]
 
 Parallel values:
 
-```valvet
+```cremona
 val keys = vec!["east", "west", "east", "north"]
 val values = vec![10, 20, 10, 40]
 val idx = StringIndex::new()
@@ -284,7 +284,7 @@ as dependencies.
 
 ## 6. Exact file changes
 
-### 6.1 `crates/valvet_core/src/ast.rs`
+### 6.1 `crates/cremona_core/src/ast.rs`
 
 - In `impl Ty::name`, special-case zero-argument `StringIndex` before the
   generic `format!("{}<{}>", ...)` path:
@@ -303,7 +303,7 @@ as dependencies.
 - Do not add a new `Ty` variant and do not add a new `ExprKind`. `StringIndex`
   uses `Ty::Generic { base: "StringIndex", args: vec![] }`.
 
-### 6.2 `crates/valvet_core/src/parser.rs`
+### 6.2 `crates/cremona_core/src/parser.rs`
 
 - Add a helper after `parse_array_rank`:
 
@@ -344,7 +344,7 @@ as dependencies.
 
 - Do not add a map literal or string-index syntax.
 
-### 6.3 `crates/valvet_core/src/sema.rs`
+### 6.3 `crates/cremona_core/src/sema.rs`
 
 - Add `"StringIndex"` to `is_builtin_type_name`.
 
@@ -480,7 +480,7 @@ as dependencies.
   snapshots, and codegen still materializes and frees their owned results.
   All other method results keep the existing `E0201` "returns a value" check.
 
-### 6.4 `crates/valvet_core/src/ownership.rs`
+### 6.4 `crates/cremona_core/src/ownership.rs`
 
 - In `ufcs_hit`, add:
 
@@ -502,7 +502,7 @@ as dependencies.
   therefore gets use-after-move, assignment, parameter passing, and return
   behavior from the existing machinery.
 
-### 6.5 `crates/valvet_core/src/codegen.rs`
+### 6.5 `crates/cremona_core/src/codegen.rs`
 
 - Add a layout node:
 
@@ -651,7 +651,7 @@ as dependencies.
   live.
 
 - `cty`, `cty_val`, `drop_call`, `clone_call`, `emit_destroy`, and
-  `valvet_ty_of_cty` need no special cases. `StringIndex` flows through the
+  `cremona_ty_of_cty` need no special cases. `StringIndex` flows through the
   existing generic arms and resolves to `VStringIndex_`,
   `v_drop_StringIndex_`, and `v_clone_StringIndex_`.
 
@@ -677,7 +677,7 @@ as dependencies.
 - Do not add `StringIndex` to `fmt_call`, `emit_print_fmt`, or
   `record_print_insts`.
 
-### 6.6 `crates/valvet_core/tests/front_end.rs`
+### 6.6 `crates/cremona_core/tests/front_end.rs`
 
 Add these tests:
 
@@ -725,7 +725,7 @@ Add these tests:
 
 Create these compile-pass fixtures and stdout sidecars:
 
-- `valvet-tests/compile-pass/string_index_basic.valvet`
+- `cremona-tests/compile-pass/string_index_basic.cremona`
   - Empty index, absent `get`, duplicate `get_or_insert`, `contains`, `keys`,
     and `clone`.
   - Expected design output:
@@ -747,7 +747,7 @@ Create these compile-pass fixtures and stdout sidecars:
     [a, b]
     ```
 
-- `valvet-tests/compile-pass/string_index_group.valvet`
+- `cremona-tests/compile-pass/string_index_group.cremona`
   - Parallel keys and values, first-appearance grouping, sums by position.
   - Expected design output:
 
@@ -756,7 +756,7 @@ Create these compile-pass fixtures and stdout sidecars:
     [20, 20, 40]
     ```
 
-- `valvet-tests/compile-pass/string_index_growth.valvet`
+- `cremona-tests/compile-pass/string_index_growth.cremona`
   - Insert at least 20 distinct keys so the bucket table rehashes more than
     once.
   - Assert every returned position equals the insertion index, duplicate
@@ -778,13 +778,13 @@ Create these compile-pass fixtures and stdout sidecars:
     0
     ```
 
-- `valvet-tests/compile-pass/string_index_owned.valvet`
+- `cremona-tests/compile-pass/string_index_owned.cremona`
   - `StringIndex` as a struct field, moved into the struct, dropped at scope
     exit.
   - `keys()` snapshot is independent of the index.
   - `clone()` is deep.
 
-- `valvet-tests/compile-pass/string_index_move.valvet`
+- `cremona-tests/compile-pass/string_index_move.cremona`
   - Move a `StringIndex` into a function and leave the source binding in scope
     until function exit.
   - Move a struct containing a `StringIndex` into a function and leave the
@@ -797,14 +797,14 @@ Create these compile-pass fixtures and stdout sidecars:
   - This fixture exists specifically to catch missing poison handling under
     ASan/LSan. It must not use the moved-from binding after the move.
 
-- `valvet-tests/compile-pass/string_index_discard.valvet`
+- `cremona-tests/compile-pass/string_index_discard.cremona`
   - Call `idx.keys();` and `idx.clone();` as discarded expression statements.
   - Repeat both calls on a `StringIndex::new()` temporary receiver, so the
     discarded result and the temporary index are both freed.
   - This fixture exists to catch a missing `new_tmp_ty` on owned method results
     under ASan/LSan.
 
-- `valvet-tests/compile-pass/string_index_containers.valvet`
+- `cremona-tests/compile-pass/string_index_containers.cremona`
   - `Vec<StringIndex>`: push, indexed clone read, `clone`, `pop`, and drop.
   - `ArrayD<StringIndex>`: `from_vec`, indexed clone read, `clone`, `to_vec`,
     and drop.
@@ -823,13 +823,13 @@ Create these compile-pass fixtures and stdout sidecars:
 
 Create these compile-fail fixtures and `.error` sidecars:
 
-- `valvet-tests/compile-fail/string_index_unknown_method.valvet` -> `E0401`
-- `valvet-tests/compile-fail/string_index_key_type.valvet` -> `E0201`
-- `valvet-tests/compile-fail/string_index_not_indexable.valvet` -> `E0401`
-- `valvet-tests/compile-fail/string_index_use_after_move.valvet` -> `E0301`
-- `valvet-tests/compile-fail/string_index_print.valvet` -> `E0201`
-- `valvet-tests/compile-fail/string_index_constructor_arity.valvet` -> `E0201`
-- `valvet-tests/compile-fail/string_index_method_arity.valvet` -> `E0201`
+- `cremona-tests/compile-fail/string_index_unknown_method.cremona` -> `E0401`
+- `cremona-tests/compile-fail/string_index_key_type.cremona` -> `E0201`
+- `cremona-tests/compile-fail/string_index_not_indexable.cremona` -> `E0401`
+- `cremona-tests/compile-fail/string_index_use_after_move.cremona` -> `E0301`
+- `cremona-tests/compile-fail/string_index_print.cremona` -> `E0201`
+- `cremona-tests/compile-fail/string_index_constructor_arity.cremona` -> `E0201`
+- `cremona-tests/compile-fail/string_index_method_arity.cremona` -> `E0201`
 
 The fixture harness compares stdout byte-for-byte. The expected outputs above
 are design targets and must be verified by running the fixtures, not asserted
@@ -870,9 +870,9 @@ from this document.
 
 ### 6.9 Files that must not change
 
-- `crates/valvet_core/src/resolver.rs`: built-in type names are resolved in
+- `crates/cremona_core/src/resolver.rs`: built-in type names are resolved in
   sema, not by the resolver. No change is required.
-- `crates/valvet_cli/src/main.rs`: no CLI change is required.
+- `crates/cremona_cli/src/main.rs`: no CLI change is required.
 - `stdlib/*`: no stdlib migration is part of the container implementation.
   Migration is a separate phase in section 8.
 
@@ -884,7 +884,7 @@ Run all of these after implementation:
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
-valvet test valvet-tests
+cremona test cremona-tests
 ```
 
 Additional checks:
@@ -913,7 +913,7 @@ at a time, with byte-identical fixtures.
 
 Priority order:
 
-1. `stdlib/frame.valvet`
+1. `stdlib/frame.cremona`
    - `frame_group_count`
    - `frame_group_sum`
    - `frame_group_mean`
@@ -926,12 +926,12 @@ Priority order:
    `Vec<Float64>` values. `get_or_insert` supplies the value position. Preserve
    first-appearance order in the emitted frame.
 
-2. `stdlib/sql.valvet`
+2. `stdlib/sql.cremona`
    - The `GROUP BY` path.
    - Pattern: replace the key scan and per-key scan with one index and
      parallel accumulators.
 
-3. `stdlib/model.valvet`
+3. `stdlib/model.cremona`
    - `push_unique`, `factor_levels`, `find_indices`, and `dummy_expand`.
    - `push_unique` cannot become O(1) on its own. Thread an index through the
      caller, or add a helper that takes `&mut StringIndex` and the output
@@ -939,16 +939,16 @@ Priority order:
      method receivers do not auto-deref. Do not rebuild the index from the
      output vector on every call.
 
-4. `stdlib/features.valvet`
+4. `stdlib/features.cremona`
    - `target_encode`.
    - Pattern: map category to a group position, then accumulate in parallel
      sums and counts.
 
-5. `stdlib/validate.valvet`
+5. `stdlib/validate.cremona`
    - The `seen` set.
    - Pattern: `contains` before reporting a duplicate, then `get_or_insert`.
 
-6. `stdlib/plot.valvet`
+6. `stdlib/plot.cremona`
    - Facet panel keys.
    - Preserve first-appearance panel order.
 

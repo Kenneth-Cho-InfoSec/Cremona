@@ -1,11 +1,11 @@
 # PLAN-GAP-R: R-parity gaps
 
-Goal: close the R gaps worth closing under Valvet's constraints (first-order,
+Goal: close the R gaps worth closing under Cremona's constraints (first-order,
 no closures/HOF values, no GC, explicit ownership, mode never changes type
 meaning). Every item differential-tests against an R oracle (`Rscript`) or a
 Python oracle where R is unavailable.
 
-Conventions: `S(x)` = `crates/valvet_core/src/sema.rs`, `C(x)` = codegen.rs,
+Conventions: `S(x)` = `crates/cremona_core/src/sema.rs`, `C(x)` = codegen.rs,
 `P(x)` = parser.rs, `L(x)` = lexer.rs. Line numbers are 0.3.0-era anchors;
 grep the quoted strings if they drifted.
 
@@ -16,23 +16,23 @@ R2b (recycling), R4b (outer/kronecker). R6/R7 are explicit non-goals.
 
 ## R1: `predict` for LmFit/GlmFit (stdlib only, no compiler change)
 
-Gap: `stdlib/model.valvet` has `Formula` (`model.valvet:23`), `model_frame`
+Gap: `stdlib/model.cremona` has `Formula` (`model.cremona:23`), `model_frame`
 (`:78`), `lm` (`:188`), `lm_p`, `glm_binomial` (`:254`) but no prediction.
 
 ### Exact changes
 
-1. `stdlib/model.valvet`, append after `lm_p` (~`:252`):
+1. `stdlib/model.cremona`, append after `lm_p` (~`:252`):
    - `pub fun predict_lm(fit: &LmFit, mf: ModelFrame): Result<Vec<Float64>, String>`
      recomputes `mf.x.mat_vec(fit.coef)` (same kernels `lm` uses,
-     `model.valvet:195-208`); `Err` when `mf.x.cols() != fit.coef.len()`.
+     `model.cremona:195-208`); `Err` when `mf.x.cols() != fit.coef.len()`.
    - `pub fun predict_lm_frame(fit: &LmFit, f: &DynamicFrame, fo: Formula): Result<Vec<Float64>, String>`
      runs `model_frame` then `predict_lm` (mirrors `lm`'s own flow).
    - `pub fun predict_glm(fit: &GlmFit, mf: ModelFrame): Result<Vec<Float64>, String>`
-     applies the sigmoid (`sigmoid`, `model.valvet:~250`) to the linear predictor.
+     applies the sigmoid (`sigmoid`, `model.cremona:~250`) to the linear predictor.
    - All three follow the file's check-then-unwrap style (`match` + early
      `return Err`, provably-dead dummy arms), since `return` is rejected in
      match value-arms (see file header comment).
-2. Fixtures: `valvet-tests/compile-pass/model_predict.valvet` + `.stdout`,
+2. Fixtures: `cremona-tests/compile-pass/model_predict.cremona` + `.stdout`,
    differential-tested against `predict.lm` / `predict.glm` in R on the same
    CSV (tolerances: document float formatting `%.17g` vs R's shortest repr;
    compare with relative tolerance 1e-12, not text equality).
@@ -46,7 +46,7 @@ position (document; R matches by name — note as limitation).
 ## R2a: literal pinning in mixed numeric binary ops (sema only)
 
 Gap: verified `1 + (2 as Int64)` is E0201 (`S`, `"operator needs two equal
-numeric types"` at `S:6485`/`S:6511`, help text `"convert explicitly; Valvet
+numeric types"` at `S:6485`/`S:6511`, help text `"convert explicitly; Cremona
 has no implicit numeric conversions"`). Variables must never convert, but
 unsuffixed literals can adopt (Rust precedent; sound; no mode change).
 
@@ -62,12 +62,12 @@ unsuffixed literals can adopt (Rust precedent; sound; no mode change).
      via the existing `set_dim` paths in those arms.
    - Update the help text on the remaining error to mention pinning:
      `"unsuffixed literals adopt the other side; suffixed literals and variables convert explicitly"`.
-2. Fixtures: `arith_literal_pin.valvet` (`1 + (2 as Int64)`, `2.0 * (3 as
+2. Fixtures: `arith_literal_pin.cremona` (`1 + (2 as Int64)`, `2.0 * (3 as
    Int64)`... note `2.0` Float64 vs Int64 still errors — pinning is
    int-literal-to-int/float and float-literal-to-float only; mixed
    int-literal with Float64 side pins to Float64, allowed). Reject fixtures:
    `1i32 + (2 as Int64)` still E0201; `x + y` mismatched vars still E0201.
-3. Unit tests in `crates/valvet_core/tests/front_end.rs` for each case.
+3. Unit tests in `crates/cremona_core/tests/front_end.rs` for each case.
 
 Risks: `is_dimless_literal` coverage (literals in parens/casts?) — read it
 during implementation; restrict to direct literals on v1, document.
@@ -88,7 +88,7 @@ match exactly. R recycles length-1 (and warns on fractional recycling).
    - Runtime: extend the elementwise C kernels with length-1 broadcast;
      incompatible lengths keep the existing `ShapeError` `Err` (NOT a trap:
      changing to abort would break `shape`-error fixtures; R-compatible
-     values, Valvet-grade errors).
+     values, Cremona-grade errors).
    - Scalar stays via `add_scalar` (no change).
 2. No fractional recycling, ever (stricter than R, documented).
 3. Fixtures: pass (equal, scalar-length) + trap fixture (`[1,2] + [1,2,3]`
@@ -102,12 +102,12 @@ contract (grep `vvec_.*_add\|vvec_.*_mul` in `C`).
 
 ## R3: formula depth — `*`, `:`, `I()`, `.` (stdlib only)
 
-Gap: `Formula { response, terms }` (`model.valvet:23`) and `formula_parse`
+Gap: `Formula { response, terms }` (`model.cremona:23`) and `formula_parse`
 (`:29`, splits on `~` then `+` only).
 
 ### Exact changes
 
-1. `stdlib/model.valvet`:
+1. `stdlib/model.cremona`:
    - Extend `Formula` with `interactions: Vec<(String, String)>` (for `*`
      and `:`) — keep `terms` for plain effects (backward compatible).
    - `formula_parse`: handle `a*b` → terms `[a, b]` + interaction `(a,b)`;
@@ -165,11 +165,11 @@ are NaN-skipped at use sites. R/readr and F# providers parse typed on load.
 
 ### Exact changes
 
-1. `stdlib/csv.valvet` (or new `stdlib/schema.valvet`; prefer new file,
+1. `stdlib/csv.cremona` (or new `stdlib/schema.cremona`; prefer new file,
    `module std.schema;`, to avoid touching the J2 kernels):
    - `pub fun parse_float_col(col: Vec<String>) -> Vec<Missing<Float64>>`
      (`Present`/`Missing` via the existing `String.parse_float` method used
-     in `model.valvet`; same for `parse_int_col`, `parse_bool_col`).
+     in `model.cremona`; same for `parse_int_col`, `parse_bool_col`).
    - `pub fun typed_frame(f: &DynamicFrame, schema: Vec<String>) ->
      Result<..., String>` mapping column names to `"int"|"float"|"bool"|"string"`.
    - Drive with the existing `infer_schema` output.
@@ -179,7 +179,7 @@ are NaN-skipped at use sites. R/readr and F# providers parse typed on load.
    NaN-skip policy already lives in stdlib and must stay identical).
 
 Risks: `Missing<T>` printing/stats interop already exists (Missing-aware
-stats); verify `frame_col` None handling mirrors `need_col` in model.valvet.
+stats); verify `frame_col` None handling mirrors `need_col` in model.cremona.
 
 ---
 

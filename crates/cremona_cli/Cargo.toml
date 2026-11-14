@@ -1,0 +1,11 @@
+[package]
+name = "cremona_cli"
+version = "0.5.0"
+edition = "2021"
+
+[[bin]]
+name = "cremona"
+path = "src/main.rs"
+
+[dependencies]
+cremona_core = { path = "../cremona_core" }

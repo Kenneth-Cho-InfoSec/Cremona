@@ -1,4 +1,4 @@
-# Valvet library ecosystem roadmap
+# Cremona library ecosystem roadmap
 
 Status: implementation started. The planning documents remain the design
 record; completed work and evidence are tracked in
@@ -6,7 +6,7 @@ record; completed work and evidence are tracked in
 contain ported code or external oracle data.
 
 This is the master index for the macro-level library and package plan derived
-from the ten Julia-to-Valvet ports, the cross-port duplication study, the
+from the ten Julia-to-Cremona ports, the cross-port duplication study, the
 generated-C and machine-code audit, and the existing compiler and gap reports.
 
 ## Documents
@@ -38,12 +38,12 @@ repository file and symbol.
 | `GAPS` | `/tmp/opencode/ports/ECOSYSTEM_GAPS.md`, Julia feature gap log for ports 4 to 10 |
 | `CFB` | `/tmp/opencode/ports/COMPILER_FIX_BATCH.md`, uncommitted compiler batch |
 | `PORT-01` to `PORT-10` | `/tmp/opencode/ports/<port>/REPORT.md`; ports 01 to 04 retain reports only |
-| `CODE` | Files under `/home/kenneth/valvet`, especially `stdlib/`, `crates/valvet_core/src/`, and `valvet-tests/` |
+| `CODE` | Files under `/home/kenneth/cremona`, especially `stdlib/`, `crates/cremona_core/src/`, and `cremona-tests/` |
 
 Evidence quality is not uniform:
 
-- Ports 07, 08, 09, and 10 retain complete Valvet sources and oracles.
-- Ports 05 and 06 retain partial Valvet sources; their full line counts and
+- Ports 07, 08, 09, and 10 retain complete Cremona sources and oracles.
+- Ports 05 and 06 retain partial Cremona sources; their full line counts and
   helper sizes come from their reports.
 - Ports 01, 02, 03, and 04 retain reports only. Claims about their exact
   helper bodies are marked unverified.
@@ -74,7 +74,7 @@ Evidence quality is not uniform:
 - No source change is authorized by these documents alone.
 - Each implementation batch still needs the normal gates: `cargo fmt
   --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`,
-  `cargo test --workspace`, `valvet test valvet-tests` in debug and release,
+  `cargo test --workspace`, `cremona test cremona-tests` in debug and release,
   ASan/UBSan/LSan on generated C, zero `<error>` markers, and numerical
   oracles where arithmetic changes.
 - Ports and their oracles stay outside the repository. Migration of a port is

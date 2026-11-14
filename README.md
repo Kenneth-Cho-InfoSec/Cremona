@@ -1,17 +1,17 @@
-# Valvet
+# Cremona
 
 <p align="center">
-  <img src="docs/logo.png" width="250" alt="Valvet logo">
+  <img src="docs/logo.png" width="250" alt="Cremona logo">
 </p>
 
-Valvet is a small, safe, compiled language for data work. It compiles to
+Cremona is a small, safe, compiled language for data work. It compiles to
 native binaries through C11, with no garbage collector and no runtime:
 owned values live in exactly one slot and are freed deterministically at
 scope exit. It is for expressing numeric analyses, statistics,
 iteration-heavy models, small simulations, directly and fast.
 
 If your analyses currently live in an interpreted statistics environment,
-Valvet is the compiled counterpart: the same small scripts for means,
+Cremona is the compiled counterpart: the same small scripts for means,
 models, and simulations, but checked before they run, freed
 deterministically while they run, and shipped as dependency-free binaries.
 The 0.3.0 modeling layer (formulas, `lm`/GLM, ANOVA, diagnostics,
@@ -21,7 +21,7 @@ helpers) closes the remaining gap between prototyping and production. The
 typed joins and windows, narrow Parquet/Arrow I/O, and flat lazy plans
 alongside the existing `DynamicFrame` paths.
 
-```valvet
+```cremona
 fun mean(v: Vec<Float64>): Float64 {
     var total = 0.0
     for (x in v) {
@@ -42,18 +42,18 @@ perceptron training, all identical to their references and ASan-clean.
 ## Quick start
 
 Prerequisites: stable Rust and a C compiler (GCC 16 works out of the box;
-`VALVET_CC` overrides detection).
+`CREMONA_CC` overrides detection).
 
 ```sh
-cargo build --workspace          # debug compiler at target/debug/valvet
-valvet run examples/hello.valvet
-# hello, valvet
+cargo build --workspace          # debug compiler at target/debug/cremona
+cremona run examples/hello.cremona
+# hello, cremona
 ```
 
-`examples/hello.valvet`:
+`examples/hello.cremona`:
 
-```valvet
-println("hello, valvet")
+```cremona
+println("hello, cremona")
 ```
 
 ## Language tour
@@ -62,8 +62,8 @@ Script mode: the entry file runs top-level statements directly (imp is the
 default; `mode imp;` states it explicitly, `mode exp;` opts back into the
 strict classic rule). A shebang line works for direct execution:
 
-```valvet
-#!/usr/bin/env valvet
+```cremona
+#!/usr/bin/env cremona
 val x = 40 + 2;
 println(x);
 ```
@@ -74,7 +74,7 @@ failure. Statements clash with `fun main` (E0604, entry-only like that).
 
 Functions, `if` expressions, loops, structs, vectors, `Option` matching:
 
-```valvet
+```cremona
 fun fib(n: Int32): Int32 {
     if (n < 2) { n } else { fib(n - 1) + fib(n - 2) }
 }
@@ -114,7 +114,7 @@ Units of measure: annotate numeric bindings, parameters, and returns with
 `@unit`. Same dimensions unify, scales convert silently (left side wins),
 and `*`/`/` compose dimensions:
 
-```valvet
+```cremona
 fun speed(d: Float64 @m, t: Float64 @s): Float64 @m/s {
     d / t
 }
@@ -127,31 +127,31 @@ println(w * 10.0)             // (m/s) * s = m: 200
 ```
 
 Dimensionless literals coerce (`d + 5.0` is meters); mismatched dimensions
-are `E0201`, unknown units `E0401` (see `stdlib/units.valvet` for the known
+are `E0201`, unknown units `E0401` (see `stdlib/units.cremona` for the known
 units). `expr as @unit` asserts and converts explicitly.
 
 Audited joins never silently drop rows: `frame_join_inner` / `frame_join_left`
 return the frame plus its audit (matched / left-only / right-only counts),
 and a missing key column is `Err`, not an empty frame:
 
-```valvet no-test
+```cremona no-test
 val s = match (frame_join_inner(&l, "id", &r, "id")) { Ok(j) -> audit_summary(&j.audit), Err(e) -> e, };
 println(s)  // matched=1 left_only=0 right_only=0 out=1
 ```
 
 Frames can carry provenance: source hash plus transform log, printable
-with any result (`stdlib/provenance.valvet`):
+with any result (`stdlib/provenance.cremona`):
 
-```valvet no-test
+```cremona no-test
 val p = provenance_of_text("demo", "a,b\n");
 println(prov_report(&p))  // source=demo hash=6376667723524501508 ops=[]
 ```
 
-Forward-mode autodiff via dual numbers (`stdlib/autodiff.valvet`): write the
+Forward-mode autodiff via dual numbers (`stdlib/autodiff.cremona`): write the
 loss once over `Dual`, seed each dimension, read `.d`. A logistic-regression
 gradient descent in the suite is bit-identical to its Python reference:
 
-```valvet no-test
+```cremona no-test
 println(sq(seed(vec![3.0], 0 as Int64)).d)  // d(x^2)/dx at 3 = 6
 ```
 
@@ -165,13 +165,13 @@ R-parity track (0.3.0): dense `Mat` matrices with LU-backed kernels
 traps), `Factor` levels/codes with level verbs, `|>` pipes and dplyr-style
 frame verbs (`frame_arrange`, `frame_mutate`/`frame_summarise` over a flat
 `ColExpr`), layered `Plot` specs with facets and log scales, `map`/`filter`/
-`fold`/`split_apply` over named functions, and pure-Valvet stdlib for strings
+`fold`/`split_apply` over named functions, and pure-Cremona stdlib for strings
 (`std::str`, incl. Thompson-NFA `std::re`), dates (`std::date`), distributions
 (`std::dist`), modeling (`std::model`: formulas, `lm`, binomial `glm`), and
 hypothesis tests (`std::infer`: t, chi-square, correlation, Mann-Whitney,
 Fisher exact, hypergeometric):
 
-```valvet
+```cremona
 import std::frame::DynamicFrame;
 import std::model::formula_parse;
 import std::model::formula_new;
@@ -200,7 +200,7 @@ distance, VIF, Durbin-Watson, Breusch-Pagan), all oracled against Python.
 Categorical predictors auto-expand to treatment contrasts, and `wlm` fits
 weighted least squares through the same pipeline:
 
-```valvet no-test
+```cremona no-test
 import std::infer::anova_oneway;
 val g1: Vec<Float64> = vec![1.0, 2.0, 3.0];
 val g2: Vec<Float64> = vec![4.0, 5.0, 6.0];
@@ -223,7 +223,7 @@ robust SE), meta-analysis and adjustments (`std::meta`), feature
 engineering (`std::features`), random test frames (`std::synth`), and
 LaTeX/HTML model tables (`std::report`):
 
-```valvet no-test
+```cremona no-test
 import std::sql::sql;
 let Ok(q) = sql(&f, "SELECT g, SUM(x) FROM f GROUP BY g ORDER BY g") else {
     println("bad query");
@@ -261,7 +261,7 @@ with select, filter, summarise, join, arrange, and limit steps;
 `lazy_collect` runs the plan and `lazy_explain` prints it. Lazy-lazy joins
 are deferred.
 
-```valvet no-test
+```cremona no-test
 import std::typed_csv::read_csv_typed_infer;
 import std::typed_frame::tf_names;
 import std::grouped::agg_count;
@@ -270,7 +270,7 @@ import std::grouped::agg_spec;
 import std::grouped::tf_group_by;
 import std::grouped::tf_summarise;
 
-let Ok(t) = read_csv_typed_infer("valvet-tests/data/typed_infer.csv".clone(), true) else {
+let Ok(t) = read_csv_typed_infer("cremona-tests/data/typed_infer.csv".clone(), true) else {
     println("bad csv");
     return 1;
 };
@@ -287,7 +287,7 @@ println(tf_names(&out));
 return 0;
 ```
 
-Sources come in three equivalent extensions (`.valvet`, `.vv`, `.vvt`,
+Sources come in three equivalent extensions (`.cremona`, `.vv`, `.vvt`,
 resolved in that preference order), and the CLI includes `run --watch`
 (re-run on change) plus a whitespace-normalizing `fmt`.
 
@@ -299,14 +299,14 @@ state with `q = f(q)` move-plus-reassign and clones at divergence points.
 
 Multi-file projects: the root is the entry file's directory:
 
-```valvet no-test
-// main.valvet
+```cremona no-test
+// main.cremona
 import math::double;
 println(double(21))           // 42
 ```
 
-```valvet no-test
-// math.valvet
+```cremona no-test
+// math.cremona
 module math;
 
 pub fun double(n: Int32): Int32 {
@@ -320,7 +320,7 @@ Cross-module access requires `pub` (default-private). Imports use `::`
 Errors never panic the compiler. They carry file, position, code, and help:
 
 ```
-error[E0205]: cannot assign through this place (immutable binding or shared reference) --> prog.valvet:3:5
+error[E0205]: cannot assign through this place (immutable binding or shared reference) --> prog.cremona:3:5
   help: use `var` bindings and `&mut` for mutation
 ```
 
@@ -328,19 +328,19 @@ error[E0205]: cannot assign through this place (immutable binding or shared refe
 
 | Command | Effect |
 |---|---|
-| `valvet check <file>` | Parse and analyse, no linking |
-| `valvet build <file>` | Compile to `target/valvet/<name>` |
-| `valvet run <file>` | Build, execute, exit with program status |
-| `valvet run <file> -- args` | Run with script arguments in `args` |
-| `valvet run --watch <file>` | Re-run on file change |
-| `valvet fmt <file>` | Normalize whitespace and trailing newline |
-| `valvet test [dir]` | Run the fixture suite (`valvet-tests` default) |
-| `valvet new <name>` | Scaffold a single-dir project |
-| `valvet repl` | Interactive session (definitions persist) |
-| `valvet -e 'expr'` | Evaluate a scriptlet and print its value |
-| `valvet --version` / `--help` | Version / usage |
+| `cremona check <file>` | Parse and analyse, no linking |
+| `cremona build <file>` | Compile to `target/cremona/<name>` |
+| `cremona run <file>` | Build, execute, exit with program status |
+| `cremona run <file> -- args` | Run with script arguments in `args` |
+| `cremona run --watch <file>` | Re-run on file change |
+| `cremona fmt <file>` | Normalize whitespace and trailing newline |
+| `cremona test [dir]` | Run the fixture suite (`cremona-tests` default) |
+| `cremona new <name>` | Scaffold a single-dir project |
+| `cremona repl` | Interactive session (definitions persist) |
+| `cremona -e 'expr'` | Evaluate a scriptlet and print its value |
+| `cremona --version` / `--help` | Version / usage |
 
-`valvet run --hermetic` is a compile-time policy gate, not an OS sandbox:
+`cremona run --hermetic` is a compile-time policy gate, not an OS sandbox:
 it forces strict entry and denies subprocesses, environment reads, file I/O
 (`read_file`, `read_file_limit`, `write_file`), and `sys_cwd`. It still does
 not restrict network access or other host capabilities; use a container,
@@ -356,16 +356,16 @@ Exit codes: 0 success, 1 compilation failure, 2 usage error.
 ## Repository layout
 
 ```
-crates/valvet_core/   lexer → parser → sema → ownership → C11 codegen
-crates/valvet_cli/    check/build/run/test/new
-valvet-tests/         fixture suite (compile-pass/fail, runtime, multi-file, …)
-valvet-tests/data/    provenance-stamped CSV, JSON, Parquet, and Arrow fixtures
+crates/cremona_core/   lexer → parser → sema → ownership → C11 codegen
+crates/cremona_cli/    check/build/run/test/new
+cremona-tests/         fixture suite (compile-pass/fail, runtime, multi-file, …)
+cremona-tests/data/    provenance-stamped CSV, JSON, Parquet, and Arrow fixtures
 scripts/              deterministic fixture generators and binary fuzz smoke
 examples/             small runnable programs
 docs/implementation/  plans, architecture (ADR-001), gaps, test strategy
 ```
 
-Pipeline: sources (`.valvet`, `.vv`, `.vvt` — equivalent, resolved in that
+Pipeline: sources (`.cremona`, `.vv`, `.vvt` — equivalent, resolved in that
 preference order) → tokens → AST → typed HIR → borrow-checked HIR →
 C11 → system `cc` → native binary. Semantics live in the front end;
 codegen is a thin lowering (an LLVM/Cranelift backend could replace it
@@ -377,8 +377,8 @@ without touching typing or ownership).
 cargo test --workspace
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
-target/debug/valvet test valvet-tests --jobs 8   # generated C uses release flags
-target/debug/valvet test --doc
+target/debug/cremona test cremona-tests --jobs 8   # generated C uses release flags
+target/debug/cremona test --doc
 python3 scripts/fuzz_binary_formats.py
 ```
 
@@ -393,7 +393,7 @@ clean on 88 typed-frame, binary-format, and lazy-plan fixtures.
 Named recognizer functions plus `if` guards on match arms partition data
 the way F# active patterns do (no special syntax needed):
 
-```valvet no-test
+```cremona no-test
 fun is_even(n: Int64): Bool {
     n % (2 as Int64) == (0 as Int64)
 }

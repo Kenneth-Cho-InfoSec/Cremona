@@ -1,12 +1,12 @@
 # Plan: 0.2.0 Analytical Foundation
 
-Basis: `valvet-design/` D6 (stdlib) + D7 (data science) + D9 §1 (paths) +
+Basis: `cremona-design/` D6 (stdlib) + D7 (data science) + D9 §1 (paths) +
 D13 decisions; academic grounding below; lessons from the translation
-sessions (`valvet-r-cars/LOG.md`, `valvet-papers/LOG.md`, `BUGHUNT.md`).
+sessions (`cremona-r-cars/LOG.md`, `cremona-papers/LOG.md`, `BUGHUNT.md`).
 
 Dependency order: J0 → J1 → J2 → J3 → J4 → J5 → J6 → J7 (each lands green;
 gates per phase: `fmt --check`, `clippy -D warnings`, `cargo test`,
-`valvet test` debug+release, ASan/UBSan on new C paths).
+`cremona test` debug+release, ASan/UBSan on new C paths).
 
 ## Academic grounding
 
@@ -62,13 +62,13 @@ gates per phase: `fmt --check`, `clippy -D warnings`, `cargo test`,
 - `cc` driver gains `-fwrapv`: integer arithmetic wraps (two's complement).
   Rationale: xoshiro (J5) requires wrapping; today overflow is C UB.
   Only previously-UB cases change meaning.
-- Decision (early, recorded in D13): stdlib ships as Valvet sources under
+- Decision (early, recorded in D13): stdlib ships as Cremona sources under
   `stdlib/` (`module std.math;`, …), imported explicitly
   (`import std.math::sqrt;`), resolved from the binary's install dir with
-  `VALVET_STDLIB` override. No implicit prelude (avoids name-clash
-  semantics). Pure-Valvet where possible (J0 math is); runtime-opaque
+  `CREMONA_STDLIB` override. No implicit prelude (avoids name-clash
+  semantics). Pure-Cremona where possible (J0 math is); runtime-opaque
   state (J5 `Rng`) stays builtin-backed like `Vec` methods.
-- Files: `stdlib/math.valvet`, `codegen.rs` (`-fwrapv`), sema arity/type
+- Files: `stdlib/math.cremona`, `codegen.rs` (`-fwrapv`), sema arity/type
   checks for new builtins if any.
 - Tests: property tests vs Python `math` (tolerances, special values
   incl. inf/nan, identity `exp(log(x))==x`); fixtures `math_sqrt`,
@@ -131,7 +131,7 @@ gates per phase: `fmt --check`, `clippy -D warnings`, `cargo test`,
 
 - Spec (D7 §8, as written): `Rng::seeded(u64)`, xoshiro256++,
   `next_f64` in [0,1), `sample`, `shuffle(&mut Rng, &mut Vec<T>)`,
-  no global RNG. Internals opaque to Valvet code (builtin-backed; see J0
+  no global RNG. Internals opaque to Cremona code (builtin-backed; see J0
   decision); `-fwrapv` makes the arithmetic defined.
 - Gates: seed determinism (`tests/run/rng-seeded` style: two runs, same
   stream, byte-identical), distribution smoke (mean/variance of 1e5 draws
@@ -149,7 +149,7 @@ gates per phase: `fmt --check`, `clippy -D warnings`, `cargo test`,
 - Tests: golden SVG files for scatter/bar/line over a CSV-loaded frame
   (byte-exact), `PlotError` paths (bad column, empty frame).
 - Done when: cars speed-vs-dist scatterplot renders from a three-line
-  Valvet program.
+  Cremona program.
 
 ## Phase J7: REPL (unchanged, last)
 

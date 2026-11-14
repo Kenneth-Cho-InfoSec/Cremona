@@ -12,7 +12,7 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "valvet-tests" / "data"
+OUT = ROOT / "cremona-tests" / "data"
 
 
 def varint(v: int) -> bytes:
@@ -236,7 +236,7 @@ def metadata(cols: list[dict], n: int, chunks: list[tuple[int, int]], codec: int
     w.i64(2, total)
     w.i64(3, n)
     w.struct_end()
-    w.binary(6, b"valvet")
+    w.binary(6, b"cremona")
     w.u8(0)
     return bytes(w.b)
 

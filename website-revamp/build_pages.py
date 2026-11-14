@@ -42,8 +42,8 @@ def slug(text: str) -> str:
 
 def fence_lang(label: str) -> str:
     low = label.lower()
-    if "valvet" in low:
-        return "valvet"
+    if "cremona" in low:
+        return "cremona"
     if "bash" in low or "shell" in low:
         return "bash"
     return "text"
@@ -105,7 +105,7 @@ def parse_blocks(lines: list[str]):
                 i += 1
             blocks.append(("list", items))
             continue
-        if re.match(r"^(Input · Valvet|Output|Bash|Error):$", line.strip()):
+        if re.match(r"^(Input · Cremona|Output|Bash|Error):$", line.strip()):
             label = line.strip().rstrip(":")
             if i + 1 < len(lines) and lines[i + 1].startswith("```"):
                 fence_line = lines[i + 1]
@@ -116,7 +116,7 @@ def parse_blocks(lines: list[str]):
                     body.append(lines[i])
                     i += 1
                 i += 1
-                blocks.append(("code", label, "valvet" if "Valvet" in label else "text", "\n".join(body)))
+                blocks.append(("code", label, "cremona" if "Cremona" in label else "text", "\n".join(body)))
                 continue
         paragraph = [line.strip()]
         i += 1
@@ -129,7 +129,7 @@ def parse_blocks(lines: list[str]):
                 or nxt.startswith("### ")
                 or nxt.startswith("|")
                 or nxt.startswith("- ")
-                or re.match(r"^(Input · Valvet|Output|Bash|Error):$", nxt.strip())
+                or re.match(r"^(Input · Cremona|Output|Bash|Error):$", nxt.strip())
             ):
                 break
             paragraph.append(nxt.strip())
@@ -216,7 +216,7 @@ def split_sections(blocks):
 
 
 NAV_ITEMS = [
-    ("index.html#why", "Why Valvet"),
+    ("index.html#why", "Why Cremona"),
     ("index.html#features", "Features"),
     ("index.html#code", "Code"),
     ("docs.html", "Docs"),
@@ -237,9 +237,9 @@ def nav(active: str = "") -> str:
     return f"""
 <header class="site-header" id="site-header">
   <div class="container nav-shell">
-    <a class="brand" href="index.html" aria-label="Valvet home">
+    <a class="brand" href="index.html" aria-label="Cremona home">
       <img src="assets/logo-128.png" width="36" height="36" alt="">
-      <span class="brand-name">Valvet</span>
+      <span class="brand-name">Cremona</span>
       <span class="brand-version">0.3.0</span>
     </a>
     <nav class="nav-links" aria-label="Primary">
@@ -259,10 +259,10 @@ def nav(active: str = "") -> str:
   <div class="mobile-menu" id="mobile-menu" hidden>
     <nav class="container mobile-nav" aria-label="Mobile">
       {mobile_links}
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet">GitHub<span aria-hidden="true">↗</span></a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona">GitHub<span aria-hidden="true">↗</span></a>
     </nav>
     <div class="container mobile-menu-foot">
-      <a class="btn btn-primary" href="index.html#install">Install Valvet</a>
+      <a class="btn btn-primary" href="index.html#install">Install Cremona</a>
       <p>Native binaries. No garbage collector. No runtime.</p>
     </div>
   </div>
@@ -274,16 +274,16 @@ def footer() -> str:
 <footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-brand">
-      <a class="brand" href="index.html" aria-label="Valvet home">
+      <a class="brand" href="index.html" aria-label="Cremona home">
         <img src="assets/logo-128.png" width="40" height="40" alt="">
-        <span class="brand-name">Valvet</span>
+        <span class="brand-name">Cremona</span>
       </a>
       <p>A small, safe, compiled language for data work.</p>
       <p class="footer-note">Native binaries. No garbage collector. No runtime.</p>
     </div>
     <div class="footer-col">
       <h2>Language</h2>
-      <a href="index.html#why">Why Valvet</a>
+      <a href="index.html#why">Why Cremona</a>
       <a href="index.html#features">Features</a>
       <a href="index.html#code">Code</a>
       <a href="index.html#pipeline">How it runs</a>
@@ -297,9 +297,9 @@ def footer() -> str:
     </div>
     <div class="footer-col">
       <h2>Project</h2>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet">GitHub</a>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet/blob/main/LICENSE">License</a>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet">Issues</a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona">GitHub</a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona/blob/main/LICENSE">License</a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona">Issues</a>
       <a href="privacy.html">Privacy policy</a>
     </div>
   </div>
@@ -307,12 +307,12 @@ def footer() -> str:
     <p>Copyright 2026 Kenneth Cho. All rights reserved.</p>
     <p class="footer-built">Compiled through C11. Shipped as one binary.</p>
   </div>
-  <div class="footer-wordmark" aria-hidden="true">VALVET</div>
+  <div class="footer-wordmark" aria-hidden="true">CREMONA</div>
 </footer>"""
 
 
 def page_shell(title: str, description: str, body_class: str, content: str, active: str = "", canonical_path: str = "docs.html") -> str:
-    canonical = f"https://kenneth-cho-infosec.github.io/Valvet/{canonical_path}"
+    canonical = f"https://kenneth-cho-infosec.github.io/Cremona/{canonical_path}"
     return f"""<!doctype html>
 <html lang="en" data-theme="light">
 <head>
@@ -326,15 +326,15 @@ def page_shell(title: str, description: str, body_class: str, content: str, acti
 <meta property="og:description" content="{esc(description)}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{canonical}">
-<meta property="og:site_name" content="Valvet">
-<meta property="og:image" content="https://kenneth-cho-infosec.github.io/Valvet/assets/og.png">
+<meta property="og:site_name" content="Cremona">
+<meta property="og:image" content="https://kenneth-cho-infosec.github.io/Cremona/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Valvet: Data work, compiled. A dark code window and lavender background.">
+<meta property="og:image:alt" content="Cremona: Data work, compiled. A dark code window and lavender background.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}">
 <meta name="twitter:description" content="{esc(description)}">
-<meta name="twitter:image" content="https://kenneth-cho-infosec.github.io/Valvet/assets/og.png">
+<meta name="twitter:image" content="https://kenneth-cho-infosec.github.io/Cremona/assets/og.png">
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -354,7 +354,7 @@ def page_shell(title: str, description: str, body_class: str, content: str, acti
 (function () {{
   document.documentElement.classList.add('js');
   try {{
-    var saved = localStorage.getItem('valvet-theme');
+    var saved = localStorage.getItem('cremona-theme');
     if (saved === 'dark' || saved === 'light') document.documentElement.dataset.theme = saved;
   }} catch (error) {{}}
 }})();
@@ -441,11 +441,11 @@ def build_docs():
 <div class="reading-progress" data-progress aria-hidden="true"></div>
 <section class="page-hero docs-hero">
   <div class="container page-hero-inner">
-    <h1>The Valvet language</h1>
+    <h1>The Cremona language</h1>
     <p class="page-lede">From lexical structure to the standard library. Everything the compiler accepts, in one place.</p>
     <div class="page-meta"><span>Version 0.3.0</span><span>Updated 2026</span><span>27 stdlib modules</span></div>
     <div class="page-hero-actions">
-      <a class="btn btn-primary" href="index.html#install">Install Valvet</a>
+      <a class="btn btn-primary" href="index.html#install">Install Cremona</a>
     </div>
   </div>
 </section>
@@ -476,8 +476,8 @@ def build_docs():
 
     (SITE / "docs.html").write_text(
         page_shell(
-            "Documentation · Valvet",
-            "The complete Valvet language guide: values and types, ownership, modules, units, frames, autodiff, the standard library, and the CLI.",
+            "Documentation · Cremona",
+            "The complete Cremona language guide: values and types, ownership, modules, units, frames, autodiff, the standard library, and the CLI.",
             "page-docs",
             page,
             "Docs",
@@ -546,7 +546,7 @@ def build_examples():
 <section class="page-hero examples-hero">
   <div class="container page-hero-inner">
     <h1>Examples</h1>
-    <p class="page-lede">Every sample runs as shown with <code>valvet run</code>. Start with a mean, end with SQL over frames.</p>
+    <p class="page-lede">Every sample runs as shown with <code>cremona run</code>. Start with a mean, end with SQL over frames.</p>
     <div class="page-meta"><span>14 programs</span><span>Every output verified</span><span>No runtime</span></div>
   </div>
 </section>
@@ -582,8 +582,8 @@ def build_examples():
 
     (SITE / "examples.html").write_text(
         page_shell(
-            "Examples · Valvet",
-            "Runnable Valvet programs: vectors, pattern matching, units, frames, and SQL. Every output shown is the real program output.",
+            "Examples · Cremona",
+            "Runnable Cremona programs: vectors, pattern matching, units, frames, and SQL. Every output shown is the real program output.",
             "page-examples",
             page,
             "Examples",
@@ -599,12 +599,12 @@ def build_privacy():
   <article class="privacy-content">
     <section class="doc-section reveal-up" id="who-runs-this-site">
       <h2>Who runs this site</h2>
-      <p>Valvet is an open source project maintained by Kenneth Cho. This policy covers the website at <code>kenneth-cho-infosec.github.io/Valvet</code>. It does not cover other sites or services that link from this one.</p>
-      <p>The project has no account system. The best way to reach it is through <a href="https://github.com/Kenneth-Cho-InfoSec/valvet/issues">the Valvet issue tracker on GitHub, where you can ask questions</a>.</p>
+      <p>Cremona is an open source project maintained by Kenneth Cho. This policy covers the website at <code>kenneth-cho-infosec.github.io/Cremona</code>. It does not cover other sites or services that link from this one.</p>
+      <p>The project has no account system. The best way to reach it is through <a href="https://github.com/Kenneth-Cho-InfoSec/cremona/issues">the Cremona issue tracker on GitHub, where you can ask questions</a>.</p>
     </section>
     <section class="doc-section reveal-up" id="what-this-site-collects">
       <h2>What this site collects</h2>
-      <p>Valvet does not collect personal information through this website.</p>
+      <p>Cremona does not collect personal information through this website.</p>
       <ul>
         <li>No accounts, sign-up forms, contact forms, newsletters, or comments.</li>
         <li>No analytics, advertising, tracking pixels, or cross-site trackers.</li>
@@ -612,16 +612,16 @@ def build_privacy():
         <li>Documentation search and example filters run in your browser. What you type is not sent to a server.</li>
         <li>Copy buttons use your browser's clipboard. The copied text stays on your device.</li>
       </ul>
-      <p>Valvet does not sell, rent, or share personal information.</p>
+      <p>Cremona does not sell, rent, or share personal information.</p>
     </section>
     <section class="doc-section reveal-up" id="local-storage">
       <h2>Local storage</h2>
-      <p>The site stores one preference in <code>localStorage</code> under the key <code>valvet-theme</code>. Its value is <code>light</code> or <code>dark</code>, and it keeps your theme choice between visits. It is not sent to Valvet or to any third party.</p>
+      <p>The site stores one preference in <code>localStorage</code> under the key <code>cremona-theme</code>. Its value is <code>light</code> or <code>dark</code>, and it keeps your theme choice between visits. It is not sent to Cremona or to any third party.</p>
       <p>You can remove it by clearing site data for this domain in your browser.</p>
     </section>
     <section class="doc-section reveal-up" id="hosting">
       <h2>Hosting</h2>
-      <p>This site is served by GitHub Pages. GitHub may collect technical request data such as IP address, user agent, and requested path to deliver the site and protect its infrastructure. Valvet does not receive or store those logs.</p>
+      <p>This site is served by GitHub Pages. GitHub may collect technical request data such as IP address, user agent, and requested path to deliver the site and protect its infrastructure. Cremona does not receive or store those logs.</p>
       <p>GitHub's handling of that data is described in the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a>, including how request data is processed.</p>
     </section>
     <section class="doc-section reveal-up" id="fonts">
@@ -636,7 +636,7 @@ def build_privacy():
     <section class="doc-section reveal-up" id="your-choices">
       <h2>Your choices</h2>
       <p>You can clear the theme preference through your browser's site data controls. You can block Google Fonts with a content blocker or privacy setting and still use the site.</p>
-      <p>Valvet has no account data, contact submissions, or analytics profile to export or delete. For data held by GitHub, use GitHub's privacy controls.</p>
+      <p>Cremona has no account data, contact submissions, or analytics profile to export or delete. For data held by GitHub, use GitHub's privacy controls.</p>
     </section>
     <section class="doc-section reveal-up" id="children">
       <h2>Children</h2>
@@ -648,7 +648,7 @@ def build_privacy():
     </section>
     <section class="doc-section reveal-up" id="contact">
       <h2>Contact</h2>
-      <p>Questions or concerns about this policy can be raised in the <a href="https://github.com/Kenneth-Cho-InfoSec/valvet/issues">Valvet issue tracker</a>.</p>
+      <p>Questions or concerns about this policy can be raised in the <a href="https://github.com/Kenneth-Cho-InfoSec/cremona/issues">Cremona issue tracker</a>.</p>
     </section>
   </article>
   <aside class="privacy-aside">
@@ -670,15 +670,15 @@ def build_privacy():
       <p>Open an issue on GitHub and describe what you need. This page is the only place the site explains its data practices.</p>
       <p>No account data is stored here, so there is nothing to export or delete.</p>
       <p>For data held by GitHub, use GitHub's privacy controls.</p>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet/issues">Open an issue <span aria-hidden="true">→</span></a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona/issues">Open an issue <span aria-hidden="true">→</span></a>
     </div>
   </aside>
 </div>"""
 
     (SITE / "privacy.html").write_text(
         page_shell(
-            "Privacy policy · Valvet",
-            "How the Valvet website handles data: no accounts, no analytics, local theme storage, GitHub Pages hosting, and Google Fonts.",
+            "Privacy policy · Cremona",
+            "How the Cremona website handles data: no accounts, no analytics, local theme storage, GitHub Pages hosting, and Google Fonts.",
             "page-privacy",
             """
 <section class="page-hero privacy-hero">

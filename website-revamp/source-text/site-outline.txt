@@ -1,6 +1,6 @@
-VALVET WEBSITE TEXT SNAPSHOT
+CREMONA WEBSITE TEXT SNAPSHOT
 
-Live site: https://kenneth-cho-infosec.github.io/Valvet/
+Live site: https://kenneth-cho-infosec.github.io/Cremona/
 Source branch: website @ e040a3a
 Fetched: 2026-10-20
 
@@ -26,17 +26,17 @@ FETCHED SOURCE HASHES (SHA-256)
   b2f85e8e5e2a5954cb3f9ee3eecb268bd56a7b2bd31e87a9f4a50bf817210d4a  style.css
 
 GLOBAL NAVIGATION
-  The Valvet Programming Language -> index.html
+  The Cremona Programming Language -> index.html
   Home -> index.html
   Docs -> docs.html
   Examples -> examples.html
-  GitHub -> https://github.com/Kenneth-Cho-InfoSec/valvet
+  GitHub -> https://github.com/Kenneth-Cho-InfoSec/cremona
 
 PAGE OUTLINE
 
-  index.txt  (Valvet: a small, safe, compiled language for data work)
-    # Valvet
-      ## Why Valvet
+  index.txt  (Cremona: a small, safe, compiled language for data work)
+    # Cremona
+      ## Why Cremona
         ### Safe
         ### Fast
         ### Small
@@ -59,7 +59,7 @@ PAGE OUTLINE
         ### Parallel
       ## Install
 
-  docs.txt  (Valvet Docs)
+  docs.txt  (Cremona Docs)
       ## Documentation
         ### Getting started  [#start]
         ### Script and explicit modes  [#modes]
@@ -87,7 +87,7 @@ PAGE OUTLINE
         ### Errors  [#errors]
       ## Scope  [#scope]
 
-  examples.txt  (Valvet Examples)
+  examples.txt  (Cremona Examples)
       ## Examples
         ### Hello
         ### Fibonacci and pattern matching

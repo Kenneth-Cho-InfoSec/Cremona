@@ -1,4 +1,4 @@
-# Valvet oracle comparison
+# Cremona oracle comparison
 
 `compare_oracles.py` compares a port's actual output with an expected oracle
 using the three-line label protocol:

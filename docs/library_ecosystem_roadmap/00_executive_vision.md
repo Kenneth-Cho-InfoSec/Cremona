@@ -2,9 +2,9 @@
 
 ## 1. Purpose
 
-Valvet is a small, safe, compiled language for data work. It has a working
+Cremona is a small, safe, compiled language for data work. It has a working
 compiler, a substantial standard library, a package manifest with path and git
-dependencies, and a growing fixture suite. The ten Julia-to-Valvet ports show
+dependencies, and a growing fixture suite. The ten Julia-to-Cremona ports show
 that the language can express serious numerical code and reproduce Julia
 results bit for bit or within one ulp.
 
@@ -23,7 +23,7 @@ This plan turns those observations into a single engineering direction:
 
 ### 2.1 The ports are successful but repetitive
 
-The ten ports total about 14,956 Valvet lines. At least 4,149 of those are
+The ten ports total about 14,956 Cremona lines. At least 4,149 of those are
 generated tableaus or batteries, leaving roughly 10,800 hand-written lines.
 The cross-port study identifies about 1,200 to 1,500 defensible duplicated
 lines. That is about 9 percent of all port lines and roughly 11 to 14 percent
@@ -78,11 +78,11 @@ not missing code:
 
 | Capability | Existing location | Port behavior |
 | --- | --- | --- |
-| Complex arithmetic | `stdlib/complex.valvet:12-36` | Port 09 redefines `C09` and four functions |
-| Efficient `Vec.clone` | `crates/valvet_core/src/codegen.rs:3081` | Ports 04 to 09 use push-based clones |
-| `Vec.add`, `mul`, `dot`, `add_scalar` | `crates/valvet_core/src/codegen.rs:1897-1908,2541-2568` | Ports hand-roll loops; methods allocate and return `Result` |
-| Real matrix LU, matvec, Cholesky, eigen, SVD | `crates/valvet_core/src/codegen.rs:2928-3047` | Ports 03 and 09 do not use it |
-| Private vector and scalar helpers | `stdlib/model.valvet`, `stdlib/plot.valvet`, `stdlib/infer.valvet` | Not exported, duplicated inside stdlib |
+| Complex arithmetic | `stdlib/complex.cremona:12-36` | Port 09 redefines `C09` and four functions |
+| Efficient `Vec.clone` | `crates/cremona_core/src/codegen.rs:3081` | Ports 04 to 09 use push-based clones |
+| `Vec.add`, `mul`, `dot`, `add_scalar` | `crates/cremona_core/src/codegen.rs:1897-1908,2541-2568` | Ports hand-roll loops; methods allocate and return `Result` |
+| Real matrix LU, matvec, Cholesky, eigen, SVD | `crates/cremona_core/src/codegen.rs:2928-3047` | Ports 03 and 09 do not use it |
+| Private vector and scalar helpers | `stdlib/model.cremona`, `stdlib/plot.cremona`, `stdlib/infer.cremona` | Not exported, duplicated inside stdlib |
 
 The plan therefore separates:
 
@@ -253,7 +253,7 @@ results.
 The default function returns a fresh value and is easy to read. A suffix
 `_into` writes into a caller-owned destination and is the hot-loop form:
 
-```valvet
+```cremona
 pub fun axpy(a: Float64, x: &Vec<Float64>, b: Float64, y: &Vec<Float64>): Vec<Float64>
 pub fun axpy_into(dst: &mut Vec<Float64>, a: Float64, x: &Vec<Float64>, b: Float64, y: &Vec<Float64>)
 ```
@@ -361,7 +361,7 @@ a library must be paired with a compiler fast path to avoid a regression.
 - Default `-O3`, `-ffast-math`, `-Ofast`, approximate transcendental
   functions, or `-march=native`.
 - Global removal of bounds checks.
-- Copying Julia APIs without adapting them to Valvet's ownership, borrow, and
+- Copying Julia APIs without adapting them to Cremona's ownership, borrow, and
   exactness rules.
 - Committing ported code.
 

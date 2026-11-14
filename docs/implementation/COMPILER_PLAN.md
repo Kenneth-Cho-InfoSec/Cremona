@@ -1,6 +1,6 @@
-# Valvet Compiler — Implementation Plan (revamped 2026-10-10)
+# Cremona Compiler — Implementation Plan (revamped 2026-10-10)
 
-Spec authority: `/home/kenneth/valvet-design/` (D1–D15 + `grammar/valvet.ebnf` + `revision/`).
+Spec authority: `/home/kenneth/cremona-design/` (D1–D15 + `grammar/cremona.ebnf` + `revision/`).
 All design docs + grammar + D10 examples + contradiction register inspected in full.
 
 ## Version roadmap (revamped)

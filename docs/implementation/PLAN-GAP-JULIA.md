@@ -6,7 +6,7 @@ a stdlib Complex stepping stone, Unicode-aware string verbs, and
 Time/Duration in the existing civil-algorithm style. Macros, full
 multidispatch, parametric types, and FFI stay deferred with named unlocks.
 
-Conventions: `S(x)` = `crates/valvet_core/src/sema.rs`, `C(x)` = codegen.rs,
+Conventions: `S(x)` = `crates/cremona_core/src/sema.rs`, `C(x)` = codegen.rs,
 `P(x)` = parser.rs. Anchors are 0.3.0-era; grep quoted strings on drift.
 
 Batch order: J2 (broadcast sugar) -> J4 (unicode) -> J5 (time) -> J3
@@ -86,14 +86,14 @@ continuations, truncated tails).
 
 ## J5: Time and Duration, Hinnant-style (stdlib only)
 
-Gap: `stdlib/date.valvet` has civil-date algorithms (`days_from_civil`,
+Gap: `stdlib/date.cremona` has civil-date algorithms (`days_from_civil`,
 `date_from_ymd`, `date_add_days`, `date_diff_days`, `datetime_*` with
-`Datetime { nanos }`, `date.valvet:12-13,47-224`) but no time-of-day or
+`Datetime { nanos }`, `date.cremona:12-13,47-224`) but no time-of-day or
 duration arithmetic. Zones explicitly out.
 
 ### Exact changes
 
-1. `stdlib/date.valvet` (or new `stdlib/time.valvet` if the file grows
+1. `stdlib/date.cremona` (or new `stdlib/time.cremona` if the file grows
    past review comfort — prefer new file, `module std.time;`, importing
    nothing):
    - `pub struct Time { nanos: Int64 }` (since midnight), `pub struct
@@ -107,7 +107,7 @@ duration arithmetic. Zones explicitly out.
      `datetime_date(t: Datetime) -> Date` (modulo 86_400e9 with Euclidean
      semantics for negative nanos — document; civil algorithms already in
      file handle the date half).
-   - Pure Valvet, Int64 only (no floats except `duration_as_secs`;
+   - Pure Cremona, Int64 only (no floats except `duration_as_secs`;
      Float64 paths use the existing `as` casts).
 2. Fixtures vs Python `datetime` oracle (incl. leap-second-adjacent and
    negative-modulo cases; zones never asserted).
@@ -126,7 +126,7 @@ distributions track) wants it. A new `Ty` variant ripples every Ty match
 
 ### Exact changes
 
-1. New `stdlib/complex.valvet`, `module std.complex;`:
+1. New `stdlib/complex.cremona`, `module std.complex;`:
    - `pub struct Complex { re: Float64, im: Float64 }` plus named funs
      (no operator overloading exists — the pipe is the honest chaining
      form): `cnew/cadd/csub/cmul/cdiv/cneg/conj/cabs/carg`,
@@ -166,7 +166,7 @@ real uses (defaults-by-arity, scalar/vec variants).
    implementation):
    - `S:6294` user-call path: resolve with `args.len()`; unknown-arity →
      E0201 naming the known arities ("`f` takes 1 or 3 arguments, found
-     2" — the existing `arity.valvet` fixture pins E0201 for this case;
+     2" — the existing `arity.cremona` fixture pins E0201 for this case;
      E0401 stays for truly unknown names).
    - UFCS arm (`S:~2886`, `resolve_fun(method)`): resolve with
      `call_args.len() + 1`.
@@ -209,14 +209,14 @@ from overloading (entry rule; keep the existing guard).
 ## J6: deliberate non-goals (no work items, unlock conditions noted)
 
 - Macros/hygiene/metaprogramming, generated functions: need a compile-time
-  evaluation story; revisit after closures, if ever (Valvet favors explicit
+  evaluation story; revisit after closures, if ever (Cremona favors explicit
   desugars today: `??`, comprehensions, `|>`).
 - Full multiple dispatch (type-based methods): needs runtime tags or
   call-site monomorphization; J1 arity step does not preclude it.
 - Parametric types/generics: wait for monomorphization design (note in
   F4/F5 — same story).
 - Green threads/distributed: `par_sum`/`par_map` cover the data case.
-- Package registry: single-file plus `valvet new` suffice; revisit on
+- Package registry: single-file plus `cremona new` suffice; revisit on
   demand.
 - `ccall` user FFI: grammar already reserves `Extern`/`Unsafe` tokens;
   needs the ownership story for borrowed returns first — designed but

@@ -1,4 +1,4 @@
-# R's most loved libraries: what they teach Valvet, and what ports
+# R's most loved libraries: what they teach Cremona, and what ports
 
 Ranked from CRAN download counts (ggplot2 ~198M, rlang ~189M, magrittr
 ~164M, dplyr ~154M) plus community surveys (rstats, Posit lists,
@@ -42,7 +42,7 @@ Package scaffolding, `load_all`, testing workflow.
 Just off the list: caret/tidymodels (ancestor of our `std::select`),
 forcats (why factors are first-class), Rcpp (the two-language admission).
 
-## Portability verdicts (Valvet constraints apply)
+## Portability verdicts (Cremona constraints apply)
 
 Fully or nearly portable: dplyr (~80% done; only unquoted NSE stays
 out), tidyr (done; `unnest` writable today), stringr (engines exist),

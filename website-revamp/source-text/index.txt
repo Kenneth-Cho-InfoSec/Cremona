@@ -1,14 +1,14 @@
-Source: https://kenneth-cho-infosec.github.io/Valvet/index.html
+Source: https://kenneth-cho-infosec.github.io/Cremona/index.html
 Fetched: 2026-10-20
-Page title: Valvet: a small, safe, compiled language for data work
+Page title: Cremona: a small, safe, compiled language for data work
 
-# Valvet
+# Cremona
 
 A small, safe, compiled language for data work. Native binaries, no garbage collector, no runtime.
 
 [Get Started](docs.html) [Install](#install)
 
-## Why Valvet
+## Why Cremona
 
 ### Safe
 
@@ -24,8 +24,8 @@ One coherent core: vectors, structs, enums, pattern matching, modules. Programs 
 
 ## Thirty seconds
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun mean(v: Vec<Float64>): Float64 {
     var total = 0.0
     for (x in v) {
@@ -94,7 +94,7 @@ Validation contracts, causal helpers (DiD, 2SLS, propensity, HC0), meta-analysis
 
 ### Ergonomics
 
-Sources in `.valvet`, `.vv`, `.vvt`; `run --watch` re-runs on change; `fmt` normalizes whitespace.
+Sources in `.cremona`, `.vv`, `.vvt`; `run --watch` re-runs on change; `fmt` normalizes whitespace.
 
 ## New in 0.2.0
 
@@ -122,9 +122,9 @@ Bash:
 ```bash
 # clone the repo, then
 cargo build --release
-./target/release/valvet run hello.valvet
+./target/release/cremona run hello.cremona
 ```
 
 Commands: `check`, `build`, `run`, `run --watch`, `fmt`, `test`, `new`, `repl`, `-e`. Programs are scripts by default: top-level statements run directly, and `mode exp;` keeps the strict classic entry. See the [docs](docs.html) for the tour.
 
-Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/valvet).
+Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/cremona).

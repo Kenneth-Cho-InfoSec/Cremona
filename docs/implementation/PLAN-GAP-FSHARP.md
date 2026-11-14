@@ -5,7 +5,7 @@ name exactly what stays deferred until closure/generics stages. Full CEs,
 async workflows, quotations, SRTP/generics need Stage-2 closures or
 monomorphization — not here.
 
-Conventions: `S(x)` = `crates/valvet_core/src/sema.rs`, `C(x)` = codegen.rs,
+Conventions: `S(x)` = `crates/cremona_core/src/sema.rs`, `C(x)` = codegen.rs,
 `P(x)` = parser.rs. Anchors are 0.3.0-era; grep quoted strings on drift.
 
 Batch order: F2 (comprehensions) -> F1 (par_map) -> F3 (docs idiom).
@@ -125,7 +125,7 @@ recognizers are ordinary named `fun`s returning `Option`.
 1. Docs (README or docs tour): the idiom —
    `match (s) { _ if is_int(s) -> ..., _ -> ... }` plus total-partition
    helpers returning `Option` payloads matched with `Some(x)` arms.
-   Show the regex-date example from the F# docs translated to Valvet's
+   Show the regex-date example from the F# docs translated to Cremona's
    `std::re` verbs.
 2. Fixtures (compile-pass): 2–3 ports of the canonical active-pattern
    examples (balanced classification, regex date parse) using guards +

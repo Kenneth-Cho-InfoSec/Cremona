@@ -1,7 +1,7 @@
-Source: https://kenneth-cho-infosec.github.io/Valvet/style.css
+Source: https://kenneth-cho-infosec.github.io/Cremona/style.css
 Fetched: 2026-10-20
 
-/* Valvet site. Brand sampled from docs/logo.png: primary #524CE9. No JS, no webfonts. */
+/* Cremona site. Brand sampled from docs/logo.png: primary #524CE9. No JS, no webfonts. */
 :root {
   --brand: #524ce9;
   --brand-dark: #3e35b4;

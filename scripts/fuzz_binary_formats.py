@@ -2,7 +2,7 @@
 """Deterministic mutation smoke test for the narrow Parquet and Arrow readers.
 
 This is not a coverage-guided fuzzer. It mutates every checked-in binary
-fixture in a fixed order, runs one prebuilt Valvet probe against each case,
+fixture in a fixed order, runs one prebuilt Cremona probe against each case,
 and fails on a signal, a timeout, or a non-zero exit. A clean `Err` and a
 successful parse are both acceptable: the goal is to prove malformed bytes
 never crash or hang the reader.
@@ -18,9 +18,9 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "valvet-tests" / "data"
-BIN = Path(os.environ.get("VALVET_BIN", ROOT / "target" / "debug" / "valvet"))
-CASE = Path("/tmp/opencode/valvet_fuzz_case.bin")
+DATA = ROOT / "cremona-tests" / "data"
+BIN = Path(os.environ.get("CREMONA_BIN", ROOT / "target" / "debug" / "cremona"))
+CASE = Path("/tmp/opencode/cremona_fuzz_case.bin")
 TIMEOUT = 5.0
 
 PROBE = """import std::arrow::read_arrow;
@@ -36,7 +36,7 @@ fun main() {
 def fixtures() -> list[Path]:
     out = sorted(DATA.glob("parquet_*.parquet")) + sorted(DATA.glob("arrow_*.arrow"))
     if not out:
-        raise SystemExit("no binary fixtures found under valvet-tests/data")
+        raise SystemExit("no binary fixtures found under cremona-tests/data")
     return out
 
 
@@ -58,7 +58,7 @@ def mutations(data: bytes) -> list[tuple[str, bytes]]:
 
 
 def build_probe(tmp: Path) -> Path:
-    src = tmp / "fuzz_probe.valvet"
+    src = tmp / "fuzz_probe.cremona"
     src.write_text(PROBE.replace("__CASE__", str(CASE)))
     out = subprocess.run(
         [str(BIN), "build", str(src)],
@@ -69,7 +69,7 @@ def build_probe(tmp: Path) -> Path:
     )
     if out.returncode != 0:
         raise SystemExit(f"probe build failed:\n{out.stdout}\n{out.stderr}")
-    exe = ROOT / "target" / "valvet" / "fuzz_probe"
+    exe = ROOT / "target" / "cremona" / "fuzz_probe"
     if not exe.exists():
         raise SystemExit(f"probe executable missing: {exe}")
     return exe
@@ -100,7 +100,7 @@ def main() -> int:
     if not BIN.exists():
         raise SystemExit(f"missing compiler binary: {BIN}")
     CASE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = Path(tempfile.mkdtemp(prefix="valvet-fuzz-"))
+    tmp = Path(tempfile.mkdtemp(prefix="cremona-fuzz-"))
     try:
         exe = build_probe(tmp)
         total = 0

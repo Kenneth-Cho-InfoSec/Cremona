@@ -4,8 +4,8 @@ Status: planning only. No implementation has been started by this document.
 
 Target: post-0.5.0 local tree.
 
-Basis: `stdlib/frame.valvet`, `stdlib/csv.valvet`, `stdlib/schema.valvet`,
-`stdlib/stats.valvet`, `stdlib/model.valvet`, `stdlib/factor.valvet`,
+Basis: `stdlib/frame.cremona`, `stdlib/csv.cremona`, `stdlib/schema.cremona`,
+`stdlib/stats.cremona`, `stdlib/model.cremona`, `stdlib/factor.cremona`,
 `docs/implementation/PLAN-0.2.0.md`, and the current fixture harness.
 
 Interpretation: "all of them" means the full recommended stack:
@@ -48,7 +48,7 @@ not rewrite `std::sql`, `std::plot`, `std::validate`, `std::features`, or
 
 The first typed column model uses one `Column` enum:
 
-```valvet
+```cremona
 pub enum Column {
     Int(Vec<Missing<Int64>>),
     Float(Vec<Missing<Float64>>),
@@ -148,13 +148,13 @@ columns, pass float columns directly to `std::stats`, and convert back to
 
 ### 1.2 New files
 
-#### `stdlib/typed_frame.valvet`
+#### `stdlib/typed_frame.cremona`
 
 Module: `std.typed_frame`.
 
 Imports:
 
-```valvet
+```cremona
 import std::frame::DynamicFrame;
 import std::csv::is_na;
 import std::schema::parse_bool_col;
@@ -166,7 +166,7 @@ import std::schema::parse_str_col;
 
 Public types and functions:
 
-```valvet
+```cremona
 pub enum Column {
     Int(Vec<Missing<Int64>>),
     Float(Vec<Missing<Float64>>),
@@ -262,13 +262,13 @@ Implementation notes:
 - `tf_col` and `tf_col_at` return cloned columns. Bulk paths use
   `ColBuild` and do not clone whole columns per row.
 
-#### `stdlib/typed_csv.valvet`
+#### `stdlib/typed_csv.cremona`
 
 Module: `std.typed_csv`.
 
 Imports:
 
-```valvet
+```cremona
 import std::csv::CsvTable;
 import std::csv::read_csv;
 import std::csv::read_csv_lenient;
@@ -289,7 +289,7 @@ import std::schema::parse_str_col;
 
 Public functions:
 
-```valvet
+```cremona
 pub fun tf_from_table(t: CsvTable, schema: Vec<String>, strict_types: Bool): Result<TypedFrame, String>
 pub fun read_csv_typed(path: String, schema: Vec<String>, strict: Bool): Result<TypedFrame, String>
 pub fun read_csv_typed_infer(path: String, strict: Bool): Result<TypedFrame, String>
@@ -312,13 +312,13 @@ Implementation notes:
 - `"factor"` uses `parse_factor_col`; NA spellings become code 0.
 - `"string"` uses `parse_str_col`; NA spellings become `Missing`.
 
-#### `stdlib/typed_stats.valvet`
+#### `stdlib/typed_stats.cremona`
 
 Module: `std.typed_stats`.
 
 Imports:
 
-```valvet
+```cremona
 import std::typed_frame::TypedFrame;
 import std::typed_frame::Column;
 import std::typed_frame::col_is_missing;
@@ -340,7 +340,7 @@ import std::stats::var_v;
 
 Public functions:
 
-```valvet
+```cremona
 pub fun tf_mean(f: &TypedFrame, col: String, policy: MissingPolicy): Option<Float64>
 pub fun tf_sum(f: &TypedFrame, col: String, policy: MissingPolicy): Option<Float64>
 pub fun tf_median(f: &TypedFrame, col: String, policy: MissingPolicy): Option<Float64>
@@ -362,11 +362,11 @@ numeric. Non-numeric requests return `Err`.
 
 ### 1.3 Modified files
 
-#### `stdlib/schema.valvet`
+#### `stdlib/schema.cremona`
 
 Add:
 
-```valvet
+```cremona
 pub fun parse_str_col(col: Vec<String>): Vec<Missing<String>>
 pub fun parse_factor_col(col: Vec<String>): Factor
 pub fun check_int_col(col: Vec<String>): Option<String>
@@ -384,11 +384,11 @@ returns `None` because any non-NA string is a valid level.
 Existing `parse_int_col`, `parse_float_col`, and `parse_bool_col` keep their
 current lenient behavior and signatures.
 
-#### `stdlib/csv.valvet`
+#### `stdlib/csv.cremona`
 
 Add:
 
-```valvet
+```cremona
 pub fun infer_schema_ex(t: &CsvTable, detect_bool: Bool): Vec<String>
 ```
 
@@ -418,31 +418,31 @@ printed by the fixture, not left as compiler diagnostics.
 
 | Fixture | Oracle |
 | --- | --- |
-| `valvet-tests/compile-pass/typed_frame_basic.valvet` | Names, kinds, nrows, and typed column values. |
-| `valvet-tests/compile-pass/typed_frame_missing.valvet` | `Missing` vs present values, `n_missing`, and `tf_drop_na`. |
-| `valvet-tests/compile-pass/typed_frame_convert.valvet` | `tf_from_dynamic` then `tf_to_dynamic` round trip for int, float, bool, string, factor. |
-| `valvet-tests/compile-pass/typed_frame_move.valvet` | Move-only frame through a function, struct field, and return; no use after move. |
-| `valvet-tests/compile-pass/typed_frame_empty.valvet` | Empty frame with and without columns; zero-row stats. |
-| `valvet-tests/compile-pass/typed_frame_stats.valvet` | Direct `std::stats` calls on `tf_float_col`; Skip and Propagate. |
-| `valvet-tests/compile-pass/typed_frame_describe.valvet` | `tf_describe` output and non-numeric `Err`. |
-| `valvet-tests/compile-pass/typed_csv_infer.valvet` | Int, float, bool, and string inference; NA spellings. |
-| `valvet-tests/compile-pass/typed_csv_schema.valvet` | Explicit schema including factor; typed column values. |
-| `valvet-tests/compile-pass/typed_csv_missing.valvet` | Missing values survive strict and lenient loading. |
-| `valvet-tests/compile-pass/typed_csv_lenient.valvet` | Unparseable cells become Missing only in lenient mode. |
-| `valvet-tests/compile-pass/typed_csv_bad_schema.valvet` | Strict type error names the column and row. |
-| `valvet-tests/compile-pass/typed_json_basic.valvet` | JSON table to typed frame with explicit schema. |
-| `valvet-tests/compile-pass/schema_str_factor.valvet` | `parse_str_col`, `parse_factor_col`, and strict check helpers. |
-| `valvet-tests/compile-pass/typed_group_key_encoding.valvet` | Key tokens for empty strings, `:`, `|`, Unicode, NUL, missing, and factor. |
-| `valvet-tests/compile-pass/typed_frame_set_column.valvet` | Replace and append behavior, including factor compaction. |
-| `valvet-tests/compile-pass/typed_frame_filter_mask.valvet` | Short mask behavior matches `frame_filter_mask`. |
-| `valvet-tests/compile-pass/typed_frame_take_rows.valvet` | Row selection, bounds error, and factor compaction. |
-| `examples/typed_frames.valvet` | README-style end-to-end example; run by `valvet test --doc`. |
+| `cremona-tests/compile-pass/typed_frame_basic.cremona` | Names, kinds, nrows, and typed column values. |
+| `cremona-tests/compile-pass/typed_frame_missing.cremona` | `Missing` vs present values, `n_missing`, and `tf_drop_na`. |
+| `cremona-tests/compile-pass/typed_frame_convert.cremona` | `tf_from_dynamic` then `tf_to_dynamic` round trip for int, float, bool, string, factor. |
+| `cremona-tests/compile-pass/typed_frame_move.cremona` | Move-only frame through a function, struct field, and return; no use after move. |
+| `cremona-tests/compile-pass/typed_frame_empty.cremona` | Empty frame with and without columns; zero-row stats. |
+| `cremona-tests/compile-pass/typed_frame_stats.cremona` | Direct `std::stats` calls on `tf_float_col`; Skip and Propagate. |
+| `cremona-tests/compile-pass/typed_frame_describe.cremona` | `tf_describe` output and non-numeric `Err`. |
+| `cremona-tests/compile-pass/typed_csv_infer.cremona` | Int, float, bool, and string inference; NA spellings. |
+| `cremona-tests/compile-pass/typed_csv_schema.cremona` | Explicit schema including factor; typed column values. |
+| `cremona-tests/compile-pass/typed_csv_missing.cremona` | Missing values survive strict and lenient loading. |
+| `cremona-tests/compile-pass/typed_csv_lenient.cremona` | Unparseable cells become Missing only in lenient mode. |
+| `cremona-tests/compile-pass/typed_csv_bad_schema.cremona` | Strict type error names the column and row. |
+| `cremona-tests/compile-pass/typed_json_basic.cremona` | JSON table to typed frame with explicit schema. |
+| `cremona-tests/compile-pass/schema_str_factor.cremona` | `parse_str_col`, `parse_factor_col`, and strict check helpers. |
+| `cremona-tests/compile-pass/typed_group_key_encoding.cremona` | Key tokens for empty strings, `:`, `|`, Unicode, NUL, missing, and factor. |
+| `cremona-tests/compile-pass/typed_frame_set_column.cremona` | Replace and append behavior, including factor compaction. |
+| `cremona-tests/compile-pass/typed_frame_filter_mask.cremona` | Short mask behavior matches `frame_filter_mask`. |
+| `cremona-tests/compile-pass/typed_frame_take_rows.cremona` | Row selection, bounds error, and factor compaction. |
+| `examples/typed_frames.cremona` | README-style end-to-end example; run by `cremona test --doc`. |
 
 Add one compile-fail fixture after the type checker behavior is confirmed:
 
 | Fixture | Expected |
 | --- | --- |
-| `valvet-tests/compile-fail/typed_frame_col_type.valvet` | Assigning `tf_float_col` to `Vec<Missing<Int64>>` is rejected. Record the actual E-code in `.error`. |
+| `cremona-tests/compile-fail/typed_frame_col_type.cremona` | Assigning `tf_float_col` to `Vec<Missing<Int64>>` is rejected. Record the actual E-code in `.error`. |
 
 ### 1.5 Oracles
 
@@ -461,9 +461,9 @@ Add one compile-fail fixture after the type checker behavior is confirmed:
 - `cargo fmt --all --check`
 - `cargo clippy --workspace --all-targets -- -D warnings`
 - `cargo test --workspace`
-- `target/debug/valvet test valvet-tests`
-- `target/release/valvet test valvet-tests`
-- `target/debug/valvet test --doc`
+- `target/debug/cremona test cremona-tests`
+- `target/release/cremona test cremona-tests`
+- `target/debug/cremona test --doc`
 - ASan/UBSan/LSan on `typed_frame_move`, `typed_frame_convert`,
   `typed_frame_set_column`, `typed_frame_take_rows`, and
   `typed_group_key_encoding`.
@@ -487,13 +487,13 @@ group with several named aggregations. No closures and no general map.
 
 ### 2.2 New file
 
-#### `stdlib/grouped.valvet`
+#### `stdlib/grouped.cremona`
 
 Module: `std.grouped`.
 
 Imports:
 
-```valvet
+```cremona
 import std::typed_frame::Column;
 import std::typed_frame::ColBuild;
 import std::typed_frame::SortKey;
@@ -516,7 +516,7 @@ import std::stats::MissingPolicy;
 
 Public types and functions:
 
-```valvet
+```cremona
 pub enum Agg {
     Count,
     CountNonMissing(String),
@@ -614,13 +614,13 @@ group's first row. Factor key columns may compact levels.
 
 ### 2.5 Modified files
 
-- `stdlib/typed_frame.valvet`: add `tf_order_rows` and `tf_arrange_keys` if
+- `stdlib/typed_frame.cremona`: add `tf_order_rows` and `tf_arrange_keys` if
   not already present in P1. `tf_order_rows` is a stable multi-key sort over
   a `Vec<Int64>` row list, with missing values last in both ascending and
   descending order. `tf_arrange_keys` applies it to the whole frame.
-- `stdlib/typed_frame.valvet`: add `tf_column_names` only if needed by
+- `stdlib/typed_frame.cremona`: add `tf_column_names` only if needed by
   `tf_summarise`; otherwise use `tf_schema`.
-- `stdlib/frame.valvet`: no change in P2.
+- `stdlib/frame.cremona`: no change in P2.
 - `README.md`, `docs/implementation/IMPLEMENTATION_STATUS.md`: add grouped
   aggregation examples and status after the phase lands.
 - `docs/implementation/DICT_SPEC.md`: append a note that typed grouping uses
@@ -631,18 +631,18 @@ group's first row. Factor key columns may compact levels.
 
 | Fixture | Oracle |
 | --- | --- |
-| `valvet-tests/compile-pass/typed_group_multi.valvet` | Two keys, first-appearance order, Count/Sum/Mean. |
-| `valvet-tests/compile-pass/typed_group_agg_all.valvet` | Every `Agg` variant on int, float, string, and bool columns. |
-| `valvet-tests/compile-pass/typed_group_missing.valvet` | Missing keys, missing values, Count vs CountNonMissing vs NMissing. |
-| `valvet-tests/compile-pass/typed_group_propagate.valvet` | Skip vs Propagate for every numeric aggregate. |
-| `valvet-tests/compile-pass/typed_group_order.valvet` | First-appearance order and stable key order. |
-| `valvet-tests/compile-pass/typed_group_global.valvet` | Empty key list gives one global group. |
-| `valvet-tests/compile-pass/typed_group_empty.valvet` | Zero rows, zero groups, empty key and aggregate columns. |
-| `valvet-tests/compile-pass/typed_group_factor.valvet` | Factor key output and level compaction. |
-| `valvet-tests/compile-pass/typed_group_bad_key.valvet` | Missing key, duplicate key, and duplicate spec name return `Err`. |
-| `valvet-tests/compile-pass/typed_group_exact_int.valvet` | Large Int64 sum stays integer and exact. |
-| `valvet-tests/compile-pass/typed_group_float_oracle.valvet` | Float sums and means match `std::stats` Kahan results. |
-| `examples/typed_group.valvet` | README-style group-by and summarise example. |
+| `cremona-tests/compile-pass/typed_group_multi.cremona` | Two keys, first-appearance order, Count/Sum/Mean. |
+| `cremona-tests/compile-pass/typed_group_agg_all.cremona` | Every `Agg` variant on int, float, string, and bool columns. |
+| `cremona-tests/compile-pass/typed_group_missing.cremona` | Missing keys, missing values, Count vs CountNonMissing vs NMissing. |
+| `cremona-tests/compile-pass/typed_group_propagate.cremona` | Skip vs Propagate for every numeric aggregate. |
+| `cremona-tests/compile-pass/typed_group_order.cremona` | First-appearance order and stable key order. |
+| `cremona-tests/compile-pass/typed_group_global.cremona` | Empty key list gives one global group. |
+| `cremona-tests/compile-pass/typed_group_empty.cremona` | Zero rows, zero groups, empty key and aggregate columns. |
+| `cremona-tests/compile-pass/typed_group_factor.cremona` | Factor key output and level compaction. |
+| `cremona-tests/compile-pass/typed_group_bad_key.cremona` | Missing key, duplicate key, and duplicate spec name return `Err`. |
+| `cremona-tests/compile-pass/typed_group_exact_int.cremona` | Large Int64 sum stays integer and exact. |
+| `cremona-tests/compile-pass/typed_group_float_oracle.cremona` | Float sums and means match `std::stats` Kahan results. |
+| `examples/typed_group.cremona` | README-style group-by and summarise example. |
 
 Oracle: pure Python standard library, with the same first-appearance key
 order and sample variance. Compare Int sums exactly; compare Float values by
@@ -676,13 +676,13 @@ that never silently drops rows.
 
 ### 3.2 New file
 
-#### `stdlib/typed_join.valvet`
+#### `stdlib/typed_join.cremona`
 
 Module: `std.typed_join`.
 
 Imports:
 
-```valvet
+```cremona
 import std::frame::JoinAudit;
 import std::frame::audit_summary;
 import std::frame::join_audit_new;
@@ -704,7 +704,7 @@ import std::typed_frame::tf_schema;
 
 Public types and functions:
 
-```valvet
+```cremona
 pub struct TypedJoinResult {
     frame: TypedFrame,
     audit: JoinAudit,
@@ -719,7 +719,7 @@ pub fun tf_join_audit_summary(r: &TypedJoinResult): String
 
 Internal helpers:
 
-```valvet
+```cremona
 enum JoinKind { Inner, Left, Right, Full }
 struct RightIndex { keys: StringIndex, heads: Vec<Int64>, tails: Vec<Int64>, next: Vec<Int64> }
 fun join_core(left: &TypedFrame, lkeys: Vec<String>, right: &TypedFrame, rkeys: Vec<String>, kind: JoinKind): Result<TypedJoinResult, String>
@@ -752,11 +752,11 @@ fun output_names(left: &TypedFrame, right: &TypedFrame, rkeys: Vec<String>): Res
 
 ### 3.4 Modified files
 
-#### `stdlib/frame.valvet`
+#### `stdlib/frame.cremona`
 
 Add:
 
-```valvet
+```cremona
 pub fun join_audit_new(matched: Int64, left_only: Int64, right_only: Int64, left_rows: Int64, right_rows: Int64, out_rows: Int64): JoinAudit
 ```
 
@@ -765,7 +765,7 @@ function. Existing join functions are unchanged.
 
 #### Other
 
-- `stdlib/typed_frame.valvet`: add `tf_col_at` and `tf_new` only if not
+- `stdlib/typed_frame.cremona`: add `tf_col_at` and `tf_new` only if not
   already present from P1.
 - `README.md`, `docs/implementation/IMPLEMENTATION_STATUS.md`: add join
   examples and status.
@@ -776,18 +776,18 @@ function. Existing join functions are unchanged.
 
 | Fixture | Oracle |
 | --- | --- |
-| `valvet-tests/compile-pass/typed_join_inner.valvet` | Matched rows, left-only and right-only audit, output order. |
-| `valvet-tests/compile-pass/typed_join_left.valvet` | Left rows preserved, missing right cells. |
-| `valvet-tests/compile-pass/typed_join_right.valvet` | Right rows preserved, missing left cells. |
-| `valvet-tests/compile-pass/typed_join_full.valvet` | Both sides preserved, audit counts. |
-| `valvet-tests/compile-pass/typed_join_multi_key.valvet` | Two-key join and output key order. |
-| `valvet-tests/compile-pass/typed_join_missing_keys.valvet` | Missing keys never match; left-only and right-only counts. |
-| `valvet-tests/compile-pass/typed_join_duplicate_keys.valvet` | Cartesian product and audit. |
-| `valvet-tests/compile-pass/typed_join_suffix.valvet` | `_right`, `_2`, and repeated collision handling. |
-| `valvet-tests/compile-pass/typed_join_audit.valvet` | `audit_summary` output for all four kinds. |
-| `valvet-tests/compile-pass/typed_join_bad_key.valvet` | Missing key, key count mismatch, duplicate key, and type mismatch. |
-| `valvet-tests/compile-pass/typed_join_factor.valvet` | Factor keys join by label; output levels compact. |
-| `examples/typed_join.valvet` | README-style join example. |
+| `cremona-tests/compile-pass/typed_join_inner.cremona` | Matched rows, left-only and right-only audit, output order. |
+| `cremona-tests/compile-pass/typed_join_left.cremona` | Left rows preserved, missing right cells. |
+| `cremona-tests/compile-pass/typed_join_right.cremona` | Right rows preserved, missing left cells. |
+| `cremona-tests/compile-pass/typed_join_full.cremona` | Both sides preserved, audit counts. |
+| `cremona-tests/compile-pass/typed_join_multi_key.cremona` | Two-key join and output key order. |
+| `cremona-tests/compile-pass/typed_join_missing_keys.cremona` | Missing keys never match; left-only and right-only counts. |
+| `cremona-tests/compile-pass/typed_join_duplicate_keys.cremona` | Cartesian product and audit. |
+| `cremona-tests/compile-pass/typed_join_suffix.cremona` | `_right`, `_2`, and repeated collision handling. |
+| `cremona-tests/compile-pass/typed_join_audit.cremona` | `audit_summary` output for all four kinds. |
+| `cremona-tests/compile-pass/typed_join_bad_key.cremona` | Missing key, key count mismatch, duplicate key, and type mismatch. |
+| `cremona-tests/compile-pass/typed_join_factor.cremona` | Factor keys join by label; output levels compact. |
+| `examples/typed_join.cremona` | README-style join example. |
 
 Oracle: pure Python standard library dictionaries and lists, with explicit
 first-appearance and right-order rules. Compare all rows and audit fields.
@@ -819,13 +819,13 @@ stays in the original frame row order.
 
 ### 4.2 New file
 
-#### `stdlib/typed_window.valvet`
+#### `stdlib/typed_window.cremona`
 
 Module: `std.typed_window`.
 
 Imports:
 
-```valvet
+```cremona
 import std::grouped::GroupIndex;
 import std::grouped::tf_group_index;
 import std::typed_frame::ColBuild;
@@ -846,7 +846,7 @@ import std::typed_frame::tf_set_column;
 
 Public types and functions:
 
-```valvet
+```cremona
 pub enum WindowExpr {
     Lag(String, Int64),
     Lead(String, Int64),
@@ -866,7 +866,7 @@ pub fun tf_window_mutate(f: TypedFrame, name: String, spec: WindowSpec, expr: Wi
 
 Internal helpers:
 
-```valvet
+```cremona
 fun window_lag(src: &Column, order: Vec<Int64>, k: Int64, n: Int64): Column
 fun window_lead(src: &Column, order: Vec<Int64>, k: Int64, n: Int64): Column
 fun window_rownum(order: Vec<Int64>, n: Int64): Column
@@ -898,10 +898,10 @@ fun window_rank(src: &Column, order: Vec<Int64>, n: Int64): Result<Column, Strin
 
 ### 4.4 Modified files
 
-- `stdlib/typed_frame.valvet`: add `tf_order_rows` and `tf_arrange_keys` if
+- `stdlib/typed_frame.cremona`: add `tf_order_rows` and `tf_arrange_keys` if
   not already present from P2. `tf_order_rows` is the stable comparator used
   by both arrange and windows.
-- `stdlib/grouped.valvet`: add `grouped_group_ids` and
+- `stdlib/grouped.cremona`: add `grouped_group_ids` and
   `grouped_first_rows` if not already present from P2.
 - `README.md`, `docs/implementation/IMPLEMENTATION_STATUS.md`: add window
   examples and status.
@@ -912,16 +912,16 @@ fun window_rank(src: &Column, order: Vec<Int64>, n: Int64): Result<Column, Strin
 
 | Fixture | Oracle |
 | --- | --- |
-| `valvet-tests/compile-pass/typed_window_group_lag.valvet` | Lag and Lead per partition, boundary Missing. |
-| `valvet-tests/compile-pass/typed_window_group_rank.valvet` | Rank with ties, missing, and multiple partitions. |
-| `valvet-tests/compile-pass/typed_window_order.valvet` | `order_by` changes evaluation order but not output row order. |
-| `valvet-tests/compile-pass/typed_window_missing.valvet` | Missing partition keys, missing sort keys, missing source values. |
-| `valvet-tests/compile-pass/typed_window_empty.valvet` | Empty frame and empty partitions. |
-| `valvet-tests/compile-pass/typed_window_bad_col.valvet` | Missing partition, order, or source column returns `Err`. |
-| `valvet-tests/compile-pass/typed_window_global.valvet` | Empty partition list behaves like the current global window verbs. |
-| `valvet-tests/compile-pass/typed_window_cumsum_int.valvet` | Int cumsum stays exact and resets per partition. |
-| `valvet-tests/compile-pass/typed_window_factor.valvet` | Lag/Lead on a factor and level compaction. |
-| `examples/typed_window.valvet` | README-style grouped window example. |
+| `cremona-tests/compile-pass/typed_window_group_lag.cremona` | Lag and Lead per partition, boundary Missing. |
+| `cremona-tests/compile-pass/typed_window_group_rank.cremona` | Rank with ties, missing, and multiple partitions. |
+| `cremona-tests/compile-pass/typed_window_order.cremona` | `order_by` changes evaluation order but not output row order. |
+| `cremona-tests/compile-pass/typed_window_missing.cremona` | Missing partition keys, missing sort keys, missing source values. |
+| `cremona-tests/compile-pass/typed_window_empty.cremona` | Empty frame and empty partitions. |
+| `cremona-tests/compile-pass/typed_window_bad_col.cremona` | Missing partition, order, or source column returns `Err`. |
+| `cremona-tests/compile-pass/typed_window_global.cremona` | Empty partition list behaves like the current global window verbs. |
+| `cremona-tests/compile-pass/typed_window_cumsum_int.cremona` | Int cumsum stays exact and resets per partition. |
+| `cremona-tests/compile-pass/typed_window_factor.cremona` | Lag/Lead on a factor and level compaction. |
+| `examples/typed_window.cremona` | README-style grouped window example. |
 
 Oracle: pure Python standard library per-partition loops for shift, cumsum,
 and average rank. Lock exact printed values.
@@ -950,13 +950,13 @@ malformed-input tests. No external crates and no C library dependencies.
 
 ### 5.2 New files
 
-#### `stdlib/bytes.valvet`
+#### `stdlib/bytes.cremona`
 
 Module: `std.bytes`.
 
 Public functions:
 
-```valvet
+```cremona
 pub struct Varint { value: Int64, next: Int64 }
 pub fun bytes_u8(s: &String, at: Int64): Option<Int64>
 pub fun bytes_u16_le(s: &String, at: Int64): Option<Int64>
@@ -975,7 +975,7 @@ pub fun bytes_from_string(s: &String): Vec<Int64>
 All P5A readers return `Option` and never trap. Writer helpers and
 `bytes_finish` are added in P5B, using the P5A `bytes_to_string` builtin.
 
-#### `stdlib/thrift.valvet`
+#### `stdlib/thrift.cremona`
 
 Module: `std.thrift`.
 
@@ -985,7 +985,7 @@ list header, struct stop, and skip. Depth cap: 32. All lengths are checked.
 
 Public types and functions:
 
-```valvet
+```cremona
 pub struct ThriftReader { data: String, pos: Int64 }
 pub struct ThriftField { id: Int64, kind: Int64, next: Int64 }
 
@@ -1003,11 +1003,11 @@ pub fun thrift_skip(r: &mut ThriftReader, kind: Int64): Bool
 `ThriftList` is a small struct with element kind and count. `ThriftWriter`
 and the `thrift_write_*` helpers are added in P5B.
 
-#### `stdlib/snappy.valvet`
+#### `stdlib/snappy.cremona`
 
 Module: `std.snappy`.
 
-```valvet
+```cremona
 pub fun snappy_decompress(src: String, expected_len: Int64): Result<String, String>
 ```
 
@@ -1017,7 +1017,7 @@ output growth past the cap. Build the decoded result with the P5A
 `bytes_to_string` builtin. Writer support is not needed; the Parquet writer
 emits uncompressed pages.
 
-#### `stdlib/flatbuf.valvet`
+#### `stdlib/flatbuf.cremona`
 
 Module: `std.flatbuf`.
 
@@ -1026,7 +1026,7 @@ added in P5B.
 
 Public functions:
 
-```valvet
+```cremona
 pub struct FbTable { data: String, pos: Int64 }
 pub fun fb_root(s: &String): Option<FbTable>
 pub fun fb_field(t: &FbTable, field: Int64): Option<Int64>
@@ -1041,11 +1041,11 @@ pub fun fb_vector_offset(t: &FbTable, field: Int64, index: Int64): Option<Int64>
 Reader helpers are checked and non-recursive. Writer helpers are added in
 P5B.
 
-#### `stdlib/parquet.valvet`
+#### `stdlib/parquet.cremona`
 
 Module: `std.parquet`.
 
-```valvet
+```cremona
 pub fun read_parquet(path: String): Result<TypedFrame, String>
 pub fun read_parquet_schema(path: String): Result<Vec<String>, String>
 ```
@@ -1071,11 +1071,11 @@ Caps: `PARQUET_MAX_FILE_BYTES = 268435456`,
 `PARQUET_MAX_PAGE_BYTES = 67108864`. All offsets, lengths, and counts use
 checked arithmetic.
 
-#### `stdlib/arrow.valvet`
+#### `stdlib/arrow.cremona`
 
 Module: `std.arrow`.
 
-```valvet
+```cremona
 pub fun read_arrow(path: String): Result<TypedFrame, String>
 pub fun read_arrow_schema(path: String): Result<Vec<String>, String>
 ```
@@ -1101,26 +1101,26 @@ New scripts, standard library only and deterministic:
 
 New data directory:
 
-- `valvet-tests/data/README.md`: provenance, format subset, SHA256, and
+- `cremona-tests/data/README.md`: provenance, format subset, SHA256, and
   expected schema for every binary fixture.
-- `valvet-tests/data/parquet/plain_basic.parquet`
-- `valvet-tests/data/parquet/plain_missing.parquet`
-- `valvet-tests/data/parquet/snappy_basic.parquet`
-- `valvet-tests/data/parquet/nested.parquet` (unsupported)
-- `valvet-tests/data/parquet/dictionary.parquet` (unsupported)
-- `valvet-tests/data/parquet/truncated.parquet` (malformed)
-- `valvet-tests/data/parquet/bad_offset.parquet` (malformed)
-- `valvet-tests/data/arrow/basic.arrow`
-- `valvet-tests/data/arrow/missing.arrow`
-- `valvet-tests/data/arrow/unsupported.arrow` (unsupported)
-- `valvet-tests/data/arrow/truncated.arrow` (malformed)
+- `cremona-tests/data/parquet/plain_basic.parquet`
+- `cremona-tests/data/parquet/plain_missing.parquet`
+- `cremona-tests/data/parquet/snappy_basic.parquet`
+- `cremona-tests/data/parquet/nested.parquet` (unsupported)
+- `cremona-tests/data/parquet/dictionary.parquet` (unsupported)
+- `cremona-tests/data/parquet/truncated.parquet` (malformed)
+- `cremona-tests/data/parquet/bad_offset.parquet` (malformed)
+- `cremona-tests/data/arrow/basic.arrow`
+- `cremona-tests/data/arrow/missing.arrow`
+- `cremona-tests/data/arrow/unsupported.arrow` (unsupported)
+- `cremona-tests/data/arrow/truncated.arrow` (malformed)
 
 Fixtures read these paths relative to the repository root, which is the
-working directory used by `valvet test` and `valvet test --doc`.
+working directory used by `cremona test` and `cremona test --doc`.
 
 ### 5.3 Modified files
 
-#### `crates/valvet_core/src/sema.rs`
+#### `crates/cremona_core/src/sema.rs`
 
 Add the `read_file_limit(path: String, max_bytes: Int64):
 Result<String, String>` builtin:
@@ -1140,7 +1140,7 @@ Also add `bytes_to_string(v: Vec<Int64>): Result<String, String>`:
 - The result is a length-aware `VStr` with exact bytes, including NUL.
 - Record `Vec<Int64>` and `Result<String, String>`.
 
-#### `crates/valvet_core/src/codegen.rs`
+#### `crates/cremona_core/src/codegen.rs`
 
 Add the C helper and lowering for `read_file_limit`:
 
@@ -1157,7 +1157,7 @@ Add the C helper and lowering for `bytes_to_string`:
 - Reject a byte outside `0..255` before allocation.
 - Preserve NUL bytes through the explicit length.
 
-#### `crates/valvet_core/tests/front_end.rs`
+#### `crates/cremona_core/tests/front_end.rs`
 
 Add tests:
 
@@ -1167,7 +1167,7 @@ Add tests:
 - `bytes_to_string_arity_and_types`
 - `bytes_to_string_records_result`
 
-#### `crates/valvet_cli/tests/security.rs`
+#### `crates/cremona_cli/tests/security.rs`
 
 Add a local, non-destructive test that a limit larger than the file succeeds
 and a smaller limit returns `Err` without reading the file into memory. Use
@@ -1191,25 +1191,25 @@ a temporary file under the approved temp directory.
 
 | Fixture | Oracle |
 | --- | --- |
-| `valvet-tests/compile-pass/bytes_basic.valvet` | Little-endian reads, varint, zigzag, bit unpack, bounds failures. |
-| `valvet-tests/compile-pass/bytes_to_string_basic.valvet` | ASCII, NUL, high bytes, and invalid byte errors. |
-| `valvet-tests/compile-pass/bytes_to_string_roundtrip.valvet` | `read_file` after `write_file` returns the exact byte length. |
-| `valvet-tests/compile-pass/snappy_literal.valvet` | Literal-only block decodes to the expected bytes. |
-| `valvet-tests/compile-pass/snappy_copy.valvet` | Copy tags, overlapping copies, and output cap. |
-| `valvet-tests/compile-pass/snappy_truncated.valvet` | Truncated and invalid blocks return `Err`. |
-| `valvet-tests/compile-pass/parquet_read_basic.valvet` | Plain basic file; names, types, rows. |
-| `valvet-tests/compile-pass/parquet_read_missing.valvet` | Optional columns and definition levels. |
-| `valvet-tests/compile-pass/parquet_read_snappy.valvet` | Snappy page decodes identically to the plain oracle. |
-| `valvet-tests/compile-pass/parquet_reject_nested.valvet` | Nested schema returns `Err`. |
-| `valvet-tests/compile-pass/parquet_reject_dictionary.valvet` | Dictionary page returns `Err`. |
-| `valvet-tests/compile-pass/parquet_reject_truncated.valvet` | Truncated footer or page returns `Err`. |
-| `valvet-tests/compile-pass/parquet_reject_bad_offset.valvet` | Out-of-range offset returns `Err`. |
-| `valvet-tests/compile-pass/arrow_read_basic.valvet` | File format, primitive columns, rows. |
-| `valvet-tests/compile-pass/arrow_read_missing.valvet` | Validity bitmap and missing values. |
-| `valvet-tests/compile-pass/arrow_reject_unsupported.valvet` | Dictionary or nested field returns `Err`. |
-| `valvet-tests/compile-pass/arrow_reject_truncated.valvet` | Truncated footer or batch returns `Err`. |
-| `examples/parquet_read.valvet` | README-style Parquet read example. |
-| `examples/arrow_read.valvet` | README-style Arrow read example. |
+| `cremona-tests/compile-pass/bytes_basic.cremona` | Little-endian reads, varint, zigzag, bit unpack, bounds failures. |
+| `cremona-tests/compile-pass/bytes_to_string_basic.cremona` | ASCII, NUL, high bytes, and invalid byte errors. |
+| `cremona-tests/compile-pass/bytes_to_string_roundtrip.cremona` | `read_file` after `write_file` returns the exact byte length. |
+| `cremona-tests/compile-pass/snappy_literal.cremona` | Literal-only block decodes to the expected bytes. |
+| `cremona-tests/compile-pass/snappy_copy.cremona` | Copy tags, overlapping copies, and output cap. |
+| `cremona-tests/compile-pass/snappy_truncated.cremona` | Truncated and invalid blocks return `Err`. |
+| `cremona-tests/compile-pass/parquet_read_basic.cremona` | Plain basic file; names, types, rows. |
+| `cremona-tests/compile-pass/parquet_read_missing.cremona` | Optional columns and definition levels. |
+| `cremona-tests/compile-pass/parquet_read_snappy.cremona` | Snappy page decodes identically to the plain oracle. |
+| `cremona-tests/compile-pass/parquet_reject_nested.cremona` | Nested schema returns `Err`. |
+| `cremona-tests/compile-pass/parquet_reject_dictionary.cremona` | Dictionary page returns `Err`. |
+| `cremona-tests/compile-pass/parquet_reject_truncated.cremona` | Truncated footer or page returns `Err`. |
+| `cremona-tests/compile-pass/parquet_reject_bad_offset.cremona` | Out-of-range offset returns `Err`. |
+| `cremona-tests/compile-pass/arrow_read_basic.cremona` | File format, primitive columns, rows. |
+| `cremona-tests/compile-pass/arrow_read_missing.cremona` | Validity bitmap and missing values. |
+| `cremona-tests/compile-pass/arrow_reject_unsupported.cremona` | Dictionary or nested field returns `Err`. |
+| `cremona-tests/compile-pass/arrow_reject_truncated.cremona` | Truncated footer or batch returns `Err`. |
+| `examples/parquet_read.cremona` | README-style Parquet read example. |
+| `examples/arrow_read.cremona` | README-style Arrow read example. |
 
 Oracle: the generator scripts emit a small JSON or CSV sidecar with expected
 rows and schema; fixtures print the same values. The generators use only the
@@ -1219,7 +1219,7 @@ runtime dependencies.
 ### 5.5 Fuzz and security gates
 
 - Add `scripts/fuzz_binary_formats.py` (new) that mutates the binary
-  fixtures, writes temporary files, runs a small Valvet probe, and checks
+  fixtures, writes temporary files, runs a small Cremona probe, and checks
   for a clean `Err` rather than a signal, hang, or sanitizer report.
 - Run the probe under ASan/UBSan/LSan with a per-case timeout.
 - Reject inputs over the file, row, column, page, and output caps.
@@ -1235,7 +1235,7 @@ runtime dependencies.
 All P1 gates, plus:
 
 - `cargo test --workspace` with the new front-end tests.
-- `target/debug/valvet test valvet-tests` and release.
+- `target/debug/cremona test cremona-tests` and release.
 - ASan/UBSan/LSan on every binary fixture, including malformed inputs.
 - Fuzz smoke on the binary fixtures.
 - No new dependency in `Cargo.toml`.
@@ -1264,16 +1264,16 @@ must not add another compiler builtin.
 
 ### 6.3 Modified files
 
-- `stdlib/bytes.valvet`: add `bytes_put_u8`, `bytes_put_u32_le`,
+- `stdlib/bytes.cremona`: add `bytes_put_u8`, `bytes_put_u32_le`,
   `bytes_put_i64_le`, `bytes_put_varint`, `bytes_put_zigzag`, and
   `bytes_finish`. `bytes_finish` calls the P5A `bytes_to_string` builtin.
-- `stdlib/thrift.valvet`: add `ThriftWriter` and the `thrift_write_*`
+- `stdlib/thrift.cremona`: add `ThriftWriter` and the `thrift_write_*`
   helpers used by Parquet metadata.
-- `stdlib/flatbuf.valvet`: add `fb_finish_table` and the writer helpers used
+- `stdlib/flatbuf.cremona`: add `fb_finish_table` and the writer helpers used
   by Arrow metadata.
-- `stdlib/parquet.valvet`: add `write_parquet(f: &TypedFrame, path: String):
+- `stdlib/parquet.cremona`: add `write_parquet(f: &TypedFrame, path: String):
   Result<Int64, String>`.
-- `stdlib/arrow.valvet`: add `write_arrow(f: &TypedFrame, path: String):
+- `stdlib/arrow.cremona`: add `write_arrow(f: &TypedFrame, path: String):
   Result<Int64, String>`.
 - `README.md`, `docs/implementation/IMPLEMENTATION_STATUS.md`,
   `docs/implementation/ARCHITECTURE.md`: add writer support and limits.
@@ -1306,14 +1306,14 @@ offset and length.
 
 | Fixture | Oracle |
 | --- | --- |
-| `valvet-tests/compile-pass/parquet_roundtrip.valvet` | Write and read back Int, Float, Bool, Str, and missing. |
-| `valvet-tests/compile-pass/parquet_roundtrip_factor.valvet` | Factor is written as Str and read back as a string column. |
-| `valvet-tests/compile-pass/parquet_write_bad_path.valvet` | A failed write returns `Err`. |
-| `valvet-tests/compile-pass/arrow_roundtrip.valvet` | Write and read back Int, Float, Bool, Str, and missing. |
-| `valvet-tests/compile-pass/arrow_roundtrip_factor.valvet` | Factor is written as Utf8 and read back as a string column. |
-| `valvet-tests/compile-pass/arrow_write_bad_path.valvet` | A failed write returns `Err`. |
-| `examples/parquet_write.valvet` | README-style writer example. |
-| `examples/arrow_write.valvet` | README-style writer example. |
+| `cremona-tests/compile-pass/parquet_roundtrip.cremona` | Write and read back Int, Float, Bool, Str, and missing. |
+| `cremona-tests/compile-pass/parquet_roundtrip_factor.cremona` | Factor is written as Str and read back as a string column. |
+| `cremona-tests/compile-pass/parquet_write_bad_path.cremona` | A failed write returns `Err`. |
+| `cremona-tests/compile-pass/arrow_roundtrip.cremona` | Write and read back Int, Float, Bool, Str, and missing. |
+| `cremona-tests/compile-pass/arrow_roundtrip_factor.cremona` | Factor is written as Utf8 and read back as a string column. |
+| `cremona-tests/compile-pass/arrow_write_bad_path.cremona` | A failed write returns `Err`. |
+| `examples/parquet_write.cremona` | README-style writer example. |
+| `examples/arrow_write.cremona` | README-style writer example. |
 
 ### 6.6 Gates
 
@@ -1334,18 +1334,18 @@ and that a second read produces identical typed values.
 ### 7.1 Goal
 
 Build a plan without reading data, then execute it with `lazy_collect`.
-Plans are flat lists of steps, not recursive enums, because Valvet has no
+Plans are flat lists of steps, not recursive enums, because Cremona has no
 `Box` and rejects recursive types.
 
 ### 7.2 New file
 
-#### `stdlib/lazy.valvet`
+#### `stdlib/lazy.cremona`
 
 Module: `std.lazy`.
 
 Imports:
 
-```valvet
+```cremona
 import std::arrow::read_arrow;
 import std::grouped::AggSpec;
 import std::grouped::tf_group_by;
@@ -1364,7 +1364,7 @@ import std::typed_join::tf_join_inner;
 
 Public types and functions:
 
-```valvet
+```cremona
 pub enum LazySource {
     Csv(String, Vec<String>, Bool),
     CsvInfer(String, Bool),
@@ -1438,8 +1438,8 @@ pub fun lazy_explain(f: &LazyFrame): Vec<String>
 
 ### 7.4 Modified files
 
-- `stdlib/typed_frame.valvet`: add `tf_arrange_keys` if not already present.
-- `stdlib/grouped.valvet`: add any missing accessor used by `lazy_collect`.
+- `stdlib/typed_frame.cremona`: add `tf_arrange_keys` if not already present.
+- `stdlib/grouped.cremona`: add any missing accessor used by `lazy_collect`.
 - `README.md`, `docs/implementation/IMPLEMENTATION_STATUS.md`: add lazy plan
   examples and status.
 - `docs/implementation/ARCHITECTURE.md`: add the flat plan model and explain
@@ -1451,15 +1451,15 @@ pub fun lazy_explain(f: &LazyFrame): Vec<String>
 
 | Fixture | Oracle |
 | --- | --- |
-| `valvet-tests/compile-pass/lazy_plan_basic.valvet` | Source plus select, filter, arrange, limit; compare to eager pipeline. |
-| `valvet-tests/compile-pass/lazy_plan_lazy_io.valvet` | Construct with a missing path, print `built`, then collect and print `Err`. Proves no eager read. |
-| `valvet-tests/compile-pass/lazy_plan_select_limit.valvet` | Adjacent select merge and limit-before-select rule. |
-| `valvet-tests/compile-pass/lazy_plan_summarise.valvet` | Lazy group and summarise equals eager typed result. |
-| `valvet-tests/compile-pass/lazy_plan_join.valvet` | Lazy inner join equals eager typed join. |
-| `valvet-tests/compile-pass/lazy_plan_errors.valvet` | Bad source, bad column, bad filter value, and bad limit. |
-| `valvet-tests/compile-pass/lazy_plan_explain.valvet` | Deterministic explain output before and after optimize. |
-| `valvet-tests/compile-pass/lazy_plan_empty.valvet` | Empty source, empty select, and limit 0. |
-| `examples/lazy_plan.valvet` | README-style lazy example. |
+| `cremona-tests/compile-pass/lazy_plan_basic.cremona` | Source plus select, filter, arrange, limit; compare to eager pipeline. |
+| `cremona-tests/compile-pass/lazy_plan_lazy_io.cremona` | Construct with a missing path, print `built`, then collect and print `Err`. Proves no eager read. |
+| `cremona-tests/compile-pass/lazy_plan_select_limit.cremona` | Adjacent select merge and limit-before-select rule. |
+| `cremona-tests/compile-pass/lazy_plan_summarise.cremona` | Lazy group and summarise equals eager typed result. |
+| `cremona-tests/compile-pass/lazy_plan_join.cremona` | Lazy inner join equals eager typed join. |
+| `cremona-tests/compile-pass/lazy_plan_errors.cremona` | Bad source, bad column, bad filter value, and bad limit. |
+| `cremona-tests/compile-pass/lazy_plan_explain.cremona` | Deterministic explain output before and after optimize. |
+| `cremona-tests/compile-pass/lazy_plan_empty.cremona` | Empty source, empty select, and limit 0. |
+| `examples/lazy_plan.cremona` | README-style lazy example. |
 
 Oracle: compare each lazy fixture to the equivalent eager typed fixture
 output. Laziness is proven by the missing-path construction test and by the
@@ -1488,13 +1488,13 @@ Run after every phase:
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
-target/debug/valvet test valvet-tests
-target/release/valvet test valvet-tests
-target/debug/valvet test --doc
+target/debug/cremona test cremona-tests
+target/release/cremona test cremona-tests
+target/debug/cremona test --doc
 ```
 
-`valvet test` compiles generated C with release flags by default. The
-`target/release/valvet` run checks the release CLI driver as well.
+`cremona test` compiles generated C with release flags by default. The
+`target/release/cremona` run checks the release CLI driver as well.
 
 Sanitizers:
 
@@ -1502,9 +1502,9 @@ Sanitizers:
   -fsanitize=address,undefined`.
 - `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1`
 - `UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1`
-- Delete `target/valvet/<stem>` and `target/valvet/<stem>-*.hash` before a
+- Delete `target/cremona/<stem>` and `target/cremona/<stem>-*.hash` before a
   forced rebuild, otherwise the linker cache can reuse a non-sanitized
-  executable when only `VALVET_CC` changes.
+  executable when only `CREMONA_CC` changes.
 - Run every new fixture that owns or moves strings, columns, factors, or
   binary buffers.
 - Run every malformed Parquet and Arrow fixture under the same settings.
@@ -1522,14 +1522,14 @@ Security:
 
 Documentation:
 
-- `README.md` examples are runnable and covered by `valvet test --doc`.
+- `README.md` examples are runnable and covered by `cremona test --doc`.
 - `docs/implementation/IMPLEMENTATION_STATUS.md` records test totals,
   supported subsets, and known limitations after each phase.
 - `docs/implementation/ARCHITECTURE.md` records the new modules and the flat
   lazy plan.
 - `docs/security/PRELIMINARY_SECURITY_ASSESSMENT.md` records binary parser
   risks and tests.
-- `valvet-tests/data/README.md` records binary fixture provenance and
+- `cremona-tests/data/README.md` records binary fixture provenance and
   SHA256 values.
 
 Release discipline:

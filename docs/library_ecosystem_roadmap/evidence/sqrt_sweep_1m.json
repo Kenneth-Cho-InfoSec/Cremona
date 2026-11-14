@@ -1,5 +1,5 @@
 {
-  "schema": "valvet-sqrt-sweep-v1",
+  "schema": "cremona-sqrt-sweep-v1",
   "requested": 1000000,
   "checked": 1000000,
   "mismatches": 0,

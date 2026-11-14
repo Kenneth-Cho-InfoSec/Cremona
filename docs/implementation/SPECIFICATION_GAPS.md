@@ -1,6 +1,6 @@
 # Specification Gaps (audited 2026-10-10)
 
-Source: `valvet-design/grammar/valvet.ebnf` + D2/D3/D4/D5/D9 + `revision/01-contradiction-register.md` (all 26 VR items already resolved by repair pass — no open contradictions affecting MVP).
+Source: `cremona-design/grammar/cremona.ebnf` + D2/D3/D4/D5/D9 + `revision/01-contradiction-register.md` (all 26 VR items already resolved by repair pass — no open contradictions affecting MVP).
 
 ## Gaps requiring implementation decisions
 1. **Val-reassignment code**: D9 table has no dedicated code. Adopt **E0205** `assignment to immutable binding`. Routine; no designer approval needed.

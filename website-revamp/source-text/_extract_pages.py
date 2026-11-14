@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Strip the deployed Valvet Pages site to readable plain-text files."""
+"""Strip the deployed Cremona Pages site to readable plain-text files."""
 
 import hashlib
 import html
@@ -10,7 +10,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 FETCHED = "2026-10-20"
-SITE = "https://kenneth-cho-infosec.github.io/Valvet/"
+SITE = "https://kenneth-cho-infosec.github.io/Cremona/"
 PAGES = [
     ("index.html", "index.txt"),
     ("docs.html", "docs.txt"),
@@ -22,7 +22,7 @@ BLOCK_TAGS = {
     "article", "aside", "p", "ul", "ol", "table", "tr", "pre", "blockquote",
 }
 CODE_LANG = [
-    ("valvet", "valvet"),
+    ("cremona", "cremona"),
     ("bash", "bash"),
     ("output", "text"),
     ("error", "text"),
@@ -374,7 +374,7 @@ def main():
         })
 
     all_parts = []
-    all_parts.append("VALVET WEBSITE / ALL PAGES")
+    all_parts.append("CREMONA WEBSITE / ALL PAGES")
     all_parts.append("")
     all_parts.append(f"Live site: {SITE}")
     all_parts.append("Source branch: website @ e040a3a")
@@ -406,7 +406,7 @@ def main():
         )
 
     out = []
-    out.append("VALVET WEBSITE TEXT SNAPSHOT")
+    out.append("CREMONA WEBSITE TEXT SNAPSHOT")
     out.append("")
     out.append(f"Live site: {SITE}")
     out.append("Source branch: website @ e040a3a")
@@ -453,10 +453,10 @@ def main():
     (dst / "site-outline.txt").write_text("\n".join(out), encoding="utf-8")
 
     readme = [
-        "VALVET WEBSITE: PLAIN-TEXT SNAPSHOT",
+        "CREMONA WEBSITE: PLAIN-TEXT SNAPSHOT",
         "",
         "What this is",
-        "  The deployed Valvet Pages site stripped to plain text for a revamp.",
+        "  The deployed Cremona Pages site stripped to plain text for a revamp.",
         "  HTML tags, scripts, buttons, and navigation chrome are removed.",
         "  Headings, paragraphs, lists, tables, links, and code blocks remain.",
         "",
@@ -477,11 +477,11 @@ def main():
         "  site/ directory on the website branch at commit e040a3a.",
         "",
         "Refresh",
-        "  mkdir -p /tmp/valvet-pages && cd /tmp/valvet-pages",
-        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/index.html",
-        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/docs.html",
-        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/examples.html",
-        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Valvet/style.css",
+        "  mkdir -p /tmp/cremona-pages && cd /tmp/cremona-pages",
+        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/index.html",
+        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/docs.html",
+        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/examples.html",
+        "  curl -fsSLO https://kenneth-cho-infosec.github.io/Cremona/style.css",
         "  python3 /path/to/source-text/_extract_pages.py . /path/to/source-text",
         "",
     ]

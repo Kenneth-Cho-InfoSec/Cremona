@@ -1,31 +1,31 @@
-Source: https://kenneth-cho-infosec.github.io/Valvet/examples.html
+Source: https://kenneth-cho-infosec.github.io/Cremona/examples.html
 Fetched: 2026-10-20
-Page title: Valvet Examples
+Page title: Cremona Examples
 
 ## Examples
 
-Every sample below runs as shown with `valvet run`.
+Every sample below runs as shown with `cremona run`.
 
 ### Hello
 
-A complete Valvet program needs only statements and an output call: top-level code runs directly with no wrapper, no imports, and no runtime to initialize. The compiler turns this into a dependency-free native binary.
+A complete Cremona program needs only statements and an output call: top-level code runs directly with no wrapper, no imports, and no runtime to initialize. The compiler turns this into a dependency-free native binary.
 
-Input · Valvet:
-```valvet
-println("hello, valvet") // top-level statements run directly
+Input · Cremona:
+```cremona
+println("hello, cremona") // top-level statements run directly
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
 ### Fibonacci and pattern matching
 
 Recursion works as expected, and `match` on `Option` forces both cases onto the page. Forget an arm or mix up the types and the compiler rejects the program before it ever runs. That guarantee is what makes refactoring fearless: add a variant anywhere and every match in the codebase must answer for it.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun fib(n: Int32): Int32 { // recursive Fibonacci, Int32 in and out
     if (n < 2) { n } else { fib(n - 1) + fib(n - 2) } // base case returns n, else sum the two recursions
 }
@@ -45,8 +45,8 @@ Output:
 
 The whole data routine in nine lines: a growable heap vector, a snapshot loop that cannot alias the buffer, and an explicit `as` conversion at the division. Nothing is hidden. The loop runs at C speed and the vector frees itself when `main` exits.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun mean(v: Vec<Float64>): Float64 { // average of a float vector
     var total = 0.0 // running sum, mutable
     for (x in v) { // snapshot each element
@@ -67,8 +67,8 @@ Output:
 
 Control flow that reads top to bottom: `if` is an expression, so each branch produces the word directly instead of assigning through flags. Ranges include or exclude their end on demand (`1..=15`). The trailing semicolons keep printing calls in statement position inside branches.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 for (i in 1..=15) { // inclusive range 1 to 15
         val w = if (i % 15 == 0) { // divisible by 3 and 5
             "FizzBuzz"
@@ -112,8 +112,8 @@ Calls that return nothing stay statements with a trailing `;` inside branches.
 
 Twenty iterations of Newton updates with mutable state, converging to full Float64 precision. Numerical recipes live in plain user code (the standard library also ships `std::math` with sqrt, exp, log, and pow).
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun sqrt_newton(x: Float64): Float64 { // Newton method square root
     var guess = x // start from x itself
     var i = 0 // iteration counter
@@ -136,8 +136,8 @@ Output:
 
 Kernels report failure as data, not exceptions: mismatched shapes come back as `Err` and the caller handles it in the same `match` it already uses everywhere else. Indexing with `get` is equally total, yielding `Some` or `None` instead of ever trapping.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val a = vec![1.0, 2.0, 3.0] // first vector, immutable
 val b = vec![4.0, 5.0, 6.0] // second vector
 val d = match (a.dot(b)) { Ok(v) -> v, Err(e) -> -1.0, } // dot returns Result, unwrap or -1 on shape error
@@ -159,8 +159,8 @@ Some(4)
 
 An enum carries different payloads per variant, and one `match` dispatches on all of them with each payload already unwrapped and typed. This is the pattern behind every heterogeneous result in larger programs: one type, all cases visible, zero runtime type tests.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 enum Shape { Circle(Float64), Rect(Float64, Float64), Point } // one type, three variants with payloads
 
 fun area(s: Shape): Float64 { // dispatch on variant
@@ -185,8 +185,8 @@ Output:
 
 A `loop` is an expression when it breaks with a value, so search-style code needs no result flag and no sentinel. The value flows straight into its binding with its type checked.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 var i = 0 // loop counter, mutable
 val v = loop { // loop is an expression when it breaks with a value
     i += 1 // count up
@@ -206,16 +206,16 @@ Output:
 
 Strings are owned values with content equality and concatenation, freed deterministically like everything else. There is no null string and no separate string-builder type for the common cases.
 
-Input · Valvet:
-```valvet
-val who = "valvet" // owned immutable string
+Input · Cremona:
+```cremona
+val who = "cremona" // owned immutable string
 println("hello, " + who) // concatenation with +
-println(who == "valvet") // content equality, prints true
+println(who == "cremona") // content equality, prints true
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 true
 ```
 
@@ -223,8 +223,8 @@ true
 
 The real thing in miniature: paired-column sums, the closed-form normal equations, and missing-safe indexing, using exactly the constructs the full 50-row ordinary least squares analysis uses. That analysis reproduces 16 out of 16 reference statistics, which is why this small version is worth trusting at scale.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 val x = vec![1.0, 2.0, 3.0, 4.0] // predictor column
     val y = vec![2.0, 4.0, 5.0, 4.0] // response column
     val n = x.len() as Int32 // length as Int32 for the range
@@ -249,65 +249,65 @@ Output:
 0.69999999999999996
 ```
 
-Valvet prints full float precision: that is 0.7 in Float64.
+Cremona prints full float precision: that is 0.7 in Float64.
 
 ### Script and explicit modes
 
 Every example above runs in the default `imp` mode: top-level statements run directly. The same program states the mode explicitly with a header that changes nothing. For the strict classic entry, declare `mode exp;` and write `fun main`; top-level statements there are E0604, as is mixing both forms in one file. Imported files always hold items, never statements, in either mode.
 
-Input · Valvet:
-```valvet
-println("hello, valvet") // imp is the default: runs as shown
+Input · Cremona:
+```cremona
+println("hello, cremona") // imp is the default: runs as shown
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode imp; // explicit header, same behavior
-println("hello, valvet")
+println("hello, cremona")
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode exp; // strict classic entry
 fun main() {
-    println("hello, valvet")
+    println("hello, cremona")
 }
 ```
 
 Output:
 ```text
-hello, valvet
+hello, cremona
 ```
 
 Statements under `mode exp` fail before anything runs:
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 mode exp;
 println("nope");
 ```
 
 Error:
 ```text
-error[E0604]: top-level statements need imp mode (this file declares `mode exp`) --> hello.valvet:2:1
+error[E0604]: top-level statements need imp mode (this file declares `mode exp`) --> hello.cremona:2:1
 ```
 
 ### Units of measure
 
 Annotating a number with `@unit` makes its dimension part of the type. Compatible scales convert on assignment, and arithmetic composes dimensions, so unit mistakes become compile errors instead of wrong numbers.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 fun speed(d: Float64 @m, t: Float64 @s): Float64 @m/s { // meters over seconds
     d / t // division composes the dimension
 }
@@ -328,8 +328,8 @@ Output:
 
 The standard library turns CSV-shaped tables into data frames, then groups them with missing-aware statistics. `NA` cells are skipped, never silently zeroed, and group order follows first appearance.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 import std::csv::CsvTable; // table type from the CSV module
 import std::frame::frame_from_table; // build a frame
 import std::frame::frame_col; // read a column back
@@ -362,8 +362,8 @@ Output:
 
 The same grouping through the 0.3.0 SQL subset: the query plans down to frame verbs, so results match the verb form exactly. Anything outside the subset is a compile-time `Err`, never a silent misread.
 
-Input · Valvet:
-```valvet
+Input · Cremona:
+```cremona
 import std::frame::DynamicFrame; // frame type
 import std::sql::sql; // the SQL subset
 
@@ -382,4 +382,4 @@ Output:
 [40, 60]
 ```
 
-Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/valvet).
+Copyright 2026 Kenneth Cho. All rights reserved. Source: [GitHub](https://github.com/Kenneth-Cho-InfoSec/cremona).

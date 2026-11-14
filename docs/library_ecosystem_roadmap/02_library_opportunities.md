@@ -9,11 +9,11 @@ language gap a missing library.
 | ID | Capability | Status | Evidence | Proposed home | Priority |
 | --- | --- | --- | --- | --- | --- |
 | O1 | Scalar math (`abs`, `min`, `max`, rounding, `eps`, hyperbolic) | Missing | XRD D4, G1; GAPS port 04 items 1-7; ports 05, 08, 09, 10 local shims | `std.math` | P0 |
-| O2 | Correctly rounded `sqrt` | Partial existing | XRD D1, G2; `stdlib/math.valvet:56-131`; AUD 4 | `std.math` plus compiler builtin | P0 |
+| O2 | Correctly rounded `sqrt` | Partial existing | XRD D1, G2; `stdlib/math.cremona:56-131`; AUD 4 | `std.math` plus compiler builtin | P0 |
 | O3 | Exact-order vector algebra | Partial existing | XRD D2, G3; `codegen.rs:1897-1908,2541-2568`; AUD 5 | `std.numeric` plus `Vec` methods | P0 |
 | O4 | Collection capacity and literals | Missing | AUD 5; `codegen.rs:5662-5680` | Compiler `Vec` methods | P0 |
 | O5 | Norms and scaled residuals | Missing | XRD D3, G4; GAPS ports 04-09 | `std.numeric` | P0 |
-| O6 | Complex arithmetic | Existing but unused | XRD D5, G5; `stdlib/complex.valvet:12-36` | `std.complex` | P1 |
+| O6 | Complex arithmetic | Existing but unused | XRD D5, G5; `stdlib/complex.cremona:12-36` | `std.complex` | P1 |
 | O7 | Fixed arrays, tuples, partitions | Language/API | XRD D6, G7; PORT-01, PORT-02, PORT-06 | Compiler `[T; N]` and tuples | P1 |
 | O8 | Matrix access and complex solve | Partial existing | XRD G6, G11; `codegen.rs:2928-3047`; PORT-03, PORT-09 | `Mat` get/set, narrow `std.linalg` | P1 |
 | O9 | ODE counters, FSAL, convergence | Missing, domain | XRD D7, G8; GAPS ports 04-09 | `ode` package | P2 |
@@ -21,7 +21,7 @@ language gap a missing library.
 | O11 | Weak SDE noise helpers | Missing, one consumer | XRD G9; GAPS port 10 | `stochastic` package | P2 |
 | O12 | Trixi log-mean and polynomial helpers | Missing, two consumers | XRD G10; PORT-01, PORT-02 | `std.numeric` later | P2 |
 | O13 | Generated tableaus and rationals | Deliberate non-gap | XRD G12; GAPS ports 04-07 | Keep generators | No action |
-| O14 | Private stdlib helpers | Private/unexported | XRD G13; `stdlib/model.valvet`, `stdlib/plot.valvet`, `stdlib/infer.valvet` | `std.numeric` and `std.math` | P1 |
+| O14 | Private stdlib helpers | Private/unexported | XRD G13; `stdlib/model.cremona`, `stdlib/plot.cremona`, `stdlib/infer.cremona` | `std.numeric` and `std.math` | P1 |
 
 The first eight rows are the core of the plan. Rows 9 to 12 are domain or
 workflow work that should not delay the core. Row 13 is explicitly not a
@@ -38,12 +38,12 @@ also needs `floor`, `ceil`, `isodd`, `iseven`, `eps`, `sinh`, `cosh`, and
 of `positive_part` and `negative_part`. The standard library has only `sqrt`,
 `exp`, `log`, and `pow`; `sin`, `cos`, and `atan2` are compiler builtins.
 
-There are at least 17 abs-like `if (x < 0.0)` patterns inside `stdlib/*.valvet`
+There are at least 17 abs-like `if (x < 0.0)` patterns inside `stdlib/*.cremona`
 itself. This is not a port-only problem.
 
 ### 2.2 Proposed API
 
-```valvet
+```cremona
 pub fun abs(x: Float64): Float64
 pub fun min(a: Float64, b: Float64): Float64
 pub fun max(a: Float64, b: Float64): Float64
@@ -64,7 +64,7 @@ pub fun pow_int(x: Float64, n: Int64): Float64
 
 P1 additions:
 
-```valvet
+```cremona
 pub fun sincos(x: Float64): (Float64, Float64)
 pub fun hypot(x: Float64, y: Float64): Float64
 pub fun ldexp(x: Float64, n: Int64): Float64
@@ -121,7 +121,7 @@ and weak label. BDF warm numeric loops improved 2.25x and FIRK 1.26x.
 
 ### 3.2 Proposed API
 
-```valvet
+```cremona
 // Explicit library function, preserving edge semantics.
 import std::math::sqrt;
 
@@ -216,7 +216,7 @@ ports do not use it for their own clones.
 
 ### 5.2 Proposed API
 
-```valvet
+```cremona
 val empty = Vec<Float64>::with_capacity(n)
 val z = vec![0.0; n]
 val fixed = vec![1.0, 2.0, 3.0]   // one allocation, capacity 3
@@ -260,7 +260,7 @@ and `rtol` are constants or parameters.
 
 ### 6.2 Proposed API
 
-```valvet
+```cremona
 pub fun rms(x: &Vec<Float64>): Float64
 pub fun rms_parts(a: &Vec<Float64>, b: &Vec<Float64>): Float64
 pub fun scaled_residual(x: &Vec<Float64>, u0: &Vec<Float64>, u1: &Vec<Float64>,
@@ -290,7 +290,7 @@ path is not exercised.
 Port 09 defines `C09` and four functions that are formula-identical to
 `std.complex`:
 
-```valvet
+```cremona
 pub struct Complex { re: Float64, im: Float64 }
 pub fun cadd(a: &Complex, b: &Complex): Complex
 pub fun csub(a: &Complex, b: &Complex): Complex
@@ -334,7 +334,7 @@ are the largest effort item and must not block P0.
 
 ### 8.2 Proposed API
 
-```valvet
+```cremona
 val p: [Float64; 2] = [x, y]
 val q: (Float64, Float64) = (x, y)
 ```
@@ -377,11 +377,11 @@ extraction, eigen, and SVD. This is substantial and should not be duplicated in
 - A complex matrix type.
 - A complex LU solve.
 - A forward-difference Jacobian abstraction. This needs function pointers or
-  closures, which Valvet does not have. Keep the Jacobian in the port for now.
+  closures, which Cremona does not have. Keep the Jacobian in the port for now.
 
 ### 9.3 Proposed API
 
-```valvet
+```cremona
 m.get(i: Int64, j: Int64): Option<Float64>
 m.set(i: Int64, j: Int64, value: Float64): Result<Unit, ShapeError>
 ```
@@ -391,7 +391,7 @@ and the matrix dimensions.
 
 `std.linalg` v1:
 
-```valvet
+```cremona
 pub fun solve2x2_complex(a: &CMat2, b: &CVec2): CVec2
 ```
 
@@ -435,7 +435,7 @@ It also allocates a string for `"="` on every label.
 
 The warning-free migration is:
 
-```valvet
+```cremona
 println(label)
 println("=")
 println(value)
@@ -494,7 +494,7 @@ quadrature container for one port.
 
 ### 12.3 Tableaus and rationals
 
-Ports 04 to 07 use generated tableaus and rational-derived coefficients. Valvet
+Ports 04 to 07 use generated tableaus and rational-derived coefficients. Cremona
 has no rationals, bignums, symbols, parametric tableau types, or tuples. The
 correct answer is to keep generators that run the unmodified upstream
 constructors and emit `%.17g` literals. Do not add `std.rational` or
@@ -504,27 +504,27 @@ constructors and emit `%.17g` literals. Do not add `std.rational` or
 
 | Capability | Existing location | Action |
 | --- | --- | --- |
-| Complex arithmetic | `stdlib/complex.valvet:12-36` | Port 09 imports it; do not add a second type |
-| `Vec.clone` | `crates/valvet_core/src/codegen.rs:3081` | Ports use `.clone()` instead of push loops |
-| `Vec.add/mul/dot/add_scalar` | `crates/valvet_core/src/codegen.rs:1897-1908,2541-2568` | Keep method behavior; `std.numeric` supplies exact-order free functions and `_into` forms |
-| Real `Mat` LU and matvec | `crates/valvet_core/src/codegen.rs:2980-3047` | Use where semantics fit; add get/set |
-| Real `Mat` Cholesky, eigen, SVD | `crates/valvet_core/src/codegen.rs:3019-3047` | Keep; do not duplicate in `std.linalg` |
-| `std.dist` RNG and normal sampling | `stdlib/dist.valvet:140-236,504-561` | Use for stochastic tests; add Wiener type only when needed |
-| `std.stats` missing-value statistics | `stdlib/stats.valvet:36-290` | Keep separate from raw vector numerics |
+| Complex arithmetic | `stdlib/complex.cremona:12-36` | Port 09 imports it; do not add a second type |
+| `Vec.clone` | `crates/cremona_core/src/codegen.rs:3081` | Ports use `.clone()` instead of push loops |
+| `Vec.add/mul/dot/add_scalar` | `crates/cremona_core/src/codegen.rs:1897-1908,2541-2568` | Keep method behavior; `std.numeric` supplies exact-order free functions and `_into` forms |
+| Real `Mat` LU and matvec | `crates/cremona_core/src/codegen.rs:2980-3047` | Use where semantics fit; add get/set |
+| Real `Mat` Cholesky, eigen, SVD | `crates/cremona_core/src/codegen.rs:3019-3047` | Keep; do not duplicate in `std.linalg` |
+| `std.dist` RNG and normal sampling | `stdlib/dist.cremona:140-236,504-561` | Use for stochastic tests; add Wiener type only when needed |
+| `std.stats` missing-value statistics | `stdlib/stats.cremona:36-290` | Keep separate from raw vector numerics |
 
 ## 14. Standard-library consolidation
 
 The private helpers in `std.model`, `std.plot`, and `std.infer` are the first
 non-port consumers of `std.numeric`:
 
-- `stdlib/model.valvet:27-35`: `vec_add` becomes `add`.
-- `stdlib/model.valvet:526-559`: `vec_sub`, `vec_mean`, and `sum_sq` become
+- `stdlib/model.cremona:27-35`: `vec_add` becomes `add`.
+- `stdlib/model.cremona:526-559`: `vec_sub`, `vec_mean`, and `sum_sq` become
   `sub`, `mean`, and `sum_sq`.
-- `stdlib/plot.valvet:342-409`: `fmin` and `fmax` become `min_vec` and
+- `stdlib/plot.cremona:342-409`: `fmin` and `fmax` become `min_vec` and
   `max_vec`; `fmean` and `fsd` become `mean` and `sd`. `fmin2` becomes
   `std.math.min` only if the NaN and signed-zero fixture proves identical
   behavior; otherwise it stays local.
-- `stdlib/infer.valvet:192`: `mean_i` becomes `mean`.
+- `stdlib/infer.cremona:192`: `mean_i` becomes `mean`.
 - At least 17 abs-like patterns move to `std.math.abs`, not `std.numeric`.
 
 Move only generic operations. Keep missing-value statistics in `std.stats`,
@@ -547,7 +547,7 @@ pinned before publication.
   branches differ. A shared `rk_step` would become a union of families.
 - **Cache structs.** Fields and defaults are algorithm-specific.
 - **Generated tableaus.** Data, not duplicated logic. Keep generators.
-- **Oracle code.** The Julia oracle must stay independent of the Valvet port.
+- **Oracle code.** The Julia oracle must stay independent of the Cremona port.
 - **`@muladd`/FMA.** The ports intentionally avoid fusion. Do not add it.
 - **Threading.** Out of scope for the current ports.
 - **A generic matrix type.** `Mat` is sufficient until fixed arrays and

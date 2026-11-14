@@ -68,7 +68,7 @@ class CompareOraclesTest(unittest.TestCase):
             (root / "manifest.json").write_text(
                 json.dumps(
                     {
-                        "schema": "valvet-oracle-manifest-v1",
+                        "schema": "cremona-oracle-manifest-v1",
                         "ports": {"p": {"expected": "expected.txt", "actual": "actual.txt"}},
                     }
                 )
