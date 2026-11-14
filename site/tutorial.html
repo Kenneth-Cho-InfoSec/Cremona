@@ -2,42 +2,42 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Beginner tutorial · Valvet</title><meta name="description" content="Build Valvet 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps."><meta name="theme-color" content="#f7f7f9">
-<link rel="canonical" href="https://kenneth-cho-infosec.github.io/Valvet/tutorial.html"><meta property="og:title" content="Beginner tutorial · Valvet"><meta property="og:description" content="Build Valvet 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps."><meta property="og:type" content="website"><meta property="og:url" content="https://kenneth-cho-infosec.github.io/Valvet/tutorial.html"><meta property="og:site_name" content="Valvet"><meta property="og:image" content="https://kenneth-cho-infosec.github.io/Valvet/assets/og.png">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Beginner tutorial · Valvet"><meta name="twitter:description" content="Build Valvet 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps."><meta name="twitter:image" content="https://kenneth-cho-infosec.github.io/Valvet/assets/og.png">
+<title>Beginner tutorial · Cremona</title><meta name="description" content="Build Cremona 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps."><meta name="theme-color" content="#f7f7f9">
+<link rel="canonical" href="https://kenneth-cho-infosec.github.io/Cremona/tutorial.html"><meta property="og:title" content="Beginner tutorial · Cremona"><meta property="og:description" content="Build Cremona 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps."><meta property="og:type" content="website"><meta property="og:url" content="https://kenneth-cho-infosec.github.io/Cremona/tutorial.html"><meta property="og:site_name" content="Cremona"><meta property="og:image" content="https://kenneth-cho-infosec.github.io/Cremona/assets/og.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Beginner tutorial · Cremona"><meta name="twitter:description" content="Build Cremona 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps."><meta name="twitter:image" content="https://kenneth-cho-infosec.github.io/Cremona/assets/og.png">
 <link rel="icon" href="assets/favicon.png" type="image/png"><link rel="stylesheet" href="style.css">
-<script>(function(){document.documentElement.classList.add('js');try{var t=localStorage.getItem('valvet-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<script>(function(){document.documentElement.classList.add('js');try{var t=localStorage.getItem('cremona-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}})();</script>
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "Your first Valvet program",
-  "description": "Build Valvet 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps.",
-  "url": "https://kenneth-cho-infosec.github.io/Valvet/tutorial.html",
+  "headline": "Your first Cremona program",
+  "description": "Build Cremona 0.5.0 from source, run an example, and write a data analysis program. The guide covers the Rust build and C11 compilation steps.",
+  "url": "https://kenneth-cho-infosec.github.io/Cremona/tutorial.html",
   "inLanguage": "en",
   "isPartOf": {
     "@type": "WebSite",
-    "name": "Valvet",
-    "url": "https://kenneth-cho-infosec.github.io/Valvet/"
+    "name": "Cremona",
+    "url": "https://kenneth-cho-infosec.github.io/Cremona/"
   },
   "about": {
     "@type": "SoftwareApplication",
-    "name": "Valvet",
-    "url": "https://kenneth-cho-infosec.github.io/Valvet/"
+    "name": "Cremona",
+    "url": "https://kenneth-cho-infosec.github.io/Cremona/"
   }
 }
 </script>
 </head><body class="page-privacy"><a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header" id="site-header">
   <div class="container nav-shell">
-    <a class="brand" href="index.html" aria-label="Valvet home">
+    <a class="brand" href="index.html" aria-label="Cremona home">
       <img src="assets/logo-128.png" width="36" height="36" alt="">
-      <span class="brand-name">Valvet</span>
+      <span class="brand-name">Cremona</span>
       <span class="brand-version">0.5.0</span>
     </a>
     <nav class="nav-links" aria-label="Primary">
-      <a href="index.html#why">Why Valvet</a><a href="features.html">Features</a><a href="index.html#code">Code</a><a href="docs.html">Docs</a><a href="examples.html">Examples</a><a href="tutorial.html" class="is-active" aria-current="page">Tutorial</a><a href="compare.html">Compare</a>
+      <a href="index.html#why">Why Cremona</a><a href="features.html">Features</a><a href="index.html#code">Code</a><a href="docs.html">Docs</a><a href="examples.html">Examples</a><a href="tutorial.html" class="is-active" aria-current="page">Tutorial</a><a href="compare.html">Compare</a>
     </nav>
     <div class="nav-actions">
       <button class="icon-btn theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch theme">
@@ -52,30 +52,30 @@
   </div>
   <div class="mobile-menu" id="mobile-menu" hidden>
     <nav class="container mobile-nav" aria-label="Mobile">
-      <a href="index.html#why">Why Valvet<span aria-hidden="true">↗</span></a>
+      <a href="index.html#why">Why Cremona<span aria-hidden="true">↗</span></a>
 <a href="features.html">Features<span aria-hidden="true">↗</span></a>
 <a href="index.html#code">Code<span aria-hidden="true">↗</span></a>
 <a href="docs.html">Docs<span aria-hidden="true">↗</span></a>
 <a href="examples.html">Examples<span aria-hidden="true">↗</span></a>
 <a href="tutorial.html" aria-current="page">Tutorial<span aria-hidden="true">↗</span></a>
 <a href="compare.html">Compare<span aria-hidden="true">↗</span></a>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet">GitHub<span aria-hidden="true">↗</span></a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona">GitHub<span aria-hidden="true">↗</span></a>
     </nav>
     <div class="container mobile-menu-foot">
-      <a class="btn btn-primary" href="index.html#install">Install Valvet</a>
-      <p>Native binaries. No Valvet runtime. No garbage collector.</p>
+      <a class="btn btn-primary" href="index.html#install">Install Cremona</a>
+      <p>Native binaries. No Cremona runtime. No garbage collector.</p>
     </div>
   </div>
 </header>
 <main id="main">
-<section class="page-hero privacy-hero"><div class="container page-hero-inner"><h1>Your first Valvet program</h1><p class="page-lede">Build the compiler, run a script, then follow the same path into data work. This guide targets Valvet 0.5.0.</p><div class="page-meta"><span>About 10 minutes</span><span>Stable Rust + a C compiler</span><span>Version 0.5.0</span></div></div></section>
+<section class="page-hero privacy-hero"><div class="container page-hero-inner"><h1>Your first Cremona program</h1><p class="page-lede">Build the compiler, run a script, then follow the same path into data work. This guide targets Cremona 0.5.0.</p><div class="page-meta"><span>About 10 minutes</span><span>Stable Rust + a C compiler</span><span>Version 0.5.0</span></div></div></section>
 <div class="container privacy-layout"><article class="privacy-content">
-<section class="doc-section" id="prerequisites"><h2>Before you start</h2><p>Install stable Rust and a C compiler. Valvet uses Rust to build its compiler and a system C compiler to turn generated C11 into a native executable. Set <code>VALVET_CC</code> if the C compiler is not discoverable as <code>cc</code> or <code>gcc</code>.</p><p>In a terminal, confirm that <code>cargo --version</code> and <code>cc --version</code> work.</p></section>
-<section class="doc-section" id="build"><h2>1. Get the source and build</h2><p>Clone the project, move into its directory, and build the workspace:</p><div class="code-card"><pre class="code-pre"><code>git clone https://github.com/Kenneth-Cho-InfoSec/Valvet.git
-cd Valvet
-cargo build --workspace</code></pre></div><p>The compiler is created at <code>target/debug/valvet</code>. The first Rust build may take a few minutes.</p></section>
-<section class="doc-section" id="run"><h2>2. Run the included program</h2><p>The repository includes a hello-world example. Run it through Valvet:</p><div class="code-card"><pre class="code-pre"><code>./target/debug/valvet run examples/hello.valvet</code></pre></div><p>Expected output:</p><div class="code-card output-card"><pre class="code-pre"><code>hello, valvet</code></pre></div><p><code>run</code> compiles the source through C11, executes the resulting native program, and returns its exit status.</p></section>
-<section class="doc-section" id="write-a-script"><h2>3. Write a small analysis</h2><p>Save this as <code>mean.valvet</code> in the repository root. It uses a vector, a loop, and a function; the cast makes the division explicit.</p><div class="code-card"><pre class="code-pre"><code>fun mean(values: Vec&lt;Float64&gt;): Float64 {
+<section class="doc-section" id="prerequisites"><h2>Before you start</h2><p>Install stable Rust and a C compiler. Cremona uses Rust to build its compiler and a system C compiler to turn generated C11 into a native executable. Set <code>CREMONA_CC</code> if the C compiler is not discoverable as <code>cc</code> or <code>gcc</code>.</p><p>In a terminal, confirm that <code>cargo --version</code> and <code>cc --version</code> work.</p></section>
+<section class="doc-section" id="build"><h2>1. Get the source and build</h2><p>Clone the project, move into its directory, and build the workspace:</p><div class="code-card"><pre class="code-pre"><code>git clone https://github.com/Kenneth-Cho-InfoSec/Cremona.git
+cd Cremona
+cargo build --workspace</code></pre></div><p>The compiler is created at <code>target/debug/cremona</code>. The first Rust build may take a few minutes.</p></section>
+<section class="doc-section" id="run"><h2>2. Run the included program</h2><p>The repository includes a hello-world example. Run it through Cremona:</p><div class="code-card"><pre class="code-pre"><code>./target/debug/cremona run examples/hello.cremona</code></pre></div><p>Expected output:</p><div class="code-card output-card"><pre class="code-pre"><code>hello, cremona</code></pre></div><p><code>run</code> compiles the source through C11, executes the resulting native program, and returns its exit status.</p></section>
+<section class="doc-section" id="write-a-script"><h2>3. Write a small analysis</h2><p>Save this as <code>mean.cremona</code> in the repository root. It uses a vector, a loop, and a function; the cast makes the division explicit.</p><div class="code-card"><pre class="code-pre"><code>fun mean(values: Vec&lt;Float64&gt;): Float64 {
     var total = 0.0
     for (value in values) {
         total += value
@@ -83,23 +83,23 @@ cargo build --workspace</code></pre></div><p>The compiler is created at <code>ta
     total / (values.len() as Float64)
 }
 
-println(mean(vec![2.0, 4.0, 6.0, 8.0]))</code></pre></div><p>Run it with <code>./target/debug/valvet run mean.valvet</code>. It prints <code>5</code>. Check without linking by using <code>./target/debug/valvet check mean.valvet</code>.</p></section>
-<section class="doc-section" id="next"><h2>Where to go next</h2><ul><li>Browse the <a href="examples.html">runnable examples</a> for frames, SQL, units, and core language features.</li><li>Use the <a href="docs.html#typed-frames-0-5">typed-frame reference</a> for schemas, missing values, grouping, joins, windows, and lazy plans.</li><li>Read the <a href="compare.html">scope comparison</a> to decide whether Valvet fits your workflow.</li><li>Open a question or report an issue in the <a href="https://github.com/Kenneth-Cho-InfoSec/Valvet/issues">GitHub issue tracker</a>.</li></ul><p>Check the <a href="https://github.com/Kenneth-Cho-InfoSec/Valvet/releases">release notes</a> for the version you install.</p></section>
-</article><aside class="privacy-aside"><nav class="toc-group" aria-label="Tutorial sections"><p class="toc-group-title">In this guide</p><a href="#prerequisites">Before you start</a><a href="#build">Build</a><a href="#run">Run a program</a><a href="#write-a-script">Write an analysis</a><a href="#next">Next steps</a></nav><div class="sidebar-note"><p>Valvet 0.5.0</p><p>Valvet emits C11 and builds native programs without a Valvet runtime or garbage collector.</p><a href="index.html#install">Build from source <span aria-hidden="true">→</span></a></div></aside></div>
+println(mean(vec![2.0, 4.0, 6.0, 8.0]))</code></pre></div><p>Run it with <code>./target/debug/cremona run mean.cremona</code>. It prints <code>5</code>. Check without linking by using <code>./target/debug/cremona check mean.cremona</code>.</p></section>
+<section class="doc-section" id="next"><h2>Where to go next</h2><ul><li>Browse the <a href="examples.html">runnable examples</a> for frames, SQL, units, and core language features.</li><li>Use the <a href="docs.html#typed-frames-0-5">typed-frame reference</a> for schemas, missing values, grouping, joins, windows, and lazy plans.</li><li>Read the <a href="compare.html">scope comparison</a> to decide whether Cremona fits your workflow.</li><li>Open a question or report an issue in the <a href="https://github.com/Kenneth-Cho-InfoSec/Cremona/issues">GitHub issue tracker</a>.</li></ul><p>Check the <a href="https://github.com/Kenneth-Cho-InfoSec/Cremona/releases">release notes</a> for the version you install.</p></section>
+</article><aside class="privacy-aside"><nav class="toc-group" aria-label="Tutorial sections"><p class="toc-group-title">In this guide</p><a href="#prerequisites">Before you start</a><a href="#build">Build</a><a href="#run">Run a program</a><a href="#write-a-script">Write an analysis</a><a href="#next">Next steps</a></nav><div class="sidebar-note"><p>Cremona 0.5.0</p><p>Cremona emits C11 and builds native programs without a Cremona runtime or garbage collector.</p><a href="index.html#install">Build from source <span aria-hidden="true">→</span></a></div></aside></div>
 </main>
 <footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-brand">
-      <a class="brand" href="index.html" aria-label="Valvet home">
+      <a class="brand" href="index.html" aria-label="Cremona home">
         <img src="assets/logo-128.png" width="40" height="40" alt="">
-        <span class="brand-name">Valvet</span>
+        <span class="brand-name">Cremona</span>
       </a>
       <p>A compiled language for data programs.</p>
-      <p class="footer-note">Native binaries. No Valvet runtime. No garbage collector.</p>
+      <p class="footer-note">Native binaries. No Cremona runtime. No garbage collector.</p>
     </div>
     <div class="footer-col">
       <h2>Language</h2>
-      <a href="index.html#why">Why Valvet</a>
+      <a href="index.html#why">Why Cremona</a>
       <a href="features.html">Features</a>
       <a href="index.html#code">Code</a>
       <a href="index.html#pipeline">How it runs</a>
@@ -113,9 +113,9 @@ println(mean(vec![2.0, 4.0, 6.0, 8.0]))</code></pre></div><p>Run it with <code>.
     </div>
     <div class="footer-col">
       <h2>Project</h2>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet">GitHub</a>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet/blob/main/LICENSE">License</a>
-      <a href="https://github.com/Kenneth-Cho-InfoSec/valvet/issues">Issues</a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona">GitHub</a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona/blob/main/LICENSE">License</a>
+      <a href="https://github.com/Kenneth-Cho-InfoSec/cremona/issues">Issues</a>
       <a href="privacy.html">Privacy policy</a>
     </div>
   </div>
@@ -123,6 +123,6 @@ println(mean(vec![2.0, 4.0, 6.0, 8.0]))</code></pre></div><p>Run it with <code>.
     <p>Copyright 2026 Kenneth Cho. All rights reserved.</p>
     <p class="footer-built">Compiled through C11. Shipped as one binary.</p>
   </div>
-  <div class="footer-wordmark" aria-hidden="true">VALVET</div>
+  <div class="footer-wordmark" aria-hidden="true">CREMONA</div>
 </footer>
 <div class="toast" role="status" aria-live="polite"></div><button class="back-to-top" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><script src="app.js" defer></script></body></html>

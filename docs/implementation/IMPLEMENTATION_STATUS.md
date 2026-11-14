@@ -1,4 +1,4 @@
-# Implementation Status — Valvet Core MVP 0.1.0 (2026-10-10)
+# Implementation Status — Cremona Core MVP 0.1.0 (2026-10-10)
 
 Toolchain: rustc 1.99.0 + user-local GCC 16 (`~/.local/vgcc`, system binutils/ld/glibc).
 Backend: C11 emission + GCC link (ADR-001, ARCHITECTURE.md). No LLVM/Cranelift in env.
@@ -16,7 +16,7 @@ Backend: C11 emission + GCC link (ADR-001, ARCHITECTURE.md). No LLVM/Cranelift i
 
 ## Test totals
 - `cargo test --workspace`: 100 passed (98 front-end + 2 fuzz), 0 failed.
-- `valvet test valvet-tests`: 93/93 debug, 93/93 release.
+- `cremona test cremona-tests`: 93/93 debug, 93/93 release.
 - ASan/UBSan on generated C: clean on the full pass sweep, the multi-file
   projects, and nested composites (borrow/String/Vec/Option/Result paths),
   outputs byte-exact.
@@ -44,7 +44,7 @@ Blocked: none. Unresolved: backend swap (LLVM/Cranelift) future (1.0).
 
 ## Post-0.1.0 codegen fixes (found via an R `cars` translation, 2026-10-11)
 - Fn-body Copy tails materialize before scope frees (was: silent `inf`/wrong
-  reads of owned locals). Fixture: `tail_owned_read.valvet`.
+  reads of owned locals). Fixture: `tail_owned_read.cremona`.
 - `mat_str` no longer wraps deref lvalues in droppable temps (was: double-free
   on `(*v).len()`). Same fixture.
 - One codegen-shape test updated (`codegen_int_main_returns`: tails now

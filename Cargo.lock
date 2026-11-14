@@ -3,12 +3,12 @@
 version = 4
 
 [[package]]
-name = "valvet_cli"
+name = "cremona_cli"
 version = "0.3.0"
 dependencies = [
- "valvet_core",
+ "cremona_core",
 ]
 
 [[package]]
-name = "valvet_core"
+name = "cremona_core"
 version = "0.3.0"

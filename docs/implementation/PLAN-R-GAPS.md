@@ -1,4 +1,4 @@
-# Plan: R parity gaps, the Valvet way (R-GAPS track)
+# Plan: R parity gaps, the Cremona way (R-GAPS track)
 
 Status: SHIPPED IN FULL (0.3.0 track). P0 (M1 `Mat`, M2 sort/order),
 P1 (F1 Factors, F2 strings + regex, F3 dates), P2 (D1 verbs + `|>`,
@@ -18,7 +18,7 @@ production scope in `IMPLEMENTATION_STATUS.md` (lazy plans, Parquet/Arrow,
 SQL, par_iter, FFI/unsafe, BLAS, registry, LSP); items that land may ship
 under whatever release is next. Source analysis: 10 gaps ranked by real R
 usage (tidyverse download dominance confirmed), each verified absent from
-`stdlib/` and `crates/valvet_core/src/` before planning.
+`stdlib/` and `crates/cremona_core/src/` before planning.
 
 Design law for all of it: no GC, ownership stays exact, first-order
 wherever possible, semantics fixed in the frontend with thin C kernels
@@ -47,7 +47,7 @@ data: Vec<Float64> }` with C kernels (prelude pattern): `transpose`,
 `det`, `inverse`, `cholesky`. Jacobi eigenvalue and one-sided Jacobi SVD
 follow in P3. Verification: fixtures vs Python `numpy` oracles, ASan
 clean.
-```valvet
+```cremona
 val a = mat_from_rows(vec![vec![2.0, 1.0], vec![1.0, 3.0]]);
 val b = vec![5.0, 7.0];
 val x = match (lu_solve(&a, &b)) { Ok(v) -> v, Err(e) -> vec![], };
@@ -71,7 +71,7 @@ codes: Vec<Int32> }` (level 0 = missing). Constructors
 `factor_from_strings`, `relevel`, `reorder_by_count`, `droplevels`,
 `as_strings`, group-by integration so frames can group on factors with
 level order preserved. Layouts + drop/clone in codegen; everything else
-pure Valvet. Fixtures vs R `factor()` semantics on level ordering and NA
+pure Cremona. Fixtures vs R `factor()` semantics on level ordering and NA
 handling.
 **F2. Strings.** SHIPPED Phase 2 as pure `std::re`: Thompson NFA over
 explicit tables (literals, `.`, `*`/`+`/`?`, `[...]` ranges and `[^...]`,
@@ -108,7 +108,7 @@ vs Python `datetime` (leap rules, epoch boundaries, cross-midnight
 arithmetic). 2 fixtures, 169/169 green, ASan-clean. New `Date` (days since epoch, Int32) and `Datetime`
 (nanos, Int64), UTC only (timezones explicitly deferred).
 Parsing/formatting for fixed formats (`YYYY-MM-DD`, RFC3330 subset) in
-pure Valvet over Int64 via Howard Hinnant's civil algorithms;
+pure Cremona over Int64 via Howard Hinnant's civil algorithms;
 arithmetic (`date + days`, `date - date` in days), ordering, printing.
 Fixtures vs Python `datetime` including leap years and epoch boundaries.
 
@@ -129,7 +129,7 @@ closures): `arrange(col, dir)` on M2, `mutate`/`summarise` over a
 (`col("x")`, `lit(1.0)`, `add(a,b)`, `mean_of(col)`) evaluated by a
 small interpreter over columns. Custom named-function aggregations
 arrive with Stage 1 closures.
-```valvet
+```cremona
 val g = frame_group_sum(&f, "region", "sales");
 val top = g |> frame_arrange("sum", false);
 ```
@@ -147,7 +147,7 @@ restore. 1 fixture, 172/172 green, ASan-clean. Not a ggplot clone: composable ow
 builder. `Plot` holds data + layer list (layers are DATA: enum of geom
 specs with column-name mappings, never functions); `+` chains builders;
 scales (`scale_log_x`) and `facet_wrap(col)` included; one SVG render at
-the end. Builds on existing plot.valvet geoms.
+the end. Builds on existing plot.cremona geoms.
 **D3. Distributions.** SHIPPED as pure `std::dist` (no compiler
 change): Normal/Exponential/Uniform/Binomial/Poisson pdf/pmf/cdf/
 quantile/sample. Normal CDF via first-principles `erf` (Taylor plus a
@@ -159,7 +159,7 @@ n=2000. 2 fixtures, 174/174 green, ASan-clean. New `std::dist`: Normal/Exponenti
 Binomial/Poisson with `pdf/pmf/cdf/quantile/sample`. Normal CDF via
 Abramowitz-Stegun erf, quantile via Acklam's rational approximation,
 sampling via the already-ported Marsaglia-Bray; discrete ones by
-inversion over the seeded `Rng`. Pure Valvet. Fixtures vs Python
+inversion over the seeded `Rng`. Pure Cremona. Fixtures vs Python
 `statistics`/`math` to 1e-9.
 
 ## P3: modeling and testing (needs M1 + D3)

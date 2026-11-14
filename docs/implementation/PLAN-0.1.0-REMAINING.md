@@ -1,6 +1,6 @@
 # Plan — Completing 0.1.0 (11 remaining items)
 
-Basis: `valvet-design/` D2–D5/D7/D9 + `revision/01` (all 26 VR resolved, no open contradictions in scope);
+Basis: `cremona-design/` D2–D5/D7/D9 + `revision/01` (all 26 VR resolved, no open contradictions in scope);
 external references: Rust Fuzz Book (`cargo fuzz init`, fuzz-target pattern), NLL design
 (smallcultfollowing “liveness and location”, RFC 2094 liveness rules), C tagged-union lowering
 (Cyclone manual §4 pattern), multi-file module practice (“Env per module/file”, langdev).
@@ -94,8 +94,8 @@ Gates: 68+2 unit tests, 61/61 fixtures debug+release, ASan 27/27 clean.
 - `codegen.rs`: `for` → C `for (int32_t x = lo; x < hi; ++x)` in a fresh C scope per D4 Drop
   rules; `loop` → existing `while(1)` emitter; `break v` → assign temp + break (mirror
   `emit_tail_return` temp discipline).
-- Tests: `valvet-tests/compile-pass/for_range.valvet` (+`.stdout`), `loop_break_value`,
-  `compile-fail/break_outside_loop.valvet` (E0005), `for_float_bounds` (E0201); unit:
+- Tests: `cremona-tests/compile-pass/for_range.cremona` (+`.stdout`), `loop_break_value`,
+  `compile-fail/break_outside_loop.cremona` (E0005), `for_float_bounds` (E0201); unit:
   `parser_for_range_forms` in `tests/front_end.rs`.
 
 ### A2. `as` casts (+ `try_as` declaration only — impl with D/Option)
@@ -108,19 +108,19 @@ Gates: 68+2 unit tests, 61/61 fixtures debug+release, ASan 27/27 clean.
 - `codegen.rs`: plain C casts are WRONG for float→int (C UB on overflow — UBSan would fire):
   emit saturating helpers in `PRELUDE` (`v_f2i32/v_f2i64` with `isfinite` + range checks),
   int→int via explicit mask/truncate, int→float direct.
-- Tests: `cast_table.valvet` runtime (wrap/saturate/NaN cases), `cast_bool_rejected` (E0201);
+- Tests: `cast_table.cremona` runtime (wrap/saturate/NaN cases), `cast_bool_rejected` (E0201);
   ASan run mandatory (this item exists because of UB risk).
 
 ### A3. Fuzz harness (stable-compatible)
 - External ref: Rust Fuzz Book pattern (`fuzz_target!(|data| { parse(data) })`), but `cargo-fuzz`
   needs nightly+LLVM+libFuzzer — NONE available here (stable 1.99, user GCC). So:
-- New `crates/valvet_core/tests/fuzz_soup.rs`: seeded PRNG token-soup + structural mutation
-  of every `valvet-tests/compile-pass/*.valvet`; assert: never a compiler panic/hang
+- New `crates/cremona_core/tests/fuzz_soup.rs`: seeded PRNG token-soup + structural mutation
+  of every `cremona-tests/compile-pass/*.cremona`; assert: never a compiler panic/hang
   (`catch_unwind`, per-case size cap 64KB, nesting cap from robustness probes); diagnostics
   of any code are acceptable outcomes. Runs in `cargo test`, no new deps.
 - `TEST_STRATEGY.md`: record full `cargo-fuzz` libFuzzer setup as follow-up when nightly
   toolchain available; `ci.yml`: add `cargo test --test fuzz_soup` line (already covered by
-  `cargo test --workspace`, just document the seed corpus dir `valvet-tests/fuzz-corpus/`).
+  `cargo test --workspace`, just document the seed corpus dir `cremona-tests/fuzz-corpus/`).
 
 ## Phase B — Structs & enums (foundation for C/D/E/F)
 
@@ -250,14 +250,14 @@ Gates: 80+2 unit tests, 76/76 fixtures debug+release, ASan/UBSan 8/8 borrow clea
 
 ## Phase H — Multi-file modules/imports
 **STATUS: DONE 2026-10-11** (92+2 unit tests, 86/86 fixtures debug+release, ASan/UBSan clean on all 3 multi-file pass projects, clippy/fmt clean)
-Shipped: `module a.b;` (dots, mandatory in imported files, ignored in entry), `import` single/brace/`as` forms (`::` only; dotted E0602, glob/re-export E0800), `pub` default-private (non-pub cross-module use E0401), file→module mapping from entry dir, cycle E0601, missing/mismatched E0701, per-file diagnostics (`.file` attribution, entry-anchored spans), joint sema with module-qualified names + import aliases ("Env per module"), C TU with `v_mod___fun` + sanitized types + fn prototypes (also fixes single-file forward calls, broken before), `val x: ImportedType` annotations, cross-module enums/match/structs/borrows/Vec, `valvet new` scaffolding, `multi-file/` fixture dirs in `valvet test`.
+Shipped: `module a.b;` (dots, mandatory in imported files, ignored in entry), `import` single/brace/`as` forms (`::` only; dotted E0602, glob/re-export E0800), `pub` default-private (non-pub cross-module use E0401), file→module mapping from entry dir, cycle E0601, missing/mismatched E0701, per-file diagnostics (`.file` attribution, entry-anchored spans), joint sema with module-qualified names + import aliases ("Env per module"), C TU with `v_mod___fun` + sanitized types + fn prototypes (also fixes single-file forward calls, broken before), `val x: ImportedType` annotations, cross-module enums/match/structs/borrows/Vec, `cremona new` scaffolding, `multi-file/` fixture dirs in `cremona test`.
 Also fixed along the way: per-file NodeId collisions in the joint table (resolver renumbers), Variant result + match-coverage qualification, pattern lowering resolution.
 Gates: 92+2 unit tests, 86/86 fixtures debug+release, ASan/UBSan 3/3 multi-file clean.
 
 - Spec: D9 §1 + VR-002 (dots in `module` decl only, `::` everywhere else; E0601 cycles,
   E0602 dotted imports, E0701 unresolved). External ref: “Env per module” resolver pattern.
-- New `crates/valvet_core/src/resolver.rs`: `CrateGraph{modules: HashMap<ModulePath, Unit>}`;
-  file→module mapping from `src/` root (`a/b.valvet` ↔ `module a.b;`); `import` loading with
+- New `crates/cremona_core/src/resolver.rs`: `CrateGraph{modules: HashMap<ModulePath, Unit>}`;
+  file→module mapping from `src/` root (`a/b.cremona` ↔ `module a.b;`); `import` loading with
   cycle detection; `pub`/private visibility filter on cross-module lookup.
 - `pipeline.rs`: `front_end_file` → parse main file → resolve imports recursively → joint
   `sema::check` over all units (shared `fun_names`/sigs); errors carry per-file `Source`.
@@ -265,9 +265,9 @@ Gates: 92+2 unit tests, 86/86 fixtures debug+release, ASan/UBSan 3/3 multi-file 
 - `codegen.rs`: mangle with module path (`v_mod__fun`); single C TU output (no separate
   compilation in 0.1.0 — state it).
 - `main.rs`: `build/run/check` accept project files; `test` discovers multi-file fixtures;
-  new `valvet new` scaffolding (deferred to 0.2.0? NO — D9 CLI lists it; implement minimal
-  `new` here: writes `valvet.toml`-less single-dir project — manifest format deferred).
-- Tests: `tests/` multi-file fixtures (`a.valvet` + `b.valvet` + expected), `import_cycle`
+  new `cremona new` scaffolding (deferred to 0.2.0? NO — D9 CLI lists it; implement minimal
+  `new` here: writes `cremona.toml`-less single-dir project — manifest format deferred).
+- Tests: `tests/` multi-file fixtures (`a.cremona` + `b.cremona` + expected), `import_cycle`
   (E0601), `dotted_import` (E0602), `private_leak` (E0401 across modules).
 
 ## Phase I — `println` stdlib, retire `print`
@@ -276,13 +276,13 @@ Shipped: `println(x)` builtin (builtin dispatch per DD-29: primitives + `Vec`/`O
 Also fixed along the way (all latent, all verified by execution): nested-`Vec` inner layouts never recorded (`record_vec_inst` now delegates to `record_ty`); C layout emission is topological over ADTs+instantiations (fixes `Vec<Option<T>>`, struct-held `Vec`, forward order); struct/enum drop/clone now handle `Generic` fields/payloads (were silently shallow); ctor/literal/tuple-struct payload temps poisoned on move (UAF); `v_drop_`/`v_clone_` names sanitize qualifiers; recursive types through generics rejected (documented unsized rule); single-constructor `?.` deep-clones generic payloads. Pre-existing bugs left alone (statement-`match` with `print()` tails; `vec![None]` needs annotation).
 Gates: 98+2 unit tests, 90/90 fixtures debug+release, ASan/UBSan clean (full pass sweep + multi-file).
 
-- Depends on H only if stdlib ships as Valvet sources — CHOSEN: builtin dispatch (same
+- Depends on H only if stdlib ships as Cremona sources — CHOSEN: builtin dispatch (same
   mechanism as today's `print`, extended per-type C helpers incl. `Vec`/`Option`/`Result`
   formatting), so H is NOT a prerequisite; stdlib-as-source comes in 0.2.0 with the package
   system. (Record alternative + reason in D13.)
 - `sema.rs`: rename known-fn `print` → `println`, keep `print` as deprecated alias emitting
   `W1002` (uses the new warning channel from C); update ALL fixtures + examples
-  (`sed` + `valvet test` green gate).
+  (`sed` + `cremona test` green gate).
 - `codegen.rs`: `vprint_*` extended: `vprint_vec_T`, `vprint_opt_T` (`Some(v)`/`None`),
   `vprint_res_T` (`Ok(v)`/`Err(e)`); dispatch in the existing print arm.
 - Tests: update every `.stdout` fixture (mechanical), `println_all_types` runtime,
@@ -296,4 +296,4 @@ Gates: 98+2 unit tests, 90/90 fixtures debug+release, ASan/UBSan clean (full pas
 - `revision/` style decision entries for the two scope cuts (Vec non-closure subset; builtin
   println over stdlib-source) + NLL-on-AST simplification.
 - Gates per phase (same as 0.1.0): `fmt --check`, `clippy -D warnings`, `cargo test`,
-  `valvet test` debug+release, ASan/UBSan over new string-owning fixtures.
+  `cremona test` debug+release, ASan/UBSan over new string-owning fixtures.
