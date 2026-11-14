@@ -18,6 +18,8 @@ jobs:
         run: cargo build --workspace
       - name: unit tests
         run: cargo test --workspace
+      - name: Generate test fixtures
+        run: python3 scripts/make_parquet_fixtures.py
       - name: fixture suite
         run: ./target/debug/cremona test cremona-tests
       - name: release

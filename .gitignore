@@ -18,3 +18,12 @@ __pycache__/
 
 # Reproducibility locks are build artifacts (written beside the entry)
 cremona.lock
+
+# Generated test fixtures (regenerate with: python3 scripts/make_parquet_fixtures.py)
+cremona-tests/data/parquet_bad_offset.parquet
+cremona-tests/data/parquet_basic.parquet
+cremona-tests/data/parquet_dictionary.parquet
+cremona-tests/data/parquet_missing.parquet
+cremona-tests/data/parquet_nested.parquet
+cremona-tests/data/parquet_snappy.parquet
+cremona-tests/data/parquet_truncated.parquet
