@@ -135,8 +135,8 @@ A direct Lean proof of all pair bounds using 19x19 finite cases over square root
 
 ## Baseline, tools, and repository state
 
-- Authenticated GitHub account: `Kenneth-Cho-InfoSec`. Origin is `https://github.com/Kenneth-Cho-InfoSec/Cremona.git`. Existing tags: v0.1.0 through v0.5.0. Draft PR #5 is open at https://github.com/Kenneth-Cho-InfoSec/Cremona/pull/5 on branch `research/erdos103-flexibility`. The tested flex implementation was published in commit `134fd6df241d922c7f3f88b698cc633cd82727fa` (https://github.com/Kenneth-Cho-InfoSec/Cremona/commit/134fd6df241d922c7f3f88b698cc633cd82727fa); a follow-up checkpoint commit records the PR and toolchain state. The PR includes the exact flex certificate, Lean verification, and regression tests. GitHub reports no branch checks. No release is warranted for this research-only addition.
-- Graphify generated a local code graph with 1,317 nodes. Its `graphify-out/` directory is generated and should not be staged. Graphify's code extractor skips Lean files; the Lean package is validated directly with Lake.
+- Authenticated GitHub account: `Kenneth-Cho-InfoSec`. Origin is `https://github.com/Kenneth-Cho-InfoSec/Cremona.git`. Existing tags: v0.1.0 through v0.5.0. Draft PR #5 is open at https://github.com/Kenneth-Cho-InfoSec/Cremona/pull/5 on branch `research/erdos103-flexibility`. The tested flex implementation was published in commit `134fd6df241d922c7f3f88b698cc633cd82727fa` (https://github.com/Kenneth-Cho-InfoSec/Cremona/commit/134fd6df241d922c7f3f88b698cc633cd82727fa). The latest exact dodecagon certificate is commit `33c8e420cdfe93e94daae767ba87ac7b4566f316` (https://github.com/Kenneth-Cho-InfoSec/Cremona/commit/33c8e420cdfe93e94daae767ba87ac7b4566f316); the PR head matches this commit. The PR includes the exact flex and dodecagon certificates, Lean verification, and regression tests. GitHub reports no branch checks. No release is warranted for this research-only addition.
+- Graphify generated a local code graph with 1,339 nodes. Its `graphify-out/` directory is generated and should not be staged. Graphify's code extractor skips Lean files; the Lean package is validated directly with Lake.
 - The root environment has Lean 4.36.0 and Lake 5.0.0-src. Rust project channel is `stable`; active rustc/cargo are 1.100.0. The cargo and Clippy components were listed as installed but their shims failed; removing and reinstalling those components restored them.
 - The research package separately pins Lean/Mathlib 4.35.0 (Lean commit `eb6cafb7290e8bd5f2937522d8d804f58f02bafc`; Mathlib commit `56a005855ea17e0b0958f73ec801ae140b0a1679`). `lake build Erdos103 Erdos103.FlexCertificate` and the axiom audit pass. No project `sorry`, `admit`, or custom `axiom` appears in the package; all flex-theorem audits list only `propext`, `Classical.choice`, and `Quot.sound`.
 - `cargo test --workspace`: PASS, 246/246 tests.
@@ -147,7 +147,7 @@ A direct Lean proof of all pair bounds using 19x19 finite cases over square root
 - `target/debug/cremona test --doc`: FAIL, 16/17. README fences pass; `examples/parquet_write.cremona` reports 388 vs expected 387.
 - `python3 scripts/fuzz_binary_formats.py`: PASS, 266 cases.
 - Fixture and doc runners share a staging area; run them sequentially. Their first concurrent run produced staging errors, which disappeared on the sequential docs rerun.
-- The baseline Rust runs did not change Rust or fixture files. Research changes add exact flex-certificate data and verification, Lean formalization, tests, and checkpoint updates; generated `graphify-out/` remains untracked.
+- The baseline Rust runs did not change Rust or fixture files. Research changes add exact flex and dodecagon certificates, rational and biquadratic verification tools, Lean formalization, tests, and checkpoint updates; generated `graphify-out/` remains untracked.
 
 ## Next obligations
 
