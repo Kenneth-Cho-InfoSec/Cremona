@@ -2,6 +2,7 @@ module
 
 import Erdos103
 import Erdos103.FlexCertificate
+import Erdos103.SlackFlex
 
 #print axioms Erdos103.exists_global_minimizer
 #print axioms Erdos103.pairEnergy_congruent
@@ -10,3 +11,11 @@ import Erdos103.FlexCertificate
 #print axioms Erdos103.FlexCertificate.moving_diameter
 #print axioms Erdos103.FlexCertificate.pairEnergy_moving_formula
 #print axioms Erdos103.FlexCertificate.moving_not_congruent
+#print axioms Erdos103.SlackFlex.exists_ball_strict_slack
+#print axioms Erdos103.SlackFlex.addPoint_isOptimal
+#print axioms Erdos103.SlackFlex.addPoint_isOptimal_of_globalLowerBound
+#print axioms Erdos103.SlackFlex.exists_ball_addPoint_isOptimal
+#print axioms Erdos103.SlackFlex.exists_ball_addPoint_isOptimal_of_globalLowerBound
+#print axioms Erdos103.SlackFlex.pairEnergy_addPoint_motion
+#print axioms Erdos103.SlackFlex.strictSlack_gives_many_optima_of_globalLowerBound
+#print axioms Erdos103.SlackFlex.strictSlack_gives_many_optima

@@ -13,16 +13,25 @@ The verified partial results are:
   `n ≥ 2`;
 - total squared pairwise-distance energy is invariant under the defined
   congruence relation;
+- if a separated `n`-tuple of diameter `D` admits an added point whose
+  distances to every old point are strictly between 1 and `D`, and `D` is a
+  global lower bound for size `n+1`, then every point in a neighborhood gives
+  an optimal `(n+1)`-tuple, with `k` pairwise incongruent extensions for every
+  finite `k`; an optimal `n`-tuple supplies the needed lower bound by deletion;
 - an explicit 19-point path `movingConfig t`, for rational `0 ≤ t ≤ 1/10`,
   stays 1-separated with diameter exactly 4;
 - distinct parameters on that path have different pair energies, so the
   configurations are pairwise incongruent.
 
-This is a family of feasible configurations, not a family of proven
-optimizers: no lower bound showing that diameter 4 is minimal for 19 points is
-known here. It therefore gives no value for `h(19)` and does not establish the
-asymptotic claim. The package does not import the open Erdős 103 formalization
-or depend on its `sorry` declarations.
+The strict-slack result is a conditional one-step propagation theorem, not an
+asymptotic theorem: no argument currently supplies a strict-slack point in an
+optimal configuration for every sufficiently large size. The diameter-4
+19-point path is feasible but not optimal, since a smaller literature
+construction is known; it gives no value for `h(19)`. The package does not
+import the open Erdős 103 formalization or depend on its `sorry` declarations.
+`HasKOptimalClasses` is currently a tuple-level predicate using the package's
+permutation-plus-isometry congruence; the bridge to `h(n)` defined on finite
+sets remains a separate proof obligation.
 
 ## Pinned toolchain
 
@@ -36,10 +45,11 @@ From this directory, run:
 ```sh
 lake build
 lake build Erdos103.FlexCertificate
+lake build Erdos103.SlackFlex
 lake env lean Audit.lean
 ```
 
-The audit prints the axioms used by the minimizer, congruence, and flex
-theorems. They use only Lean/Mathlib foundations (`propext`, `Classical.choice`,
-and `Quot.sound`). The Lean sources contain no project axioms, `sorry`, or
-`admit`.
+The audit prints the axioms used by the minimizer, congruence, flex, and
+strict-slack theorems. They use only Lean/Mathlib foundations (`propext`,
+`Classical.choice`, and `Quot.sound`). The Lean sources contain no project
+axioms, `sorry`, or `admit`.

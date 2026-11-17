@@ -11,7 +11,7 @@ namespace Erdos103
 abbrev Point := EuclideanSpace ℝ (Fin 2)
 abbrev Config (n : ℕ) := Fin n → Point
 
-def Separated {n : ℕ} (p : Config n) : Prop :=
+@[expose] def Separated {n : ℕ} (p : Config n) : Prop :=
   ∀ i j, i ≠ j → 1 ≤ dist (p i) (p j)
 
 @[expose] def diameter {n : ℕ} (hn : 0 < n) (p : Config n) : ℝ :=
@@ -62,7 +62,7 @@ def normalizedConfigs {n : ℕ} (hn : 0 < n) : Set (Config n) :=
 def compactFeasible {n : ℕ} (hn : 0 < n) (R : ℝ) : Set (Config n) :=
   normalizedConfigs hn ∩ (separatedConfigs n ∩ boundedConfigs n R)
 
-def IsOptimal {n : ℕ} (hn : 0 < n) (p : Config n) : Prop :=
+@[expose] def IsOptimal {n : ℕ} (hn : 0 < n) (p : Config n) : Prop :=
   p ∈ separatedConfigs n ∧ ∀ q, q ∈ separatedConfigs n → diameter hn p ≤ diameter hn q
 
 /-- Congruence ignores labels and permits every Euclidean isometry, including reflections. -/
