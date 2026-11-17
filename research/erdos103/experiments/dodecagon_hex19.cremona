@@ -1,0 +1,20 @@
+// Emit exact symbolic labels for the 19-point construction:
+// outer ring (12 vertices), rotated inner hexagon (6 vertices), center.
+// The exact Python checker interprets labels in Q(sqrt(2), sqrt(3)).
+fun main() {
+    println(19)
+    var i = 0 as Int64
+    while (i < 12) {
+        println(0) // outer dodecagon
+        println(i)
+        i += 1
+    }
+    i = 0
+    while (i < 6) {
+        println(1) // inner hexagon, offset by 15 degrees
+        println(i)
+        i += 1
+    }
+    println(2) // center
+    println(0)
+}

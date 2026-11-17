@@ -6,6 +6,7 @@ from fractions import Fraction
 from pathlib import Path
 import unittest
 
+from dodecagon19_certificate import SQRT2, SQRT3, SQRT6, verify_tokens as verify_dodecagon19
 from flex_certificate import verify_certificate
 from rigidity_rank import rigidity_matrix_rank, run_cremona_protocols
 
@@ -21,6 +22,33 @@ def squared_distance(a, b):
 
 
 class RigidityRankTests(unittest.TestCase):
+    def test_biquadratic_field_multiplication(self):
+        self.assertEqual((SQRT2 * SQRT2).coeffs, (Fraction(2), Fraction(0), Fraction(0), Fraction(0)))
+        self.assertEqual((SQRT3 * SQRT6).coeffs, (Fraction(0), Fraction(3), Fraction(0), Fraction(0)))
+
+    def test_exact_dodecagon_hexagon_19_point_certificate(self):
+        tokens = [19] + [value for pair in (
+            [(0, i) for i in range(12)]
+            + [(1, i) for i in range(6)]
+            + [(2, 0)]
+        ) for value in pair]
+        result = verify_dodecagon19(tokens)
+        self.assertEqual(result["pairs"], 171)
+        self.assertEqual(result["unit_contacts"], 36)
+        self.assertEqual(result["diameter_pairs"], 6)
+        self.assertEqual(result["minimum_squared_distance"], "1")
+        self.assertEqual(result["maximum_squared_distance"], "8 + 4*sqrt(3)")
+
+    def test_dodecagon_certificate_rejects_relabelled_geometry(self):
+        tokens = [19] + [value for pair in (
+            [(0, i) for i in range(12)]
+            + [(1, i) for i in range(6)]
+            + [(2, 0)]
+        ) for value in pair]
+        tokens[1 + 2 * 12 + 1] = 6
+        with self.assertRaisesRegex(ValueError, r"specified 12\+6\+1 pattern"):
+            verify_dodecagon19(tokens)
+
     def test_exact_r2_flex_certificate(self):
         certificate = Path(__file__).parents[1] / "certificates" / "triangular_patch_r2_flex.json"
         result = verify_certificate(json.loads(certificate.read_text()))

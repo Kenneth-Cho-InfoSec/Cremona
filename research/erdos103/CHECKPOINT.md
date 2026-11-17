@@ -31,7 +31,7 @@ Lean verifies `exists_global_minimizer`: for every n>=2 there is a globally opti
 
 The module `Erdos103.FlexCertificate` now verifies a concrete 19-point path. Axial coordinates (q,r) are embedded in the plane as (q+r/2, sqrt(3)r/2), whose squared distance is q^2+qr+r^2. For every rational t in [0,1/10], the resulting configuration is 1-separated and has diameter exactly 4. Its ordered pair-energy satisfies E(t)=E(0)+798t+426t^2, so distinct parameters give incongruent configurations. The contact-and-diameter inequalities are checked by an exact rational certificate, then transferred to Euclidean distances in Lean. `Audit.lean` prints only `propext`, `Classical.choice`, and `Quot.sound` for the verified minimizer, energy-invariance, flex, and noncongruence theorems; no `native_decide` axiom is used.
 
-This is a labeled-tuple representation of n-point sets; the explicit bridge from an injective tuple's range to an n-element `Finset` and the definition of h(n) are still outstanding. The 19-point path is only feasible, not proved optimal, so it gives no lower bound for h(19). No asymptotic statement is formalized. Build and audit from the package directory with `lake build Erdos103 Erdos103.FlexCertificate` and `lake env lean Audit.lean`.
+This is a labeled-tuple representation of n-point sets; the explicit bridge from an injective tuple's range to an n-element `Finset` and the definition of h(n) are still outstanding. The radius-2 flex path is not an optimizer: the published 19-point dodecagon construction below has smaller diameter. Neither configuration proves anything about h(19). No asymptotic statement is formalized. Build and audit from the package directory with `lake build Erdos103 Erdos103.FlexCertificate` and `lake env lean Audit.lean`.
 
 ## Verified and proposed mathematical facts
 
@@ -70,7 +70,7 @@ d^2=dx^2+dx\,dy+dy^2.
 Command: `target/debug/cremona run research/erdos103/experiments/hex_lattice.cremona`
 Output: `21`, `12`, `1`, `4`, then degrees `3,3,3,3,3,3,6` (unordered pairs, unit contacts, minimum squared distance, maximum squared distance, and per-point unit-contact degrees). This checks all 21 pairs of the six-point unit hexagon plus its center using exact Int64 arithmetic. Its contact graph is the wheel W7; every point has at least three unit contacts. It is a calibration, not an exhaustive optimizer search or a proof of rigidity under the inequality constraints.
 
-No exact search or lower-bound proof establishing global optimality of a 19-point candidate has been run. The exact one-sided feasible-flex certificate and Lean results are recorded below.
+No global lower-bound proof establishing optimality of a 19-point candidate has been run. The exact one-sided feasible-flex certificate and Lean results are recorded below.
 
 ### Exact rigidity stress test
 
@@ -96,17 +96,29 @@ The radius-2 patch has a genuine one-sided feasible motion even though its equal
 
 For an axial pair $(q,r)$, the planar embedding $(q+r/2,r\sqrt{3}/2)$ has squared distance $q^2+qr+r^2$. Along $p_i(t)=b_i+t v_i$, each squared distance is $d_{ij}^2+tL_{ij}+t^2Q_{ij}$. The certificate verifies $L_{ij}\ge0$ for unit contacts, $L_{ij}=Q_{ij}=0$ at diameter pairs, and exact error bounds for all other pairs over $0\le t\le1/10$. In particular every pair remains in the squared-distance interval $[1,16]$, while fixed diameter pairs remain at 16.
 
-Lean verifies the embedding identity, the full pair certificate, 1-separation, diameter exactly 4, and the ordered pair-energy formula $E(t)=E(0)+798t+426t^2$. By the already proved congruence invariance of pair energy, any two different rational parameters in the interval give incongruent configurations. Thus this is an infinite family of feasible 19-point configurations with fixed diameter 4. **No lower bound proving $D(19)=4$ is known here**, so it does not show that any member is optimal or give information about $h(19)$. The result instead falsifies the inference that full rank of the unit-contact framework alone prevents an inequality-feasible flex.
+Lean verifies the embedding identity, the full pair certificate, 1-separation, diameter exactly 4, and the ordered pair-energy formula $E(t)=E(0)+798t+426t^2$. By the already proved congruence invariance of pair energy, any two different rational parameters in the interval give incongruent configurations. Thus this is an infinite family of feasible 19-point configurations with fixed diameter 4. Audet et al. give a strictly smaller feasible 19-point construction, so this path is definitely not optimal and does not give information about $h(19)$. The result instead falsifies the inference that full rank of the unit-contact framework alone prevents an inequality-feasible flex.
 
 Commands passed on 2026-11-17:
 
-`python3 research/erdos103/tools/test_rigidity_rank.py` (7 tests)
+`python3 research/erdos103/tools/test_rigidity_rank.py` (10 tests)
 
 `python3 research/erdos103/tools/flex_certificate.py research/erdos103/certificates/triangular_patch_r2_flex.json` (19 points, 171 pairs, 42 unit contacts, exact rank 35, diameter squared 16, epsilon 1/10, unordered energy coefficients 399 and 213)
 
 `lake build Erdos103 Erdos103.FlexCertificate && lake env lean Audit.lean`
 
 The axiom audit reports only `propext`, `Classical.choice`, and `Quot.sound`; the finite certificate uses `norm_num`, not `native_decide`. A source scan found no `sorry`, `admit`, or project `axiom` declarations.
+
+### Exact 19-point upper construction from the literature
+
+Audet, Fournier, Hansen, and Messine report the n=19 value in their table of upper bounds and describe the figure's convex hull as a unit-side regular dodecagon. Their paper explicitly says that the reported solutions are globally optimal only through n=8; its abstract describes the n≤30 results as upper bounds. Thus the n=19 entry is a feasible candidate value here, not a proved value of D(19). See [the paper](https://www.academia.edu/27925789/A_note_on_diameters_of_point_sets) and [the GERAD record](https://www.gerad.ca/en/papers/G-2009-85).
+
+The candidate can be reconstructed exactly. Put R=2 cos(π/12)=(sqrt(6)+sqrt(2))/2. Take the 12 points R(cos(jπ/6), sin(jπ/6)) for j=0,...,11, the 6 points (cos(π/12+jπ/3), sin(π/12+jπ/3)) for j=0,...,5, and the origin. The inner regular hexagon has side 1; its nearest cross-ring distances to the dodecagon are also 1. The six antipodal outer pairs realize diameter 2R=sqrt(6)+sqrt(2)=sqrt(8+4sqrt(3))<4.
+
+The Cremona experiment `experiments/dodecagon_hex19.cremona` emits a 19-label ring/index description. `tools/dodecagon19_certificate.py` interprets those labels in the exact field Q(sqrt(2),sqrt(3)), calculates every squared distance, and verifies the 171 inequalities with exact rational coefficients. Results: minimum squared distance 1; maximum squared distance 8+4sqrt(3); 36 unit contacts; 6 diameter pairs. The exact squared-distance histogram is 1:36, 2:12, 3:6, 2+sqrt(3):36, 4:3, 4+sqrt(3):12, 4+2sqrt(3):24, 5+2sqrt(3):12, 6+3sqrt(3):12, 7+4sqrt(3):12, 8+4sqrt(3):6. The Python verifier is regression-tested; this new candidate certificate has not yet been formalized in Lean.
+
+Reproduce it from the repository root with `target/debug/cremona run research/erdos103/experiments/dodecagon_hex19.cremona | python3 research/erdos103/tools/dodecagon19_certificate.py`. The verifier uses a small exact biquadratic number field implementation and checks every pair rather than trusting the histogram alone.
+
+A direct Lean proof of all pair bounds using 19x19 finite cases over square roots was attempted but the tactic proof did not compile within the tested run. The next formalization should use the exact distance-class histogram as a compact certificate, prove coordinate-to-class equalities by normalized polynomial identities, and discharge class inequalities separately. No unverified Lean source was retained.
 
 ## Independent lines and current falsifiers
 
@@ -141,6 +153,6 @@ The axiom audit reports only `propext`, `Classical.choice`, and `Quot.sound`; th
 
 1. Bridge injective labeled tuples to n-element finite sets, define h(n) with the original unlabeled congruence relation, and formalize the strict-slack-point theorem.
 2. Formalize or independently reprove the D(8) lower bound; the literature-backed h(8)=infinity result remains unformalized and does not settle the tail.
-3. Search for a global lower bound matching the radius-2 patch's diameter 4, or replace it with a certified optimal candidate. Until then the 19-point flexible family has no bearing on h(19).
+3. Formalize the dodecagon-plus-hexagon construction and its exact distance-class certificate in Lean; separately search for a global lower bound for D(19). Do not treat the published upper value as an optimizer theorem or infer anything about h(19).
 4. Continue the switch-gadget and bounded-multiplicity tracks independently; identify an asymptotic construction for every sufficiently large n or a fixed-k bounded-multiplicity subsequence.
 5. Return to the exact eventual quantifier, with no finite-n family or subsequence result treated as completion.
