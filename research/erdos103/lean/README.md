@@ -12,11 +12,17 @@ The verified partial results are:
 - a globally diameter-minimizing separated configuration exists for every
   `n ≥ 2`;
 - total squared pairwise-distance energy is invariant under the defined
-  congruence relation.
+  congruence relation;
+- an explicit 19-point path `movingConfig t`, for rational `0 ≤ t ≤ 1/10`,
+  stays 1-separated with diameter exactly 4;
+- distinct parameters on that path have different pair energies, so the
+  configurations are pairwise incongruent.
 
-The asymptotic theorem and the strict-slack flex theorem are not yet formalized.
-The file does not import the open Erdős 103 formalization or depend on its
-`sorry` declarations.
+This is a family of feasible configurations, not a family of proven
+optimizers: no lower bound showing that diameter 4 is minimal for 19 points is
+known here. It therefore gives no value for `h(19)` and does not establish the
+asymptotic claim. The package does not import the open Erdős 103 formalization
+or depend on its `sorry` declarations.
 
 ## Pinned toolchain
 
@@ -29,9 +35,11 @@ From this directory, run:
 
 ```sh
 lake build
+lake build Erdos103.FlexCertificate
 lake env lean Audit.lean
 ```
 
-The audit prints the axioms used by the two partial theorems. The standard
-Lean/Mathlib foundations may appear; there are no project axioms, `sorry`, or
-`admit` in `Erdos103.lean`.
+The audit prints the axioms used by the minimizer, congruence, and flex
+theorems. They use only Lean/Mathlib foundations (`propext`, `Classical.choice`,
+and `Quot.sound`). The Lean sources contain no project axioms, `sorry`, or
+`admit`.

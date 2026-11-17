@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Regression tests for exact planar framework rigidity ranks."""
 
+import json
 from fractions import Fraction
+from pathlib import Path
 import unittest
 
+from flex_certificate import verify_certificate
 from rigidity_rank import rigidity_matrix_rank, run_cremona_protocols
 
 
@@ -18,6 +21,23 @@ def squared_distance(a, b):
 
 
 class RigidityRankTests(unittest.TestCase):
+    def test_exact_r2_flex_certificate(self):
+        certificate = Path(__file__).parents[1] / "certificates" / "triangular_patch_r2_flex.json"
+        result = verify_certificate(json.loads(certificate.read_text()))
+        self.assertEqual(result["points"], 19)
+        self.assertEqual(result["unit_contacts"], 42)
+        self.assertEqual(result["diameter_squared"], "16")
+        self.assertEqual(result["rigidity_rank"], 35)
+        self.assertEqual(result["energy_linear"], "399")
+        self.assertEqual(result["energy_quadratic"], "213")
+
+    def test_flex_certificate_rejects_oversized_interval(self):
+        certificate = Path(__file__).parents[1] / "certificates" / "triangular_patch_r2_flex.json"
+        data = json.loads(certificate.read_text())
+        data["epsilon"] = "1"
+        with self.assertRaises(ValueError):
+            verify_certificate(data)
+
     def test_protocol_parses_concatenated_patch_blocks(self):
         triangle_block = [3, 3, 3, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1]
         self.assertEqual(

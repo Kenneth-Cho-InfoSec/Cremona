@@ -14,7 +14,7 @@ abbrev Config (n : ℕ) := Fin n → Point
 def Separated {n : ℕ} (p : Config n) : Prop :=
   ∀ i j, i ≠ j → 1 ≤ dist (p i) (p j)
 
-def diameter {n : ℕ} (hn : 0 < n) (p : Config n) : ℝ :=
+@[expose] def diameter {n : ℕ} (hn : 0 < n) (p : Config n) : ℝ :=
   (Finset.univ.product Finset.univ).sup'
     (by
       obtain ⟨i⟩ := Fin.pos_iff_nonempty.mp hn
@@ -50,7 +50,7 @@ lemma dist_axis_smul (a b : ℝ) :
 
 def lineConfig (n : ℕ) : Config n := fun i => (i.val : ℝ) • axis
 
-def separatedConfigs (n : ℕ) : Set (Config n) :=
+@[expose] def separatedConfigs (n : ℕ) : Set (Config n) :=
   ⋂ i : Fin n, ⋂ j : Fin n, {p | i = j ∨ 1 ≤ dist (p i) (p j)}
 
 def boundedConfigs (n : ℕ) (R : ℝ) : Set (Config n) :=
@@ -70,7 +70,7 @@ def Congruent {n : ℕ} (p q : Config n) : Prop :=
   ∃ e : Point ≃ᵢ Point, ∃ σ : Equiv.Perm (Fin n), ∀ i, q i = e (p (σ i))
 
 /-- The ordered version of total squared pairwise-distance energy. -/
-def pairEnergy {n : ℕ} (p : Config n) : ℝ :=
+@[expose] def pairEnergy {n : ℕ} (p : Config n) : ℝ :=
   ∑ i : Fin n, ∑ j : Fin n, (dist (p i) (p j)) ^ 2
 
 lemma separated_injective {n : ℕ} {p : Config n} (hp : p ∈ separatedConfigs n) :

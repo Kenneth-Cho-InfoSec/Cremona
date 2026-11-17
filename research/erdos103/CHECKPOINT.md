@@ -1,8 +1,8 @@
 # Erdős Problem 103 Research Checkpoint
 
-**Date:** 2026-11-16
+**Date:** 2026-11-17
 **Goal state:** In progress; no proof or disproof of h(n)\to\infty.
-**Repository:** `Kenneth-Cho-InfoSec/Cremona`, branch `main`, baseline commit `296eaa1540b2aa8c34983a46d6c2f5b155865f24`.
+**Repository:** `Kenneth-Cho-InfoSec/Cremona`, research branch `research/erdos103-flexibility`, based on `main` at `296eaa1540b2aa8c34983a46d6c2f5b155865f24`. Draft PR #5: https://github.com/Kenneth-Cho-InfoSec/Cremona/pull/5.
 **Research design:** [2026-11-16 design](../../docs/superpowers/specs/2026-11-16-erdos103-research-design.md).
 
 ## Exact target
@@ -27,9 +27,11 @@ The exact negation is that some fixed k satisfies h(n)<k for arbitrarily large n
 
 The independent package in [lean/](lean/) is pinned to Lean 4.35.0 and Mathlib v4.35.0, with the Mathlib commit fixed in `lake-manifest.json`. Its source defines labeled planar configurations `Fin n -> EuclideanSpace R (Fin 2)`, separation, a finite-sup diameter, global optimality against every separated tuple, and congruence as a permutation followed by a Euclidean isometry. Separation is proved to imply injectivity.
 
-Lean verifies `exists_global_minimizer`: for every n>=2 there is a globally optimal separated n-tuple. The proof normalizes the first point by translation, restricts all points to a closed ball of radius 2n, proves that normalized feasible set compact, and applies the compact continuous-minimum theorem. A collinear tuple supplies nonemptiness and an upper diameter bound; any unnormalized competitor with diameter at most 2n translates into the compact set, while a larger competitor loses to the collinear tuple. Lean also verifies that ordered total squared pairwise-distance energy is invariant under the encoded congruence relation. `Audit.lean` prints only the standard foundations `propext`, `Classical.choice`, and `Quot.sound` for both results.
+Lean verifies `exists_global_minimizer`: for every n>=2 there is a globally optimal separated n-tuple. The proof normalizes the first point by translation, restricts all points to a closed ball of radius 2n, proves that normalized feasible set compact, and applies the compact continuous-minimum theorem. A collinear tuple supplies nonemptiness and an upper diameter bound; any unnormalized competitor with diameter at most 2n translates into the compact set, while a larger competitor loses to the collinear tuple. Lean also verifies that ordered total squared pairwise-distance energy is invariant under the encoded congruence relation.
 
-This is a labeled-tuple representation of n-point sets; the explicit bridge from an injective tuple's range to an n-element `Finset` and the definition of h(n) are still outstanding. No asymptotic statement is formalized. Build and audit from the package directory with `lake build` and `lake env lean Audit.lean`.
+The module `Erdos103.FlexCertificate` now verifies a concrete 19-point path. Axial coordinates (q,r) are embedded in the plane as (q+r/2, sqrt(3)r/2), whose squared distance is q^2+qr+r^2. For every rational t in [0,1/10], the resulting configuration is 1-separated and has diameter exactly 4. Its ordered pair-energy satisfies E(t)=E(0)+798t+426t^2, so distinct parameters give incongruent configurations. The contact-and-diameter inequalities are checked by an exact rational certificate, then transferred to Euclidean distances in Lean. `Audit.lean` prints only `propext`, `Classical.choice`, and `Quot.sound` for the verified minimizer, energy-invariance, flex, and noncongruence theorems; no `native_decide` axiom is used.
+
+This is a labeled-tuple representation of n-point sets; the explicit bridge from an injective tuple's range to an n-element `Finset` and the definition of h(n) are still outstanding. The 19-point path is only feasible, not proved optimal, so it gives no lower bound for h(19). No asymptotic statement is formalized. Build and audit from the package directory with `lake build Erdos103 Erdos103.FlexCertificate` and `lake env lean Audit.lean`.
 
 ## Verified and proposed mathematical facts
 
@@ -68,7 +70,7 @@ d^2=dx^2+dx\,dy+dy^2.
 Command: `target/debug/cremona run research/erdos103/experiments/hex_lattice.cremona`
 Output: `21`, `12`, `1`, `4`, then degrees `3,3,3,3,3,3,6` (unordered pairs, unit contacts, minimum squared distance, maximum squared distance, and per-point unit-contact degrees). This checks all 21 pairs of the six-point unit hexagon plus its center using exact Int64 arithmetic. Its contact graph is the wheel W7; every point has at least three unit contacts. It is a calibration, not an exhaustive optimizer search or a proof of rigidity under the inequality constraints.
 
-No exact search over candidate configurations has been run, and no nonlinear feasible-flex certificate has been produced. No Lean theorem has been checked yet.
+No exact search or lower-bound proof establishing global optimality of a 19-point candidate has been run. The exact one-sided feasible-flex certificate and Lean results are recorded below.
 
 ### Exact rigidity stress test
 
@@ -88,6 +90,24 @@ Every vertex has at least three unit contacts, so none has strict slack. The reu
 
 The second command reports the three rows in the table. The helper uses only Python's standard-library `fractions.Fraction`; SciPy is not installed and no floating LP was substituted.
 
+## Lean-verified feasible flex (not an optimizer)
+
+The radius-2 patch has a genuine one-sided feasible motion even though its equality-framework rigidity matrix has full rank 2n-3. This was found by solving the rational first-order inequalities for all 42 unit contacts and the 3 diameter pairs, then checked exactly. The velocity vector is recorded in [triangular_patch_r2_flex.json](certificates/triangular_patch_r2_flex.json); the reusable verifier is [flex_certificate.py](tools/flex_certificate.py), with regression tests in `test_rigidity_rank.py`.
+
+For an axial pair $(q,r)$, the planar embedding $(q+r/2,r\sqrt{3}/2)$ has squared distance $q^2+qr+r^2$. Along $p_i(t)=b_i+t v_i$, each squared distance is $d_{ij}^2+tL_{ij}+t^2Q_{ij}$. The certificate verifies $L_{ij}\ge0$ for unit contacts, $L_{ij}=Q_{ij}=0$ at diameter pairs, and exact error bounds for all other pairs over $0\le t\le1/10$. In particular every pair remains in the squared-distance interval $[1,16]$, while fixed diameter pairs remain at 16.
+
+Lean verifies the embedding identity, the full pair certificate, 1-separation, diameter exactly 4, and the ordered pair-energy formula $E(t)=E(0)+798t+426t^2$. By the already proved congruence invariance of pair energy, any two different rational parameters in the interval give incongruent configurations. Thus this is an infinite family of feasible 19-point configurations with fixed diameter 4. **No lower bound proving $D(19)=4$ is known here**, so it does not show that any member is optimal or give information about $h(19)$. The result instead falsifies the inference that full rank of the unit-contact framework alone prevents an inequality-feasible flex.
+
+Commands passed on 2026-11-17:
+
+`python3 research/erdos103/tools/test_rigidity_rank.py` (7 tests)
+
+`python3 research/erdos103/tools/flex_certificate.py research/erdos103/certificates/triangular_patch_r2_flex.json` (19 points, 171 pairs, 42 unit contacts, exact rank 35, diameter squared 16, epsilon 1/10, unordered energy coefficients 399 and 213)
+
+`lake build Erdos103 Erdos103.FlexCertificate && lake env lean Audit.lean`
+
+The axiom audit reports only `propext`, `Classical.choice`, and `Quot.sound`; the finite certificate uses `norm_num`, not `native_decide`. A source scan found no `sorry`, `admit`, or project `axiom` declarations.
+
 ## Independent lines and current falsifiers
 
 1. **Flexible optima (lead):** find an optimal configuration with a genuine feasible motion at fixed minimum diameter. The n=8 family validates the mechanism; the unique n=7 optimizer falsifies any all-n version. Next target: a theorem forcing at least one integrable flex for every sufficiently large n, or a verified optimizer with all points pinned that rules out the proposed sufficient condition.
@@ -97,16 +117,16 @@ The second command reports the three rows in the table. The helper uses only Pyt
 ## Prior hypotheses revised
 
 - “Every optimum flexes” is false at n=7 by Bateman–Erdős uniqueness.
-- Contact-matrix rank deficiency alone would not prove a feasible motion; it only gives an infinitesimal candidate and may have a second-order obstruction.
+- Contact-matrix rank deficiency alone would not prove a feasible motion; it only gives an infinitesimal candidate and may have a second-order obstruction. Conversely, full equality-framework rank does not imply inequality jamming: the radius-2 patch has rank 2n-3 and the certified one-sided feasible path above.
 - A strict-slack-point criterion is already present in the unreviewed A1 draft. The current refinement is to use total squared-distance energy as a simpler isometry invariant for distinguishing a radial family.
 - The finite result h(8)=infinity and the asymptotic statement are logically separate. The key gap is propagation to every large n, not producing a single flexible optimizer.
 
 ## Baseline, tools, and repository state
 
-- Authenticated GitHub account: `Kenneth-Cho-InfoSec`. Origin is `https://github.com/Kenneth-Cho-InfoSec/Cremona.git`. Existing tags: v0.1.0 through v0.5.0. No PR, commit, or release has been created for this project yet.
-- Graphify generated a local code graph with 1,284 nodes. Its `graphify-out/` directory is currently untracked. The graph query identified the Rust workspace, CI commands, integer arithmetic, and fixture entry points before source inspection.
+- Authenticated GitHub account: `Kenneth-Cho-InfoSec`. Origin is `https://github.com/Kenneth-Cho-InfoSec/Cremona.git`. Existing tags: v0.1.0 through v0.5.0. Draft PR #5 is open at https://github.com/Kenneth-Cho-InfoSec/Cremona/pull/5 on branch `research/erdos103-flexibility`; it includes the first exact rigidity experiments. The next tested flex and Lean improvements are being prepared for the same PR. No release is warranted yet.
+- Graphify generated a local code graph with 1,317 nodes. Its `graphify-out/` directory is generated and should not be staged. Graphify's code extractor skips Lean files; the Lean package is validated directly with Lake.
 - The root environment has Lean 4.36.0 and Lake 5.0.0-src. Rust project channel is `stable`; active rustc/cargo are 1.100.0. The cargo and Clippy components were listed as installed but their shims failed; removing and reinstalling those components restored them.
-- The research package separately pins Lean/Mathlib 4.35.0; `lake build` succeeds and the axiom audit is recorded above.
+- The research package separately pins Lean/Mathlib 4.35.0 (Lean commit `eb6cafb7290e8bd5f2937522d8d804f58f02bafc`; Mathlib commit `56a005855ea17e0b0958f73ec801ae140b0a1679`). `lake build Erdos103 Erdos103.FlexCertificate` and the axiom audit pass. No project `sorry`, `admit`, or custom `axiom` appears in the package; all flex-theorem audits list only `propext`, `Classical.choice`, and `Quot.sound`.
 - `cargo test --workspace`: PASS, 246/246 tests.
 - `cargo build --workspace`: PASS.
 - `cargo fmt --all --check`: FAIL on existing formatting differences in `crates/cremona_cli/src/main.rs`, `crates/cremona_core/src/parser.rs`, and `crates/cremona_core/src/sema.rs`.
@@ -115,13 +135,12 @@ The second command reports the three rows in the table. The helper uses only Pyt
 - `target/debug/cremona test --doc`: FAIL, 16/17. README fences pass; `examples/parquet_write.cremona` reports 388 vs expected 387.
 - `python3 scripts/fuzz_binary_formats.py`: PASS, 266 cases.
 - Fixture and doc runners share a staging area; run them sequentially. Their first concurrent run produced staging errors, which disappeared on the sequential docs rerun.
-- No code or fixture files were changed by the baseline runs. Current project changes are the research design, this checkpoint, the experiment script, and generated untracked Graphify output.
+- The baseline Rust runs did not change Rust or fixture files. Research changes add exact flex-certificate data and verification, Lean formalization, tests, and checkpoint updates; generated `graphify-out/` remains untracked.
 
 ## Next obligations
 
-1. Pin Mathlib and create a self-contained Lean package that defines the original objects without importing the open theorem's `sorry`.
-2. Prove minimizer existence for every n\ge2 using translation normalization, a collinear n-point upper-bound witness, and compactness of a closed bounded subset of (\mathbb{R}^2)^n.
-3. Prove the total squared-distance energy is invariant under isometries and establish the movable-point criterion for unlabeled finite sets.
-4. Encode the exact 8-point family and make the D(8) literature input explicit; later formalize its global lower bound if feasible.
-5. Test the inequality tangent cone on the radius-2 patch, including active diameter constraints; full equality rank alone does not settle local jamming. Then identify whether any globally optimal family at n>=9 has a point with uniform strict slack.
-6. Return to the original eventual quantifier after the finite-n and compactness lemmas; do not treat h(8)=infinity or a subsequence result as completion.
+1. Bridge injective labeled tuples to n-element finite sets, define h(n) with the original unlabeled congruence relation, and formalize the strict-slack-point theorem.
+2. Formalize or independently reprove the D(8) lower bound; the literature-backed h(8)=infinity result remains unformalized and does not settle the tail.
+3. Search for a global lower bound matching the radius-2 patch's diameter 4, or replace it with a certified optimal candidate. Until then the 19-point flexible family has no bearing on h(19).
+4. Continue the switch-gadget and bounded-multiplicity tracks independently; identify an asymptotic construction for every sufficiently large n or a fixed-k bounded-multiplicity subsequence.
+5. Return to the exact eventual quantifier, with no finite-n family or subsequence result treated as completion.
