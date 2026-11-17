@@ -18,6 +18,9 @@ The verified partial results are:
   global lower bound for size `n+1`, then every point in a neighborhood gives
   an optimal `(n+1)`-tuple, with `k` pairwise incongruent extensions for every
   finite `k`; an optimal `n`-tuple supplies the needed lower bound by deletion;
+- if an optimal `(n+1)`-tuple has its index-0 point incident to neither a
+  unit-distance pair nor a diameter pair, deleting it preserves the diameter
+  and gives the strict-slack hypotheses, so the same conclusion follows;
 - an explicit 19-point path `movingConfig t`, for rational `0 ≤ t ≤ 1/10`,
   stays 1-separated with diameter exactly 4;
 - distinct parameters on that path have different pair energies, so the
@@ -49,7 +52,7 @@ lake build Erdos103.SlackFlex
 lake env lean Audit.lean
 ```
 
-The audit prints the axioms used by the minimizer, congruence, flex, and
-strict-slack theorems. They use only Lean/Mathlib foundations (`propext`,
+The audit prints the axioms used by the minimizer, congruence, flex,
+strict-slack, and isolated-point theorems. They use only Lean/Mathlib foundations (`propext`,
 `Classical.choice`, and `Quot.sound`). The Lean sources contain no project
 axioms, `sorry`, or `admit`.

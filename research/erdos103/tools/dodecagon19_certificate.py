@@ -133,17 +133,34 @@ def descriptor_points(tokens: list[int]) -> list[tuple[BiQuadratic, BiQuadratic]
     return points
 
 
+def edge_degrees(vertex_count: int, edges: list[tuple[int, int]]) -> list[int]:
+    """Return exact undirected graph degrees for zero-based vertex pairs."""
+    if vertex_count < 0:
+        raise ValueError("vertex count must be nonnegative")
+    degrees = [0] * vertex_count
+    for left, right in edges:
+        if not (0 <= left < vertex_count and 0 <= right < vertex_count):
+            raise ValueError(f"edge endpoint outside 0..{vertex_count - 1}: {(left, right)}")
+        if left == right:
+            raise ValueError(f"self-loop is not a pair edge: {(left, right)}")
+        degrees[left] += 1
+        degrees[right] += 1
+    return degrees
+
+
 def verify_tokens(tokens: list[int]) -> dict[str, object]:
     points = descriptor_points(tokens)
     distances: list[BiQuadratic] = []
+    pair_indices: list[tuple[int, int]] = []
     for i, (x1, y1) in enumerate(points):
-        for x2, y2 in points[i + 1 :]:
+        for j, (x2, y2) in enumerate(points[i + 1 :], start=i + 1):
             dx = x1 - x2
             dy = y1 - y2
             d2 = dx * dx + dy * dy
             if d2.coeffs[1] or d2.coeffs[3]:
                 raise ValueError("squared distance unexpectedly uses sqrt(2) or sqrt(6)")
             distances.append(d2)
+            pair_indices.append((i, j))
 
     lower = ONE
     upper = BiQuadratic((Fraction(8), Fraction(0), Fraction(4), Fraction(0)))
@@ -159,6 +176,9 @@ def verify_tokens(tokens: list[int]) -> dict[str, object]:
     if contacts != 36 or diameters != 6:
         raise ValueError(f"unexpected contact/diameter counts: {contacts}/{diameters}")
 
+    contact_edges = [pair for pair, d2 in zip(pair_indices, distances) if d2 == lower]
+    diameter_edges = [pair for pair, d2 in zip(pair_indices, distances) if d2 == upper]
+
     classes: dict[BiQuadratic, int] = {}
     for d2 in distances:
         classes[d2] = classes.get(d2, 0) + 1
@@ -173,6 +193,8 @@ def verify_tokens(tokens: list[int]) -> dict[str, object]:
         "pairs": len(distances),
         "unit_contacts": contacts,
         "diameter_pairs": diameters,
+        "unit_contact_degrees": edge_degrees(len(points), contact_edges),
+        "diameter_degrees": edge_degrees(len(points), diameter_edges),
         "minimum_squared_distance": "1",
         "maximum_squared_distance": format_qsqrt3(upper),
         "diameter": "sqrt(8+4*sqrt(3)) = sqrt(6)+sqrt(2)",

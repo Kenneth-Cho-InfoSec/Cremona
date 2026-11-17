@@ -6,7 +6,13 @@ from fractions import Fraction
 from pathlib import Path
 import unittest
 
-from dodecagon19_certificate import SQRT2, SQRT3, SQRT6, verify_tokens as verify_dodecagon19
+from dodecagon19_certificate import (
+    SQRT2,
+    SQRT3,
+    SQRT6,
+    edge_degrees,
+    verify_tokens as verify_dodecagon19,
+)
 from flex_certificate import verify_certificate
 from rigidity_rank import rigidity_matrix_rank, run_cremona_protocols
 
@@ -36,8 +42,15 @@ class RigidityRankTests(unittest.TestCase):
         self.assertEqual(result["pairs"], 171)
         self.assertEqual(result["unit_contacts"], 36)
         self.assertEqual(result["diameter_pairs"], 6)
+        self.assertEqual(result["unit_contact_degrees"], [3] * 12 + [5] * 6 + [6])
+        self.assertEqual(result["diameter_degrees"], [1] * 12 + [0] * 7)
         self.assertEqual(result["minimum_squared_distance"], "1")
         self.assertEqual(result["maximum_squared_distance"], "8 + 4*sqrt(3)")
+
+    def test_edge_degrees_for_contact_graph(self):
+        self.assertEqual(edge_degrees(4, [(0, 1), (1, 2), (2, 0)]), [2, 2, 2, 0])
+        with self.assertRaisesRegex(ValueError, "self-loop"):
+            edge_degrees(2, [(1, 1)])
 
     def test_dodecagon_certificate_rejects_relabelled_geometry(self):
         tokens = [19] + [value for pair in (

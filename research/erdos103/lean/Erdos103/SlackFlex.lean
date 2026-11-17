@@ -474,6 +474,98 @@ theorem strictSlack_gives_many_optima {n : ℕ} (hn : 2 ≤ n) (p : Config n) (x
         (le_of_lt (slackParameter_pos ε hε j)) ht
       exact (ne_of_lt henergy) (pairEnergy_congruent hcongr).symm
 
+/-- If an optimal tuple has an index-zero point incident to neither a unit
+contact nor a diameter pair, deleting it preserves the diameter and exposes a
+strict-slack insertion point. This yields arbitrarily many tuple-level classes. -/
+theorem optimal_with_isolated_point_gives_many_classes {n : ℕ} (hn : 2 ≤ n)
+    (q : Config (n + 1)) (hq : IsOptimal (by omega) q)
+    (hnoUnit : ∀ j : Fin n, dist (q 0) (q j.succ) ≠ 1)
+    (hnoDiameter : ∀ j : Fin n,
+      dist (q 0) (q j.succ) ≠ diameter (Nat.succ_pos n) q)
+    {k : ℕ} : HasKOptimalClasses (n + 1) k (Nat.succ_pos n) := by
+  let D := diameter (Nat.succ_pos n) q
+  let p : Config n := fun i => q i.succ
+  have hqsep : Separated q := (separated_iff_mem_separatedConfigs q).2 hq.1
+  have hp : Separated p := by
+    intro i j hij
+    apply hqsep i.succ j.succ
+    intro heq
+    apply hij
+    apply Fin.ext
+    simpa using congrArg Fin.val heq
+  have hcontact : ∀ j : Fin n, 1 < dist (q 0) (p j) := by
+    intro j
+    have hdist := hqsep 0 j.succ (by
+      intro h
+      have hv := congrArg Fin.val h
+      simp at hv)
+    rcases lt_or_eq_of_le hdist with hlt | heq
+    · exact hlt
+    · exact False.elim (hnoUnit j heq.symm)
+  have hDpos : 0 < D := by
+    let a : Fin (n + 1) := ⟨0, by omega⟩
+    let b : Fin (n + 1) := ⟨1, by omega⟩
+    have hab : a ≠ b := by
+      intro h
+      have hv := congrArg Fin.val h
+      norm_num [a, b] at hv
+    have hsepab := hqsep a b hab
+    have hle := dist_le_diameter (Nat.succ_pos n) q a b
+    dsimp [D]
+    exact lt_of_lt_of_le (by norm_num) (le_trans hsepab hle)
+  have hpdiam_le : diameter (by omega : 0 < n) p ≤ D := by
+    exact diameter_succ_le (by omega) q
+  have htailPair : ∃ i j : Fin n, dist (p i) (p j) = D := by
+    let pairs : Finset (Fin (n + 1) × Fin (n + 1)) :=
+      Finset.univ.product Finset.univ
+    have hpairs : pairs.Nonempty := by
+      exact ⟨(0, 0), by simp [pairs]⟩
+    obtain ⟨ij, hij, hmax⟩ :=
+      Finset.exists_mem_eq_sup' hpairs
+        (fun ij : Fin (n + 1) × Fin (n + 1) => dist (q ij.1) (q ij.2))
+    have hmaxeq : D = dist (q ij.1) (q ij.2) := by
+      simpa [D, diameter, pairs] using hmax
+    rcases ij with ⟨i, j⟩
+    cases i using Fin.cases with
+    | zero =>
+      cases j using Fin.cases with
+      | zero =>
+        have hzero : D = 0 := by simpa using hmaxeq
+        exact False.elim ((ne_of_gt hDpos) hzero)
+      | succ j =>
+        exact False.elim (hnoDiameter j (by simpa [D] using hmaxeq.symm))
+    | succ i =>
+      cases j using Fin.cases with
+      | zero =>
+        have heq : dist (q 0) (q i.succ) = D := by
+          rw [dist_comm]
+          simpa [D] using hmaxeq.symm
+        exact False.elim (hnoDiameter i heq)
+      | succ j =>
+        exact ⟨i, j, by simpa [p, D] using hmaxeq.symm⟩
+  have hpdiam_ge : D ≤ diameter (by omega : 0 < n) p := by
+    obtain ⟨i, j, hij⟩ := htailPair
+    calc
+      D = dist (p i) (p j) := hij.symm
+      _ ≤ diameter (by omega) p := dist_le_diameter (by omega) p i j
+  have hpdiam : diameter (by omega : 0 < n) p = D :=
+    le_antisymm hpdiam_le hpdiam_ge
+  have hslack : ∀ j : Fin n,
+      1 < dist (q 0) (p j) ∧ dist (q 0) (p j) < D := by
+    intro j
+    refine ⟨hcontact j, ?_⟩
+    have hle := dist_le_diameter (Nat.succ_pos n) q 0 j.succ
+    rcases lt_or_eq_of_le (show dist (q 0) (q j.succ) ≤ D by simpa [D] using hle)
+        with hlt | heq
+    · exact hlt
+    · exact False.elim (hnoDiameter j heq)
+  have hLB : ∀ r, r ∈ separatedConfigs (n + 1) →
+      D ≤ diameter (Nat.succ_pos n) r := by
+    intro r hr
+    exact hq.2 r hr
+  exact strictSlack_gives_many_optima_of_globalLowerBound (by omega) p (q 0) D hp
+    hpdiam (le_of_lt hDpos) hslack hLB
+
 end
 
 end Erdos103.SlackFlex

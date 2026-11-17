@@ -32,6 +32,8 @@ Lean verifies `exists_global_minimizer`: for every n>=2 there is a globally opti
 
 The new module `Erdos103.SlackFlex` formalizes and proves the strict-slack extension theorem in a general form. Given a separated n-tuple p of diameter D, a point x with 1<dist(x,p_i)<D for every i, and a lower bound D≤diameter(q) for every separated (n+1)-tuple q, a common open ball around x preserves all those inequalities. Every extension by a point in that ball has diameter D and is globally optimal. Along a unit direction u, ordered pair energy is E(t)=E(0)+4At+2nt^2, where A is the directional inner-product sum. Choosing u or -u makes A>=0, so this energy is strictly increasing for t>=0. Lean therefore proves that for every finite k, there are k pairwise incongruent optimal (n+1)-tuples. As a corollary, an optimal n-tuple with a strict-slack added point supplies the necessary size-(n+1) lower bound by deleting one point from any competitor. The predicate `HasKOptimalClasses` expresses these tuple-level claims using the project's permutation-plus-isometry congruence; the bridge from that predicate to a finite-set definition of h(n) remains to be completed.
 
+A second Lean corollary reduces strict slack to an optimizer property. If an optimal (n+1)-tuple has its index-zero point incident to neither a unit-distance pair nor a diameter pair, deleting it leaves the diameter unchanged and makes its distances to every remaining point strictly between 1 and D. The general theorem then gives k pairwise incongruent optimal extensions for each finite k. This isolates an asymptotic sufficient condition: find such a point in at least one optimizer at every sufficiently large size.
+
 The module `Erdos103.FlexCertificate` now verifies a concrete 19-point path. Axial coordinates (q,r) are embedded in the plane as (q+r/2, sqrt(3)r/2), whose squared distance is q^2+qr+r^2. For every rational t in [0,1/10], the resulting configuration is 1-separated and has diameter exactly 4. Its ordered pair-energy satisfies E(t)=E(0)+798t+426t^2, so distinct parameters give incongruent configurations. The contact-and-diameter inequalities are checked by an exact rational certificate, then transferred to Euclidean distances in Lean. `Audit.lean` prints only `propext`, `Classical.choice`, and `Quot.sound` for the verified minimizer, energy-invariance, flex, and noncongruence theorems; no `native_decide` axiom is used.
 
 This is a labeled-tuple representation of n-point sets; the explicit bridge from an injective tuple's range to an n-element `Finset` and the definition of h(n) are still outstanding. The radius-2 flex path is not an optimizer: the published 19-point dodecagon construction below has smaller diameter. Neither construction proves anything about h(19). No asymptotic statement is formalized. Build and audit from the package directory with `lake build Erdos103 Erdos103.FlexCertificate Erdos103.SlackFlex` and `lake env lean Audit.lean`.
@@ -47,6 +49,10 @@ For the ordered energy already used by the Lean package,
 E(addPoint(p,x+t u))=E(addPoint(p,x))+4At+2nt^2
 
 The direction is chosen from ±a fixed unit vector so A>=0. Distinct positive parameters in the slack ball therefore have distinct energies and cannot be congruent. This is a verified sufficient condition for unbounded multiplicity at the next size, not a proof that an optimizer with such a point exists for all large n. The asymptotic obstruction is now isolated: prove that strict slack (or another source of many optima) occurs for every sufficiently large n, or find a bounded-multiplicity subsequence.
+
+### Isolated-point criterion in an optimizer (Lean-checked)
+
+For an optimal tuple q of size n+1, suppose q(0) has no unit-distance contact and no pair at the full diameter D. Since the diameter is attained by a pair, that pair lies in the tail p(i)=q(i+1); hence p still has diameter D. Separation and the absence of unit contacts give 1<dist(q(0),p(i)), while the absence of diameter pairs gives dist(q(0),p(i))<D. The generic global-lower-bound theorem now applies with D=D(n+1). Lean proves `HasKOptimalClasses (n+1) k` for every finite k. The current theorem assumes the point has index zero; relabeling is mathematically harmless, while the general tuple-to-finite-set bridge remains unfinished.
 
 ### Literature-backed finite-n argument: h(8)=infinity (not Lean-certified)
 
@@ -103,15 +109,15 @@ Lean verifies the embedding identity, the full pair certificate, 1-separation, d
 
 Commands passed on 2026-11-17:
 
-`python3 research/erdos103/tools/test_rigidity_rank.py` (10 tests)
+`python3 research/erdos103/tools/test_rigidity_rank.py` (11 tests)
 
 `python3 research/erdos103/tools/flex_certificate.py research/erdos103/certificates/triangular_patch_r2_flex.json` (19 points, 171 pairs, 42 unit contacts, exact rank 35, diameter squared 16, epsilon 1/10, unordered energy coefficients 399 and 213)
 
 `lake build Erdos103 Erdos103.FlexCertificate Erdos103.SlackFlex && lake env lean Audit.lean`
 
-`target/debug/cremona run research/erdos103/experiments/dodecagon_hex19.cremona | python3 research/erdos103/tools/dodecagon19_certificate.py` (19 points, 171 exact squared distances, minimum 1, maximum 8+4*sqrt(3))
+`target/debug/cremona run research/erdos103/experiments/dodecagon_hex19.cremona | python3 research/erdos103/tools/dodecagon19_certificate.py` (19 points, 171 exact squared distances, minimum 1, maximum 8+4*sqrt(3); pointwise contact and diameter degrees)
 
-The axiom audit for minimizer existence, the flex certificates, and the new strict-slack theorem reports only `propext`, `Classical.choice`, and `Quot.sound`; the finite certificate uses `norm_num`, not `native_decide`. A source scan found no `sorry`, `admit`, or project `axiom` declarations.
+The axiom audit for minimizer existence, the flex certificates, the strict-slack theorem, and the isolated-point corollary reports only `propext`, `Classical.choice`, and `Quot.sound`; the finite certificate uses `norm_num`, not `native_decide`. A source scan found no `sorry`, `admit`, or project `axiom` declarations.
 
 ### Exact 19-point upper construction from the literature
 
@@ -119,7 +125,7 @@ Audet, Fournier, Hansen, and Messine report the n=19 value in their table of upp
 
 The candidate can be reconstructed exactly. Put R=2 cos(π/12)=(sqrt(6)+sqrt(2))/2. Take the 12 points R(cos(jπ/6), sin(jπ/6)) for j=0,...,11, the 6 points (cos(π/12+jπ/3), sin(π/12+jπ/3)) for j=0,...,5, and the origin. The inner regular hexagon has side 1; its nearest cross-ring distances to the dodecagon are also 1. The six antipodal outer pairs realize diameter 2R=sqrt(6)+sqrt(2)=sqrt(8+4sqrt(3))<4.
 
-The Cremona experiment `experiments/dodecagon_hex19.cremona` emits a 19-label ring/index description. `tools/dodecagon19_certificate.py` interprets those labels in the exact field Q(sqrt(2),sqrt(3)), calculates every squared distance, and verifies the 171 inequalities with exact rational coefficients. Results: minimum squared distance 1; maximum squared distance 8+4sqrt(3); 36 unit contacts; 6 diameter pairs. The exact squared-distance histogram is 1:36, 2:12, 3:6, 2+sqrt(3):36, 4:3, 4+sqrt(3):12, 4+2sqrt(3):24, 5+2sqrt(3):12, 6+3sqrt(3):12, 7+4sqrt(3):12, 8+4sqrt(3):6. The Python verifier is regression-tested; this new candidate certificate has not yet been formalized in Lean.
+The Cremona experiment `experiments/dodecagon_hex19.cremona` emits a 19-label ring/index description. `tools/dodecagon19_certificate.py` interprets those labels in the exact field Q(sqrt(2),sqrt(3)), calculates every squared distance, and verifies the 171 inequalities with exact rational coefficients. Results: minimum squared distance 1; maximum squared distance 8+4sqrt(3); 36 unit contacts; 6 diameter pairs. The exact squared-distance histogram is 1:36, 2:12, 3:6, 2+sqrt(3):36, 4:3, 4+sqrt(3):12, 4+2sqrt(3):24, 5+2sqrt(3):12, 6+3sqrt(3):12, 7+4sqrt(3):12, 8+4sqrt(3):6. The newly added pointwise graph profile shows outer vertices have contact/diameter degrees (3,1), inner vertices (5,0), and the center (6,0). Thus this candidate has no isolated point of the kind used by the strict-slack corollary. Since no global lower bound proves it optimal, this is a failed candidate test, not a counterexample to the optimizer criterion. The checker and this profile are regression-tested; the geometric candidate has not yet been formalized in Lean.
 
 Reproduce it from the repository root with `target/debug/cremona run research/erdos103/experiments/dodecagon_hex19.cremona | python3 research/erdos103/tools/dodecagon19_certificate.py`. The verifier uses a small exact biquadratic number field implementation and checks every pair rather than trusting the histogram alone.
 
@@ -127,7 +133,7 @@ A direct Lean proof of all pair bounds using 19x19 finite cases over square root
 
 ## Independent lines and current falsifiers
 
-1. **Flexible optima (lead):** find an optimal configuration with a genuine feasible motion at fixed minimum diameter. The n=8 family validates the mechanism; the unique n=7 optimizer falsifies any all-n version. Next target: a theorem forcing at least one integrable flex for every sufficiently large n, or a verified optimizer with all points pinned that rules out the proposed sufficient condition.
+1. **Flexible optima (lead):** prove or falsify the precise sufficient-condition lemma that, for every sufficiently large m, at least one global m-point optimizer has a vertex incident to neither a unit-contact pair nor a diameter pair. Deleting that vertex preserves diameter and gives strict slack, so the Lean corollary yields k tuple classes for every finite k. The n=8 family supports the mechanism; n=7 does not satisfy it. The exact 19-point upper-bound candidate also has every point covered, but is not proved optimal and so does not falsify the lemma. A falsifier would be an unbounded sequence of sizes for which every optimizer has every vertex covered by the union of its unit-contact and diameter graphs.
 2. **Boundary-equivalent switches:** find two fillings with the same boundary constraints and prove both preserve the global minimum. No gadget has been identified. Exact cell enumeration or a lower-diameter replacement would falsify a candidate.
 3. **Rigidity / bounded multiplicity:** for a disproof, find fixed k and unbounded n_j with h(n_j)<k. No such sequence or classification is known. A second certified optimum at a proposed n_j falsifies a uniqueness claim.
 
@@ -136,6 +142,7 @@ A direct Lean proof of all pair bounds using 19x19 finite cases over square root
 - “Every optimum flexes” is false at n=7 by Bateman–Erdős uniqueness.
 - Contact-matrix rank deficiency alone would not prove a feasible motion; it only gives an infinitesimal candidate and may have a second-order obstruction. Conversely, full equality-framework rank does not imply inequality jamming: the radius-2 patch has rank 2n-3 and the certified one-sided feasible path above.
 - A strict-slack-point criterion was already present in the unreviewed A1 draft; it is now Lean-checked in both a generic global-lower-bound form and a corollary for an already optimal n-tuple. Total squared-distance energy supplies the noncongruence invariant.
+- The isolated-vertex reduction is also Lean-checked for index zero. It turns the flexible-optima line into a concrete structural statement about the contact and diameter graphs of global minimizers. The exact 19-point candidate test found no such vertex (degree profiles outer=(3,1), inner=(5,0), center=(6,0)); because it is only an upper-bound construction, this is not a verified optimizer counterexample.
 - The finite result h(8)=infinity and the asymptotic statement are logically separate. The key gap is propagation to every large n, not producing a single flexible optimizer.
 
 ## Baseline, tools, and repository state
@@ -144,7 +151,7 @@ A direct Lean proof of all pair bounds using 19x19 finite cases over square root
 - The Lean strict-slack extension theorem and its axiom audit were published in commit `e67fe3e05050aca321d40d83516bb5adc8853e26` (https://github.com/Kenneth-Cho-InfoSec/Cremona/commit/e67fe3e05050aca321d40d83516bb5adc8853e26). This checkpoint records that published result.
 - Graphify generated a local code graph with 1,339 nodes. Its `graphify-out/` directory is generated and should not be staged. Graphify's code extractor skips Lean files; the Lean package is validated directly with Lake.
 - The root environment has Lean 4.36.0 and Lake 5.0.0-src. Rust project channel is `stable`; active rustc/cargo are 1.100.0. The cargo and Clippy components were listed as installed but their shims failed; removing and reinstalling those components restored them.
-- The research package separately pins Lean/Mathlib 4.35.0 (Lean commit `eb6cafb7290e8bd5f2937522d8d804f58f02bafc`; Mathlib commit `56a005855ea17e0b0958f73ec801ae140b0a1679`). `lake build Erdos103 Erdos103.FlexCertificate Erdos103.SlackFlex` and the axiom audit pass. No project `sorry`, `admit`, or custom `axiom` appears in the package; all minimizer, flex, and strict-slack audits list only `propext`, `Classical.choice`, and `Quot.sound`.
+- The research package separately pins Lean/Mathlib 4.35.0 (Lean commit `eb6cafb7290e8bd5f2937522d8d804f58f02bafc`; Mathlib commit `56a005855ea17e0b0958f73ec801ae140b0a1679`). `lake build Erdos103 Erdos103.FlexCertificate Erdos103.SlackFlex` and the axiom audit pass. No project `sorry`, `admit`, or custom `axiom` appears in the package; all minimizer, flex, strict-slack, and isolated-point audits list only `propext`, `Classical.choice`, and `Quot.sound`.
 - `cargo test --workspace`: PASS, 246/246 tests.
 - `cargo build --workspace`: PASS.
 - `cargo fmt --all --check`: FAIL on existing formatting differences in `crates/cremona_cli/src/main.rs`, `crates/cremona_core/src/parser.rs`, and `crates/cremona_core/src/sema.rs`.
@@ -157,8 +164,9 @@ A direct Lean proof of all pair bounds using 19x19 finite cases over square root
 
 ## Next obligations
 
-1. Bridge the tuple-level `HasKOptimalClasses` theorem to n-element finite sets and the original h(n) notation, preserving unlabeled congruence exactly.
-2. Formalize the regular-heptagon construction and the literature-backed global lower bound D(8), then instantiate the general strict-slack theorem to certify h(8)=infinity in Lean. This remains a finite-n result and does not settle the tail.
-3. Formalize the dodecagon-plus-hexagon construction and its exact distance-class certificate in Lean; separately search for a global lower bound for D(19). Do not treat the published upper value as an optimizer theorem or infer anything about h(19).
-4. Continue the switch-gadget and bounded-multiplicity tracks independently; either force a strict-slack witness (or other multiplicity source) for every sufficiently large n, or find a fixed-k bounded-multiplicity subsequence.
-5. Return to the exact eventual quantifier, with no finite-n family or subsequence result treated as completion.
+1. Prove or falsify the isolated-vertex condition for at least one optimizer at every sufficiently large size; first inspect the contact/diameter graph structure of classified small optimizers and derive a graph-theoretic bound that could force an uncovered vertex.
+2. Bridge `HasKOptimalClasses` to n-element finite sets and the original h(n) definition, preserving unlabeled congruence exactly.
+3. Formalize the regular-heptagon family and the literature-backed global lower bound D(8), then certify the finite-n h(8)=infinity result in Lean. This does not settle the tail.
+4. Formalize the dodecagon-plus-hexagon construction and its exact distance-class certificate in Lean; separately search for a global lower bound for D(19). Do not treat the published upper value as an optimizer theorem or infer anything about h(19).
+5. Continue the switch-gadget and bounded-multiplicity tracks independently; find either another multiplicity mechanism or a fixed-k bounded-multiplicity subsequence.
+6. Return to the exact eventual quantifier, with no finite-n family or subsequence result treated as completion.

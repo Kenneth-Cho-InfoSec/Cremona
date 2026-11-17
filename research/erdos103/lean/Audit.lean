@@ -19,3 +19,4 @@ import Erdos103.SlackFlex
 #print axioms Erdos103.SlackFlex.pairEnergy_addPoint_motion
 #print axioms Erdos103.SlackFlex.strictSlack_gives_many_optima_of_globalLowerBound
 #print axioms Erdos103.SlackFlex.strictSlack_gives_many_optima
+#print axioms Erdos103.SlackFlex.optimal_with_isolated_point_gives_many_classes
