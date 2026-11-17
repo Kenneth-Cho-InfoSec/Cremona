@@ -64,23 +64,34 @@ def run_cremona_protocol(values: Sequence[int]) -> tuple[int, int, int]:
     coords = values[8:]
     if len(coords) != 2 * n:
         raise ValueError(f"expected {2 * n} coordinate integers, found {len(coords)}")
+    if len(values) != 8 + 2 * n:
+        raise ValueError("expected exactly one patch block")
+    if n < 2:
+        raise ValueError("a patch block must contain at least two points")
     if pairs != n * (n - 1) // 2:
         raise ValueError("unordered-pair count does not match n")
     points = [(Fraction(coords[2 * i]), Fraction(coords[2 * i + 1])) for i in range(n)]
     edges: list[Edge] = []
+    degrees = [0] * n
+    pair_distances: list[Fraction] = []
     for i in range(n):
         for j in range(i + 1, n):
             dq = points[i][0] - points[j][0]
             dr = points[i][1] - points[j][1]
             d2 = dq * dq + dq * dr + dr * dr
+            pair_distances.append(d2)
             if d2 == 1:
                 edges.append((i, j))
+                degrees[i] += 1
+                degrees[j] += 1
     if len(edges) != contact_count:
         raise ValueError("contact count does not match emitted coordinates")
-    if edges and min_d2 != 1:
-        raise ValueError("reported minimum squared distance is inconsistent")
-    if n == 19 and max_d2 != 16:
-        raise ValueError("radius-2 patch should report maximum squared distance 16")
+    if min(pair_distances) != min_d2 or max(pair_distances) != max_d2:
+        raise ValueError("reported squared-distance range does not match coordinates")
+    reported_histogram = (values[5], values[6], values[7])
+    computed_histogram = (degrees.count(3), degrees.count(4), degrees.count(6))
+    if reported_histogram != computed_histogram:
+        raise ValueError("reported contact-degree histogram does not match coordinates")
     lattice_metric: Metric = (
         (Fraction(1), Fraction(1, 2)),
         (Fraction(1, 2), Fraction(1)),
@@ -88,14 +99,33 @@ def run_cremona_protocol(values: Sequence[int]) -> tuple[int, int, int]:
     return n, len(edges), rigidity_matrix_rank(points, edges, lattice_metric)
 
 
+def run_cremona_protocols(values: Sequence[int]) -> list[tuple[int, int, int]]:
+    """Parse a concatenation of the experiment's self-delimiting patch blocks."""
+    results = []
+    offset = 0
+    while offset < len(values):
+        n = values[offset]
+        if n < 2:
+            raise ValueError(f"invalid point count {n} at output offset {offset}")
+        block_size = 8 + 2 * n
+        if offset + block_size > len(values):
+            raise ValueError(f"incomplete patch block for n={n}")
+        results.append(run_cremona_protocol(values[offset : offset + block_size]))
+        offset += block_size
+    if not results:
+        raise ValueError("no patch blocks found")
+    return results
+
+
 def main() -> int:
     try:
         values = [int(line.strip()) for line in sys.stdin if line.strip()]
-        n, contacts, rank = run_cremona_protocol(values)
+        results = run_cremona_protocols(values)
     except (ValueError, IndexError) as exc:
         print(f"rigidity_rank: {exc}", file=sys.stderr)
         return 2
-    print(f"points={n} unit_contacts={contacts} exact_rank={rank} kernel={2*n-rank}")
+    for n, contacts, rank in results:
+        print(f"points={n} unit_contacts={contacts} exact_rank={rank} kernel={2*n-rank}")
     return 0
 
 

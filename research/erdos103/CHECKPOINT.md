@@ -72,15 +72,21 @@ No exact search over candidate configurations has been run, and no nonlinear fea
 
 ### Exact rigidity stress test
 
-The new runnable example [triangular_patch_r2.cremona](experiments/triangular_patch_r2.cremona) generates the 19-point radius-2 triangular-lattice patch from the axial-coordinate condition max(|q|,|r|,|q+r|)<=2. Exact Cremona output gives 171 unordered pairs, 42 unit contacts, minimum squared distance 1, maximum squared distance 16, and degree histogram 6 vertices of degree 3, 6 of degree 4, and 7 of degree 6. Thus this patch has no strict-slack point.
+The runnable example [triangular_shells.cremona](experiments/triangular_shells.cremona) generates radius-2, radius-3, and radius-4 triangular-lattice patches in axial coordinates. Its exact outputs are:
 
-The reusable exact-rational helper [rigidity_rank.py](tools/rigidity_rank.py) consumes the Cremona output and computes rank 35 for the 42-row rigidity matrix. Since 2n-3=35, the kernel consists only of the three infinitesimal Euclidean motions. This is an equality-constraint calculation: it does not rule out a feasible motion that opens some contacts, and the patch has not been proved globally optimal. Regression tests cover a rigid triangle, a one-flex square cycle, and this patch. The successful commands are:
+| Radius | Points | Unordered pairs | Unit contacts | Max squared distance | Contact degrees (3, 4, 6) | Rigidity rank |
+| --- | ---: | ---: | ---: | ---: | --- | ---: |
+| 2 | 19 | 171 | 42 | 16 | (6, 6, 7) | 35 |
+| 3 | 37 | 666 | 90 | 36 | (6, 12, 19) | 71 |
+| 4 | 61 | 1830 | 156 | 64 | (6, 18, 37) | 119 |
+
+Every vertex has at least three unit contacts, so none has strict slack. The reusable exact-rational helper [rigidity_rank.py](tools/rigidity_rank.py) consumes the generated coordinate blocks, independently checks their pair counts, contact counts, squared-distance ranges, and degree histograms, then computes the rigidity-matrix rank. Each rank is 2n-3, so the equality-constraint kernel contains only the three infinitesimal Euclidean motions. This does not rule out feasible motions that open some contacts, and none of these patches is proved globally optimal. Regression tests also cover a rigid triangle and a one-flex square cycle. The successful commands are:
 
 `python3 research/erdos103/tools/test_rigidity_rank.py`
 
-`target/debug/cremona run research/erdos103/experiments/triangular_patch_r2.cremona | python3 research/erdos103/tools/rigidity_rank.py`
+`target/debug/cremona run research/erdos103/experiments/triangular_shells.cremona | python3 research/erdos103/tools/rigidity_rank.py`
 
-The second command reports `points=19 unit_contacts=42 exact_rank=35 kernel=3`. The helper uses only Python's standard-library `fractions.Fraction`; SciPy is not installed and no floating LP was substituted.
+The second command reports the three rows in the table. The helper uses only Python's standard-library `fractions.Fraction`; SciPy is not installed and no floating LP was substituted.
 
 ## Independent lines and current falsifiers
 
@@ -117,5 +123,5 @@ The second command reports `points=19 unit_contacts=42 exact_rank=35 kernel=3`. 
 2. Prove minimizer existence for every n\ge2 using translation normalization, a collinear n-point upper-bound witness, and compactness of a closed bounded subset of (\mathbb{R}^2)^n.
 3. Prove the total squared-distance energy is invariant under isometries and establish the movable-point criterion for unlabeled finite sets.
 4. Encode the exact 8-point family and make the D(8) literature input explicit; later formalize its global lower bound if feasible.
-5. Extend the triangular-lattice experiment to radii 3 and 4 and compare their exact contact ranks. Then test the inequality tangent cone, including active diameter constraints; a rank-35 equality matrix alone does not settle local jamming.
+5. Test the inequality tangent cone on the radius-2 patch, including active diameter constraints; full equality rank alone does not settle local jamming. Then identify whether any globally optimal family at n>=9 has a point with uniform strict slack.
 6. Return to the original eventual quantifier after the finite-n and compactness lemmas; do not treat h(8)=infinity or a subsequence result as completion.

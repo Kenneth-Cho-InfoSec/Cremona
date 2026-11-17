@@ -1,0 +1,87 @@
+// Generate triangular-lattice patches in axial coordinates.
+// For each radius r, include all (q,r') with max(|q|,|r'|,|q+r'|) <= r.
+// Squared Euclidean distance is exactly dq^2 + dq*dr + dr^2.
+// Each block prints eight summary integers followed by all coordinate pairs.
+fun squared_distance(dq: Int64, dr: Int64): Int64 {
+    dq * dq + dq * dr + dr * dr
+}
+
+fun analyze_patch(radius: Int64) {
+    val n = 1 as Int64 + 3 * radius * (radius + 1)
+    var x = vec![0 as Int64]
+    var y = vec![0 as Int64]
+    var q = -radius
+    while (q <= radius) {
+        var r = -radius
+        while (r <= radius) {
+            if ((q != 0 || r != 0) && q + r >= -radius && q + r <= radius) {
+                x.push(q)
+                y.push(r)
+            }
+            r += 1
+        }
+        q += 1
+    }
+
+    var degree = vec![0 as Int64]
+    var i = 1 as Int64
+    while (i < n) {
+        degree.push(0 as Int64)
+        i += 1
+    }
+
+    var pairs = 0 as Int64
+    var contacts = 0 as Int64
+    var min_d2 = 10000 as Int64
+    var max_d2 = 0 as Int64
+    i = 0
+    while (i < n) {
+        var j = i + 1
+        while (j < n) {
+            val d2 = squared_distance(x[i] - x[j], y[i] - y[j])
+            pairs += 1
+            if (d2 == 1) {
+                contacts += 1
+                degree[i] += 1
+                degree[j] += 1
+            }
+            if (d2 < min_d2) { min_d2 = d2 }
+            if (d2 > max_d2) { max_d2 = d2 }
+            j += 1
+        }
+        i += 1
+    }
+
+    var degree3 = 0 as Int64
+    var degree4 = 0 as Int64
+    var degree6 = 0 as Int64
+    i = 0
+    while (i < n) {
+        if (degree[i] == 3) { degree3 += 1 }
+        if (degree[i] == 4) { degree4 += 1 }
+        if (degree[i] == 6) { degree6 += 1 }
+        i += 1
+    }
+
+    // Header: n, pairs, contacts, min/max squared distance, degree-3/4/6 counts.
+    println(n)
+    println(pairs)
+    println(contacts)
+    println(min_d2)
+    println(max_d2)
+    println(degree3)
+    println(degree4)
+    println(degree6)
+    i = 0
+    while (i < n) {
+        println(x[i])
+        println(y[i])
+        i += 1
+    }
+}
+
+fun main() {
+    analyze_patch(2)
+    analyze_patch(3)
+    analyze_patch(4)
+}
