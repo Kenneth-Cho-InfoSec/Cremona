@@ -3,7 +3,7 @@ use std::process::Command;
 
 use cremona_core::{codegen, pipeline};
 
-const VERSION: &str = "0.5.0";
+const VERSION: &str = "0.6.0";
 
 fn main() {
     let code = run(std::env::args().skip(1).collect());
