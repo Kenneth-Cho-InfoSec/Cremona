@@ -62,6 +62,24 @@ fun main(): Int32 {
     println(bigint_is_square(&large_square));
     val two_big = get_big("2");
     println(bigint_is_square(&two_big));
+    val multi_limb_root = get_big("1234567890123456789");
+    val multi_limb_square = bigint_mul(&multi_limb_root, &multi_limb_root);
+    println(bigint_to_string(&multi_limb_square));
+    println(match (bigint_isqrt_floor(&multi_limb_square)) {
+        Some(x) -> bigint_to_string(&x),
+        None -> "negative",
+    });
+    val square_plus_one = bigint_add(&multi_limb_square, &one);
+    println(match (bigint_isqrt_floor(&square_plus_one)) {
+        Some(x) -> bigint_to_string(&x),
+        None -> "negative",
+    });
+    let Some(multi_limb_dm) = bigint_divmod(&multi_limb_square, &multi_limb_root) else {
+        println("division failed");
+        return 1;
+    };
+    println(bigint_to_string(&multi_limb_dm.quotient));
+    println(bigint_to_string(&multi_limb_dm.remainder));
     println(match (bigint_to_i64(&min_i64)) { Some(x) -> x == -9223372036854775807 - 1, None -> false, });
     val too_large_i64 = get_big("9223372036854775808");
     println(match (bigint_to_i64(&too_large_i64)) { Some(_) -> false, None -> true, });
