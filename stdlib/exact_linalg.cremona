@@ -1,0 +1,287 @@
+// std::exact_linalg: exact dense linear algebra over std::rational.
+// Matrices are row-major and own a flat Vec<Rational>.
+module std.exact_linalg;
+
+import std::checked::add_i64;
+import std::checked::mul_i64;
+import std::rational::Rational;
+import std::rational::rational_one;
+import std::rational::rational_zero;
+import std::rational::rational_clone;
+import std::rational::rational_add;
+import std::rational::rational_sub;
+import std::rational::rational_mul;
+import std::rational::rational_div;
+import std::rational::rational_is_zero;
+import std::rational::rational_neg;
+
+pub struct ExactMatrix { rows: Int64, cols: Int64, data: Vec<Rational> }
+
+pub fun exact_matrix_new(rows: Int64, cols: Int64, data: Vec<Rational>): Option<ExactMatrix> {
+    if (rows < 0 || cols < 0) {
+        return None;
+    }
+    let Some(count) = mul_i64(rows, cols) else {
+        return None;
+    };
+    if (count != data.len()) {
+        return None;
+    }
+    return Some(ExactMatrix { rows: rows, cols: cols, data: data });
+}
+
+pub fun exact_matrix_zeros(rows: Int64, cols: Int64): Option<ExactMatrix> {
+    if (rows < 0 || cols < 0) {
+        return None;
+    }
+    let Some(count) = mul_i64(rows, cols) else {
+        return None;
+    };
+    var data: Vec<Rational> = vec![];
+    data.reserve(count);
+    var i: Int64 = 0;
+    while (i < count) {
+        data.push(rational_zero());
+        i = i + 1;
+    }
+    return Some(ExactMatrix { rows: rows, cols: cols, data: data });
+}
+
+pub fun exact_matrix_rows(m: &ExactMatrix): Int64 {
+    return m.rows;
+}
+
+pub fun exact_matrix_cols(m: &ExactMatrix): Int64 {
+    return m.cols;
+}
+
+pub fun exact_matrix_get(m: &ExactMatrix, row: Int64, col: Int64): Option<Rational> {
+    if (row < 0 || row >= m.rows || col < 0 || col >= m.cols) {
+        return None;
+    }
+    val item = m.data[row * m.cols + col];
+    return Some(rational_clone(&item));
+}
+
+pub fun exact_matrix_set(m: &mut ExactMatrix, row: Int64, col: Int64, value: Rational): Bool {
+    if (row < 0 || row >= m.rows || col < 0 || col >= m.cols) {
+        return false;
+    }
+    m.data[row * m.cols + col] = value;
+    return true;
+}
+
+pub fun exact_matrix_clone(m: &ExactMatrix): ExactMatrix {
+    var data: Vec<Rational> = vec![];
+    data.reserve(m.data.len());
+    var i: Int64 = 0;
+    while (i < m.data.len()) {
+        val item = m.data[i];
+        data.push(rational_clone(&item));
+        i = i + 1;
+    }
+    return ExactMatrix { rows: m.rows, cols: m.cols, data: data };
+}
+
+pub fun exact_matrix_transpose(m: &ExactMatrix): ExactMatrix {
+    var out: Vec<Rational> = vec![];
+    out.reserve(m.data.len());
+    var row: Int64 = 0;
+    while (row < m.cols) {
+        var col: Int64 = 0;
+        while (col < m.rows) {
+            val item = m.data[col * m.cols + row];
+            out.push(rational_clone(&item));
+            col = col + 1;
+        }
+        row = row + 1;
+    }
+    return ExactMatrix { rows: m.cols, cols: m.rows, data: out };
+}
+
+pub fun exact_matrix_mul(a: &ExactMatrix, b: &ExactMatrix): Option<ExactMatrix> {
+    if (a.cols != b.rows) {
+        return None;
+    }
+    let Some(out_matrix) = exact_matrix_zeros(a.rows, b.cols) else {
+        return None;
+    };
+    var out = out_matrix;
+    var row: Int64 = 0;
+    while (row < a.rows) {
+        var col: Int64 = 0;
+        while (col < b.cols) {
+            var sum = rational_zero();
+            var k: Int64 = 0;
+            while (k < a.cols) {
+                val av = a.data[row * a.cols + k];
+                val bv = b.data[k * b.cols + col];
+                val product = rational_mul(&av, &bv);
+                val next_sum = rational_add(&sum, &product);
+                sum = next_sum;
+                k = k + 1;
+            }
+            out.data[row * b.cols + col] = sum;
+            col = col + 1;
+        }
+        row = row + 1;
+    }
+    return Some(out);
+}
+
+fun exact_matrix_swap_rows(m: &mut ExactMatrix, a: Int64, b: Int64) {
+    if (a == b) {
+        return;
+    }
+    var col: Int64 = 0;
+    while (col < m.cols) {
+        val ai = a * m.cols + col;
+        val bi = b * m.cols + col;
+        val av = m.data[ai];
+        val bv = m.data[bi];
+        m.data[ai] = bv;
+        m.data[bi] = av;
+        col = col + 1;
+    }
+}
+
+// Exact determinant by rational Gaussian elimination.
+// Returns None for a nonsquare matrix.
+pub fun exact_determinant(a: &ExactMatrix): Option<Rational> {
+    if (a.rows != a.cols) {
+        return None;
+    }
+    var work = exact_matrix_clone(a);
+    var determinant = rational_one();
+    var sign: Int64 = 1;
+    var pivot_col: Int64 = 0;
+    while (pivot_col < a.cols) {
+        var pivot_row = pivot_col;
+        var found_pivot = false;
+        while (pivot_row < a.rows && !found_pivot) {
+            val candidate = work.data[pivot_row * work.cols + pivot_col];
+            if (!rational_is_zero(&candidate)) {
+                found_pivot = true;
+            } else {
+                pivot_row = pivot_row + 1;
+            }
+        }
+        if (!found_pivot) {
+            return Some(rational_zero());
+        }
+        if (pivot_row != pivot_col) {
+            exact_matrix_swap_rows(&mut work, pivot_col, pivot_row);
+            sign = 0 - sign;
+        }
+        val pivot = work.data[pivot_col * work.cols + pivot_col];
+        val next_determinant = rational_mul(&determinant, &pivot);
+        determinant = next_determinant;
+        var row = pivot_col + 1;
+        while (row < a.rows) {
+            val leading = work.data[row * work.cols + pivot_col];
+            let Some(factor) = rational_div(&leading, &pivot) else {
+                return None;
+            };
+            var col = pivot_col + 1;
+            while (col < a.cols) {
+                val pivot_value = work.data[pivot_col * work.cols + col];
+                val product = rational_mul(&factor, &pivot_value);
+                val current = work.data[row * work.cols + col];
+                val next = rational_sub(&current, &product);
+                work.data[row * work.cols + col] = next;
+                col = col + 1;
+            }
+            work.data[row * work.cols + pivot_col] = rational_zero();
+            row = row + 1;
+        }
+        pivot_col = pivot_col + 1;
+    }
+    if (sign < 0) {
+        return Some(rational_neg(&determinant));
+    }
+    return Some(determinant);
+}
+
+// Returns None for a nonsquare, dimension mismatch, or singular matrix.
+// Otherwise returns the unique exact solution of A*x=b.
+pub fun exact_solve(a: &ExactMatrix, b: &Vec<Rational>): Option<Vec<Rational>> {
+    if (a.rows != a.cols || (*b).len() != a.rows) {
+        return None;
+    }
+    let Some(augmented_cols) = add_i64(a.cols, 1) else {
+        return None;
+    };
+    let Some(aug_matrix) = exact_matrix_zeros(a.rows, augmented_cols) else {
+        return None;
+    };
+    var aug = aug_matrix;
+    var row: Int64 = 0;
+    while (row < a.rows) {
+        var col: Int64 = 0;
+        while (col < a.cols) {
+            val item = a.data[row * a.cols + col];
+            aug.data[row * augmented_cols + col] = rational_clone(&item);
+            col = col + 1;
+        }
+        val rhs = (*b)[row];
+        aug.data[row * augmented_cols + a.cols] = rational_clone(&rhs);
+        row = row + 1;
+    }
+
+    var pivot_col: Int64 = 0;
+    while (pivot_col < a.cols) {
+        var pivot_row = pivot_col;
+        var found_pivot = false;
+        while (pivot_row < a.rows && !found_pivot) {
+            val candidate = aug.data[pivot_row * augmented_cols + pivot_col];
+            if (!rational_is_zero(&candidate)) {
+                found_pivot = true;
+            } else {
+                pivot_row = pivot_row + 1;
+            }
+        }
+        if (pivot_row == a.rows) {
+            return None;
+        }
+        exact_matrix_swap_rows(&mut aug, pivot_col, pivot_row);
+        val pivot = aug.data[pivot_col * augmented_cols + pivot_col];
+        var col = pivot_col;
+        while (col < augmented_cols) {
+            val current = aug.data[pivot_col * augmented_cols + col];
+            let Some(normalized) = rational_div(&current, &pivot) else {
+                return None;
+            };
+            aug.data[pivot_col * augmented_cols + col] = normalized;
+            col = col + 1;
+        }
+        row = 0;
+        while (row < a.rows) {
+            if (row != pivot_col) {
+                val factor = aug.data[row * augmented_cols + pivot_col];
+                if (!rational_is_zero(&factor)) {
+                    col = pivot_col;
+                    while (col < augmented_cols) {
+                        val pivot_value = aug.data[pivot_col * augmented_cols + col];
+                        val product = rational_mul(&factor, &pivot_value);
+                        val current = aug.data[row * augmented_cols + col];
+                        val next = rational_sub(&current, &product);
+                        aug.data[row * augmented_cols + col] = next;
+                        col = col + 1;
+                    }
+                }
+            }
+            row = row + 1;
+        }
+        pivot_col = pivot_col + 1;
+    }
+
+    var solution: Vec<Rational> = vec![];
+    solution.reserve(a.rows);
+    row = 0;
+    while (row < a.rows) {
+        val item = aug.data[row * augmented_cols + a.cols];
+        solution.push(rational_clone(&item));
+        row = row + 1;
+    }
+    return Some(solution);
+}

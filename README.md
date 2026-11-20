@@ -287,6 +287,16 @@ println(tf_names(&out));
 return 0;
 ```
 
+Exact arithmetic and geometry are available in `std::integer`,
+`std::bigint`, `std::rational`, `std::exact_linalg`,
+`std::algebraic`, `std::geometry`, and `std::certificate`. They provide
+overflow-aware integer helpers, arbitrary-precision signed integers, reduced
+rationals, exact dense matrix operations, quadratic surds, rational-coordinate
+distance checks, and finite root/count certificate verifiers. See
+[`docs/exact_arithmetic.md`](docs/exact_arithmetic.md) for representation
+limits and runnable fixtures; `std::algebraic` currently covers one
+`Q(sqrt(d))` field at a time.
+
 Sources come in three equivalent extensions (`.cremona`, `.vv`, `.vvt`,
 resolved in that preference order), and the CLI includes `run --watch`
 (re-run on change) plus a whitespace-normalizing `fmt`.

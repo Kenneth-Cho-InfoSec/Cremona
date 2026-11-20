@@ -1,0 +1,139 @@
+// std::geometry: exact planar geometry over rational coordinates.
+// Distances are compared through their rational squared lengths.
+module std.geometry;
+
+import std::rational::Rational;
+import std::rational::rational_zero;
+import std::rational::rational_one;
+import std::rational::rational_clone;
+import std::rational::rational_cmp;
+import std::rational::rational_eq;
+import std::rational::rational_add;
+import std::rational::rational_sub;
+import std::rational::rational_mul;
+import std::exact_linalg::ExactMatrix;
+import std::exact_linalg::exact_matrix_zeros;
+import std::algebraic::QuadraticReal;
+import std::algebraic::quadratic_sqrt;
+
+pub struct Point2Rat { x: Rational, y: Rational }
+
+pub fun point2_rat(x: Rational, y: Rational): Point2Rat {
+    return Point2Rat { x: x, y: y };
+}
+
+pub fun point2_clone(p: &Point2Rat): Point2Rat {
+    return Point2Rat { x: rational_clone(&p.x), y: rational_clone(&p.y) };
+}
+
+pub fun distance_squared(a: &Point2Rat, b: &Point2Rat): Rational {
+    val dx = rational_sub(&a.x, &b.x);
+    val dy = rational_sub(&a.y, &b.y);
+    val dx2 = rational_mul(&dx, &dx);
+    val dy2 = rational_mul(&dy, &dy);
+    return rational_add(&dx2, &dy2);
+}
+
+pub fun distance_exact(a: &Point2Rat, b: &Point2Rat): Option<QuadraticReal> {
+    return quadratic_sqrt(distance_squared(a, b));
+}
+
+// Tests a common lower bound on squared pair distances.
+pub fun pairwise_squared_at_least(points: &Vec<Point2Rat>, threshold: &Rational): Bool {
+    var i: Int64 = 0;
+    while (i < (*points).len()) {
+        var j = i + 1;
+        while (j < (*points).len()) {
+            val a = (*points)[i];
+            val b = (*points)[j];
+            val d2 = distance_squared(&a, &b);
+            if (rational_cmp(&d2, threshold) < 0) {
+                return false;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return true;
+}
+
+pub fun unit_separated(points: &Vec<Point2Rat>): Bool {
+    val one = rational_one();
+    return pairwise_squared_at_least(points, &one);
+}
+
+pub fun diameter_squared(points: &Vec<Point2Rat>): Rational {
+    var best = rational_zero();
+    var i: Int64 = 0;
+    while (i < (*points).len()) {
+        var j = i + 1;
+        while (j < (*points).len()) {
+            val a = (*points)[i];
+            val b = (*points)[j];
+            val d2 = distance_squared(&a, &b);
+            if (rational_cmp(&d2, &best) > 0) {
+                best = d2;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return best;
+}
+
+pub fun distance_matrix(points: &Vec<Point2Rat>): Option<ExactMatrix> {
+    let Some(matrix0) = exact_matrix_zeros((*points).len(), (*points).len()) else {
+        return None;
+    };
+    var matrix = matrix0;
+    var i: Int64 = 0;
+    while (i < (*points).len()) {
+        var j: Int64 = 0;
+        while (j < (*points).len()) {
+            val a = (*points)[i];
+            val b = (*points)[j];
+            matrix.data[i * (*points).len() + j] = distance_squared(&a, &b);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return Some(matrix);
+}
+
+// Verifies a supplied relabeling between two exact squared-distance matrices.
+// Equal complete distance matrices imply congruent finite point configurations.
+pub fun distance_matrices_match(a: &ExactMatrix, b: &ExactMatrix, permutation: &Vec<Int64>): Bool {
+    if (a.rows != b.rows || a.cols != b.cols || a.rows != a.cols || (*permutation).len() != a.rows) {
+        return false;
+    }
+    var seen: Vec<Bool> = vec![];
+    seen.reserve(a.rows);
+    var i: Int64 = 0;
+    while (i < a.rows) {
+        seen.push(false);
+        i = i + 1;
+    }
+    i = 0;
+    while (i < a.rows) {
+        val image = (*permutation)[i];
+        if (image < 0 || image >= a.rows || seen[image]) {
+            return false;
+        }
+        seen[image] = true;
+        i = i + 1;
+    }
+    i = 0;
+    while (i < a.rows) {
+        var j: Int64 = 0;
+        while (j < a.cols) {
+            val ai = a.data[i * a.cols + j];
+            val bi = b.data[(*permutation)[i] * b.cols + (*permutation)[j]];
+            if (!rational_eq(&ai, &bi)) {
+                return false;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return true;
+}

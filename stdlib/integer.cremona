@@ -1,0 +1,114 @@
+// std::integer: exact integer helpers built on the fixed-width primitives.
+// Operations that can overflow return None instead of wrapping.
+module std.integer;
+
+import std::checked::mul_i64;
+
+fun i64_max_value(): Int64 {
+    return 9223372036854775807;
+}
+
+fun i64_min_value(): Int64 {
+    return 0 - i64_max_value() - 1;
+}
+
+pub fun abs_i64_checked(x: Int64): Option<Int64> {
+    if (x == i64_min_value()) {
+        return None;
+    }
+    if (x < 0) {
+        return Some(0 - x);
+    }
+    return Some(x);
+}
+
+pub fun neg_i64_checked(x: Int64): Option<Int64> {
+    if (x == i64_min_value()) {
+        return None;
+    }
+    return Some(0 - x);
+}
+
+pub fun div_i64_checked(a: Int64, b: Int64): Option<Int64> {
+    if (b == 0) {
+        return None;
+    }
+    if (a == i64_min_value() && b == -1) {
+        return None;
+    }
+    return Some(a / b);
+}
+
+pub fun rem_i64_checked(a: Int64, b: Int64): Option<Int64> {
+    if (b == 0) {
+        return None;
+    }
+    if (a == i64_min_value() && b == -1) {
+        val zero: Int64 = 0;
+        return Some(zero);
+    }
+    return Some(a % b);
+}
+
+// Returns the nonnegative gcd when both magnitudes fit Int64. In particular,
+// gcd(Int64.MIN, 0) is None because its mathematical result is not representable.
+pub fun gcd_i64_checked(a: Int64, b: Int64): Option<Int64> {
+    let Some(aa) = abs_i64_checked(a) else {
+        return None;
+    };
+    let Some(bb) = abs_i64_checked(b) else {
+        return None;
+    };
+    var x: Int64 = aa;
+    var y: Int64 = bb;
+    while (y != 0) {
+        val r = x % y;
+        x = y;
+        y = r;
+    }
+    return Some(x);
+}
+
+// Floor(sqrt(n)); the quotient test avoids overflowing mid * mid.
+pub fun isqrt_i64(n: Int64): Option<Int64> {
+    if (n < 0) {
+        return None;
+    }
+    var lo: Int64 = 0;
+    var hi: Int64 = 3037000499;
+    while (lo < hi) {
+        val mid = lo + (hi - lo + 1) / 2;
+        if (mid <= n / mid) {
+            lo = mid;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return Some(lo);
+}
+
+// Exponent must be nonnegative. Multiplication is checked at every step.
+pub fun pow_i64_checked(base: Int64, exponent: Int64): Option<Int64> {
+    if (exponent < 0) {
+        return None;
+    }
+    var acc: Int64 = 1;
+    var x: Int64 = base;
+    var n: Int64 = exponent;
+    while (n > 0) {
+        if (n % 2 != 0) {
+            let Some(next_acc) = mul_i64(acc, x) else {
+                return None;
+            };
+            acc = next_acc;
+        }
+        n = n / 2;
+        if (n > 0) {
+            let Some(next_x) = mul_i64(x, x) else {
+                return None;
+            };
+            x = next_x;
+        }
+    }
+    return Some(acc);
+}

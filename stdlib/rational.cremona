@@ -1,0 +1,154 @@
+// std::rational: normalized arbitrary-precision fractions.
+// The denominator is positive and numerator/denominator are coprime.
+// Arithmetic returns exact values and uses None for division by zero.
+module std.rational;
+
+import std::bigint::BigInt;
+import std::bigint::bigint_from_i64;
+import std::bigint::bigint_clone;
+import std::bigint::bigint_sign;
+import std::bigint::bigint_is_zero;
+import std::bigint::bigint_neg;
+import std::bigint::bigint_cmp;
+import std::bigint::bigint_add;
+import std::bigint::bigint_mul;
+import std::bigint::bigint_gcd;
+import std::bigint::bigint_div_exact;
+import std::bigint::bigint_isqrt_floor;
+import std::bigint::bigint_to_i64;
+import std::bigint::bigint_to_string;
+
+pub struct Rational { num: BigInt, den: BigInt }
+
+pub fun rational_new(num: BigInt, den: BigInt): Option<Rational> {
+    if (bigint_is_zero(&den)) {
+        return None;
+    }
+    if (bigint_is_zero(&num)) {
+        return Some(Rational { num: bigint_from_i64(0), den: bigint_from_i64(1) });
+    }
+    var n = num;
+    var d = den;
+    if (bigint_sign(&d) < (0)) {
+        val neg_n = bigint_neg(&n);
+        val neg_d = bigint_neg(&d);
+        n = neg_n;
+        d = neg_d;
+    }
+    val common = bigint_gcd(&n, &d);
+    let Some(nr) = bigint_div_exact(&n, &common) else {
+        return None;
+    };
+    let Some(dr) = bigint_div_exact(&d, &common) else {
+        return None;
+    };
+    return Some(Rational { num: nr, den: dr });
+}
+
+pub fun rational_from_i64(num: Int64, den: Int64): Option<Rational> {
+    return rational_new(bigint_from_i64(num), bigint_from_i64(den));
+}
+
+// Returns the nonnegative rational square root only when numerator and
+// denominator are both exact integer squares.
+pub fun rational_sqrt_exact(x: &Rational): Option<Rational> {
+    if (bigint_sign(&x.num) < 0 || bigint_sign(&x.den) <= 0) {
+        return None;
+    }
+    let Some(nroot) = bigint_isqrt_floor(&x.num) else {
+        return None;
+    };
+    let Some(droot) = bigint_isqrt_floor(&x.den) else {
+        return None;
+    };
+    val nroot_squared = bigint_mul(&nroot, &nroot);
+    val droot_squared = bigint_mul(&droot, &droot);
+    if (bigint_cmp(&nroot_squared, &x.num) != 0 || bigint_cmp(&droot_squared, &x.den) != 0) {
+        return None;
+    }
+    return rational_new(nroot, droot);
+}
+
+pub fun rational_zero(): Rational {
+    return Rational { num: bigint_from_i64(0), den: bigint_from_i64(1) };
+}
+
+pub fun rational_one(): Rational {
+    return Rational { num: bigint_from_i64(1), den: bigint_from_i64(1) };
+}
+
+pub fun rational_clone(x: &Rational): Rational {
+    return Rational { num: bigint_clone(&x.num), den: bigint_clone(&x.den) };
+}
+
+pub fun rational_sign(x: &Rational): Int64 {
+    return bigint_sign(&x.num);
+}
+
+pub fun rational_is_zero(x: &Rational): Bool {
+    return bigint_is_zero(&x.num);
+}
+
+pub fun rational_neg(x: &Rational): Rational {
+    return Rational { num: bigint_neg(&x.num), den: bigint_clone(&x.den) };
+}
+
+pub fun rational_cmp(a: &Rational, b: &Rational): Int64 {
+    val left = bigint_mul(&a.num, &b.den);
+    val right = bigint_mul(&b.num, &a.den);
+    return bigint_cmp(&left, &right);
+}
+
+pub fun rational_eq(a: &Rational, b: &Rational): Bool {
+    return rational_cmp(a, b) == (0);
+}
+
+pub fun rational_add(a: &Rational, b: &Rational): Rational {
+    val left = bigint_mul(&a.num, &b.den);
+    val right = bigint_mul(&b.num, &a.den);
+    val n = bigint_add(&left, &right);
+    val d = bigint_mul(&a.den, &b.den);
+    let Some(out) = rational_new(n, d) else {
+        return rational_zero();
+    };
+    return out;
+}
+
+pub fun rational_sub(a: &Rational, b: &Rational): Rational {
+    val neg_b = rational_neg(b);
+    return rational_add(a, &neg_b);
+}
+
+pub fun rational_mul(a: &Rational, b: &Rational): Rational {
+    val n = bigint_mul(&a.num, &b.num);
+    val d = bigint_mul(&a.den, &b.den);
+    let Some(out) = rational_new(n, d) else {
+        return rational_zero();
+    };
+    return out;
+}
+
+pub fun rational_div(a: &Rational, b: &Rational): Option<Rational> {
+    if (bigint_is_zero(&b.num)) {
+        return None;
+    }
+    val n = bigint_mul(&a.num, &b.den);
+    val d = bigint_mul(&a.den, &b.num);
+    return rational_new(n, d);
+}
+
+pub fun rational_to_i64(x: &Rational): Option<Int64> {
+    val one = bigint_from_i64(1);
+    if (bigint_cmp(&x.den, &one) != (0)) {
+        return None;
+    }
+    return bigint_to_i64(&x.num);
+}
+
+pub fun rational_to_string(x: &Rational): String {
+    val one = bigint_from_i64(1);
+    if (bigint_cmp(&x.den, &one) == (0)) {
+        return bigint_to_string(&x.num);
+    }
+    return bigint_to_string(&x.num) + "/" + bigint_to_string(&x.den);
+}
