@@ -1,0 +1,44 @@
+import std::bigint::bigint_from_i64;
+import std::certificate::RootFloorCertificate;
+import std::certificate::DiskRootCertificate;
+import std::certificate::verify_root_floor;
+import std::certificate::verify_disk_root_certificate;
+
+fun main(): Int32 {
+    val root_two = RootFloorCertificate {
+        radicand: bigint_from_i64(2),
+        root: bigint_from_i64(1),
+    };
+    val bad_root_two = RootFloorCertificate {
+        radicand: bigint_from_i64(2),
+        root: bigint_from_i64(2),
+    };
+    println(verify_root_floor(&root_two));
+    println(verify_root_floor(&bad_root_two));
+
+    val disk_roots: Vec<Int64> = vec![4, 3, 3, 2, 0];
+    val radius: Int64 = 4;
+    val disk = DiskRootCertificate {
+        radius: radius,
+        roots: disk_roots,
+        point_count: bigint_from_i64(49),
+    };
+    println(verify_disk_root_certificate(&disk));
+
+    val wrong_roots: Vec<Int64> = vec![4, 2, 3, 2, 0];
+    val bad_disk = DiskRootCertificate {
+        radius: radius,
+        roots: wrong_roots,
+        point_count: bigint_from_i64(49),
+    };
+    println(verify_disk_root_certificate(&bad_disk));
+
+    val wrong_count_roots: Vec<Int64> = vec![4, 3, 3, 2, 0];
+    val wrong_count = DiskRootCertificate {
+        radius: radius,
+        roots: wrong_count_roots,
+        point_count: bigint_from_i64(48),
+    };
+    println(verify_disk_root_certificate(&wrong_count));
+    return 0;
+}

@@ -1,0 +1,168 @@
+// std::algebraic: exact real arithmetic in a single quadratic extension Q(sqrt(d)).
+// This deliberately does not claim to represent arbitrary algebraic numbers.
+module std.algebraic;
+
+import std::rational::Rational;
+import std::rational::rational_zero;
+import std::rational::rational_one;
+import std::rational::rational_clone;
+import std::rational::rational_is_zero;
+import std::rational::rational_sign;
+import std::rational::rational_cmp;
+import std::rational::rational_eq;
+import std::rational::rational_add;
+import std::rational::rational_sub;
+import std::rational::rational_mul;
+import std::rational::rational_div;
+import std::rational::rational_to_string;
+import std::rational::rational_sqrt_exact;
+
+pub struct QuadraticReal { a: Rational, b: Rational, d: Rational }
+
+// Represents a + b*sqrt(d); d must be nonnegative. d need not be nonsquare.
+pub fun quadratic_new(a: Rational, b: Rational, d: Rational): Option<QuadraticReal> {
+    val zero = rational_zero();
+    if (rational_cmp(&d, &zero) < 0) {
+        return None;
+    }
+    val root_option = rational_sqrt_exact(&d);
+    val fallback_a = rational_clone(&a);
+    val fallback_b = rational_clone(&b);
+    val fallback_d = rational_clone(&d);
+    let Some(root) = root_option else {
+        return Some(QuadraticReal { a: fallback_a, b: fallback_b, d: fallback_d });
+    };
+    val radical_part = rational_mul(&b, &root);
+    val rational_part = rational_add(&a, &radical_part);
+    return Some(QuadraticReal { a: rational_part, b: zero, d: rational_zero() });
+}
+
+pub fun quadratic_from_rational(x: Rational, d: Rational): Option<QuadraticReal> {
+    return quadratic_new(x, rational_zero(), d);
+}
+
+pub fun quadratic_sqrt(x: Rational): Option<QuadraticReal> {
+    val zero = rational_zero();
+    if (rational_cmp(&x, &zero) < 0) {
+        return None;
+    }
+    val root_option = rational_sqrt_exact(&x);
+    let Some(root) = root_option else {
+        return quadratic_new(zero, rational_one(), x);
+    };
+    return quadratic_new(root, rational_zero(), rational_zero());
+}
+
+pub fun quadratic_clone(x: &QuadraticReal): QuadraticReal {
+    return QuadraticReal {
+        a: rational_clone(&x.a),
+        b: rational_clone(&x.b),
+        d: rational_clone(&x.d),
+    };
+}
+
+pub fun quadratic_sign(x: &QuadraticReal): Option<Int64> {
+    val zero = rational_zero();
+    if (rational_cmp(&x.d, &zero) < 0) {
+        return None;
+    }
+    if (rational_is_zero(&x.b) || rational_is_zero(&x.d)) {
+        return Some(rational_sign(&x.a));
+    }
+    if (rational_is_zero(&x.a)) {
+        return Some(rational_sign(&x.b));
+    }
+    val sa = rational_sign(&x.a);
+    val sb = rational_sign(&x.b);
+    if (sa == sb) {
+        return Some(sa);
+    }
+    val a2 = rational_mul(&x.a, &x.a);
+    val b2 = rational_mul(&x.b, &x.b);
+    val b2d = rational_mul(&b2, &x.d);
+    val cmp = rational_cmp(&a2, &b2d);
+    if (cmp == 0) {
+        val zero_i64: Int64 = 0;
+        return Some(zero_i64);
+    }
+    if (cmp > 0) {
+        return Some(sa);
+    }
+    return Some(sb);
+}
+
+pub fun quadratic_add(x: &QuadraticReal, y: &QuadraticReal): Option<QuadraticReal> {
+    if (!rational_eq(&x.d, &y.d)) {
+        return None;
+    }
+    val a = rational_add(&x.a, &y.a);
+    val b = rational_add(&x.b, &y.b);
+    return quadratic_new(a, b, rational_clone(&x.d));
+}
+
+pub fun quadratic_sub(x: &QuadraticReal, y: &QuadraticReal): Option<QuadraticReal> {
+    if (!rational_eq(&x.d, &y.d)) {
+        return None;
+    }
+    val a = rational_sub(&x.a, &y.a);
+    val b = rational_sub(&x.b, &y.b);
+    return quadratic_new(a, b, rational_clone(&x.d));
+}
+
+pub fun quadratic_mul(x: &QuadraticReal, y: &QuadraticReal): Option<QuadraticReal> {
+    if (!rational_eq(&x.d, &y.d)) {
+        return None;
+    }
+    val ac = rational_mul(&x.a, &y.a);
+    val be = rational_mul(&x.b, &y.b);
+    val bed = rational_mul(&be, &x.d);
+    val a = rational_add(&ac, &bed);
+    val ae = rational_mul(&x.a, &y.b);
+    val bc = rational_mul(&x.b, &y.a);
+    val b = rational_add(&ae, &bc);
+    return quadratic_new(a, b, rational_clone(&x.d));
+}
+
+pub fun quadratic_div(x: &QuadraticReal, y: &QuadraticReal): Option<QuadraticReal> {
+    if (!rational_eq(&x.d, &y.d)) {
+        return None;
+    }
+    let Some(den_sign) = quadratic_sign(y) else {
+        return None;
+    };
+    if (den_sign == 0) {
+        return None;
+    }
+    val ac = rational_mul(&x.a, &y.a);
+    val be = rational_mul(&x.b, &y.b);
+    val bed = rational_mul(&be, &x.d);
+    val numerator_a = rational_sub(&ac, &bed);
+    val bc = rational_mul(&x.b, &y.a);
+    val ae = rational_mul(&x.a, &y.b);
+    val numerator_b = rational_sub(&bc, &ae);
+    val c2 = rational_mul(&y.a, &y.a);
+    val e2 = rational_mul(&y.b, &y.b);
+    val e2d = rational_mul(&e2, &y.d);
+    val denominator = rational_sub(&c2, &e2d);
+    let Some(a) = rational_div(&numerator_a, &denominator) else {
+        return None;
+    };
+    let Some(b) = rational_div(&numerator_b, &denominator) else {
+        return None;
+    };
+    return quadratic_new(a, b, rational_clone(&x.d));
+}
+
+pub fun quadratic_cmp(x: &QuadraticReal, y: &QuadraticReal): Option<Int64> {
+    let Some(diff) = quadratic_sub(x, y) else {
+        return None;
+    };
+    return quadratic_sign(&diff);
+}
+
+pub fun quadratic_to_string(x: &QuadraticReal): String {
+    if (rational_is_zero(&x.b)) {
+        return rational_to_string(&x.a);
+    }
+    return rational_to_string(&x.a) + " + " + rational_to_string(&x.b) + "*sqrt(" + rational_to_string(&x.d) + ")";
+}

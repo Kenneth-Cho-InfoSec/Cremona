@@ -1,0 +1,101 @@
+import std::rational::Rational;
+import std::rational::rational_from_i64;
+import std::rational::rational_zero;
+import std::algebraic::QuadraticReal;
+import std::algebraic::quadratic_new;
+import std::algebraic::quadratic_sqrt;
+import std::algebraic::quadratic_from_rational;
+import std::algebraic::quadratic_sub;
+import std::algebraic::quadratic_mul;
+import std::algebraic::quadratic_div;
+import std::algebraic::quadratic_sign;
+import std::algebraic::quadratic_to_string;
+import std::algebraic::quadratic_add;
+
+fun r(n: Int64, d: Int64): Rational {
+    return match (rational_from_i64(n, d)) {
+        Some(x) -> x,
+        None -> rational_zero(),
+    };
+}
+
+fun sign_text(x: &QuadraticReal): String {
+    return match (quadratic_sign(x)) {
+        Some(s) -> to_string(s),
+        None -> "invalid radicand",
+    };
+}
+
+fun main(): Int32 {
+    let Some(sqrt2) = quadratic_sqrt(r(2, 1)) else {
+        println("sqrt failed");
+        return 1;
+    };
+    let Some(one_in_qsqrt2) = quadratic_from_rational(r(1, 1), r(2, 1)) else {
+        println("construction failed");
+        return 1;
+    };
+    let Some(sqrt2_minus_one) = quadratic_sub(&sqrt2, &one_in_qsqrt2) else {
+        println("subtraction failed");
+        return 1;
+    };
+    println(sign_text(&sqrt2_minus_one));
+
+    let Some(three_minus_two_sqrt2) = quadratic_new(r(3, 1), r(-2, 1), r(2, 1)) else {
+        println("construction failed");
+        return 1;
+    };
+    println(sign_text(&three_minus_two_sqrt2));
+
+    let Some(two_minus_sqrt8) = quadratic_new(r(2, 1), r(-1, 1), r(8, 1)) else {
+        println("construction failed");
+        return 1;
+    };
+    println(sign_text(&two_minus_sqrt8));
+    let Some(exact_zero) = quadratic_new(r(2, 1), r(-1, 1), r(4, 1)) else {
+        println("construction failed");
+        return 1;
+    };
+    println(sign_text(&exact_zero));
+    let Some(negative_surd) = quadratic_new(r(-3, 1), r(2, 1), r(2, 1)) else {
+        println("construction failed");
+        return 1;
+    };
+    println(sign_text(&negative_surd));
+
+    let Some(square) = quadratic_mul(&sqrt2, &sqrt2) else {
+        println("multiplication failed");
+        return 1;
+    };
+    println(quadratic_to_string(&square));
+    let Some(quotient) = quadratic_div(&sqrt2, &sqrt2) else {
+        println("division failed");
+        return 1;
+    };
+    println(quadratic_to_string(&quotient));
+    let Some(sqrt3) = quadratic_sqrt(r(3, 1)) else {
+        println("sqrt failed");
+        return 1;
+    };
+    println(match (quadratic_add(&sqrt2, &sqrt3)) { Some(_) -> false, None -> true, });
+    println(match (quadratic_sqrt(r(-1, 1))) { Some(_) -> false, None -> true, });
+
+    let Some(sqrt4) = quadratic_sqrt(r(4, 1)) else {
+        println("sqrt failed");
+        return 1;
+    };
+    println(quadratic_to_string(&sqrt4));
+    let Some(square_denominator) = quadratic_new(r(1, 1), r(1, 1), r(4, 1)) else {
+        println("construction failed");
+        return 1;
+    };
+    let Some(one) = quadratic_sqrt(r(1, 1)) else {
+        println("sqrt failed");
+        return 1;
+    };
+    println(match (quadratic_div(&one, &square_denominator)) {
+        Some(x) -> quadratic_to_string(&x),
+        None -> "division failed",
+    });
+    return 0;
+}

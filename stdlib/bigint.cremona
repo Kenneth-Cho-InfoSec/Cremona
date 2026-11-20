@@ -1,0 +1,468 @@
+// std::bigint: signed arbitrary-precision integers implemented in Cremona.
+// Magnitudes use little-endian base-10^9 limbs. Products of two limbs plus a
+// carry stay below 10^18, inside Int64. Division truncates toward zero.
+module std.bigint;
+
+import std::checked::add_i64 as checked_add_i64;
+import std::checked::sub_i64 as checked_sub_i64;
+import std::checked::mul_i64 as checked_mul_i64;
+
+pub struct BigInt { sign: Int64, limbs: Vec<Int64> }
+pub struct BigIntDiv { quotient: BigInt, remainder: BigInt }
+
+fun bigint_base(): Int64 {
+    return 1000000000;
+}
+
+fun bigint_zero(): BigInt {
+    val digits: Vec<Int64> = vec![];
+    val zero: Int64 = 0;
+    return BigInt { sign: zero, limbs: digits };
+}
+
+fun bigint_make(sign: Int64, limbs: Vec<Int64>): BigInt {
+    var digits = limbs;
+    val zero: Int64 = 0;
+    val negative: Int64 = -1;
+    val positive: Int64 = 1;
+    while (digits.len() > 0 && digits[digits.len() - 1] == zero) {
+        digits.resize(digits.len() - 1, zero);
+    }
+    if (digits.len() == (0)) {
+        return bigint_zero();
+    }
+    if (sign < zero) {
+        return BigInt { sign: negative, limbs: digits };
+    }
+    return BigInt { sign: positive, limbs: digits };
+}
+
+pub fun bigint_from_i64(x: Int64): BigInt {
+    if (x == (0)) {
+        return bigint_zero();
+    }
+    val sign: Int64 = if (x < 0) { -1 } else { 1 };
+    var n = x;
+    var digits = Vec<Int64>::with_capacity(3);
+    while (n != (0)) {
+        val rem = n % bigint_base();
+        if (rem < (0)) {
+            digits.push((0) - rem);
+        } else {
+            digits.push(rem);
+        }
+        n = n / bigint_base();
+    }
+    return bigint_make(sign, digits);
+}
+
+pub fun bigint_clone(x: &BigInt): BigInt {
+    return BigInt { sign: x.sign, limbs: x.limbs.clone() };
+}
+
+pub fun bigint_sign(x: &BigInt): Int64 {
+    return x.sign;
+}
+
+pub fun bigint_is_zero(x: &BigInt): Bool {
+    return x.sign == (0);
+}
+
+pub fun bigint_neg(x: &BigInt): BigInt {
+    return bigint_make((0) - x.sign, x.limbs.clone());
+}
+
+pub fun bigint_abs(x: &BigInt): BigInt {
+    return bigint_make(1, x.limbs.clone());
+}
+
+fun bigint_abs_cmp(a: &BigInt, b: &BigInt): Int64 {
+    if (a.limbs.len() < b.limbs.len()) {
+        return (0) - (1);
+    }
+    if (a.limbs.len() > b.limbs.len()) {
+        return 1;
+    }
+    var i = a.limbs.len();
+    while (i > (0)) {
+        i = i - (1);
+        if (a.limbs[i] < b.limbs[i]) {
+            return (0) - (1);
+        }
+        if (a.limbs[i] > b.limbs[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+pub fun bigint_cmp(a: &BigInt, b: &BigInt): Int64 {
+    if (a.sign < b.sign) {
+        return (0) - (1);
+    }
+    if (a.sign > b.sign) {
+        return 1;
+    }
+    if (a.sign == (0)) {
+        return 0;
+    }
+    val mag = bigint_abs_cmp(a, b);
+    if (a.sign < (0)) {
+        return (0) - mag;
+    }
+    return mag;
+}
+
+fun bigint_add_abs(a: &BigInt, b: &BigInt): Vec<Int64> {
+    val n = if (a.limbs.len() > b.limbs.len()) { a.limbs.len() } else { b.limbs.len() };
+    var out = Vec<Int64>::with_capacity(n + (1));
+    val zero: Int64 = 0;
+    var carry: Int64 = 0;
+    var i: Int64 = 0;
+    while (i < n) {
+        val av = if (i < a.limbs.len()) { a.limbs[i] } else { zero };
+        val bv = if (i < b.limbs.len()) { b.limbs[i] } else { zero };
+        val sum = av + bv + carry;
+        out.push(sum % bigint_base());
+        carry = sum / bigint_base();
+        i = i + (1);
+    }
+    if (carry != (0)) {
+        out.push(carry);
+    }
+    return out;
+}
+
+// Precondition: |a| >= |b|.
+fun bigint_sub_abs(a: &BigInt, b: &BigInt): Vec<Int64> {
+    var out = Vec<Int64>::with_capacity(a.limbs.len());
+    val zero: Int64 = 0;
+    var borrow: Int64 = 0;
+    var i: Int64 = 0;
+    while (i < a.limbs.len()) {
+        val av = a.limbs[i];
+        val bv = if (i < b.limbs.len()) { b.limbs[i] } else { zero };
+        var digit = av - bv - borrow;
+        if (digit < (0)) {
+            digit = digit + bigint_base();
+            borrow = 1;
+        } else {
+            borrow = 0;
+        }
+        out.push(digit);
+        i = i + (1);
+    }
+    return out;
+}
+
+pub fun bigint_add(a: &BigInt, b: &BigInt): BigInt {
+    if (a.sign == (0)) {
+        return bigint_clone(b);
+    }
+    if (b.sign == (0)) {
+        return bigint_clone(a);
+    }
+    if (a.sign == b.sign) {
+        return bigint_make(a.sign, bigint_add_abs(a, b));
+    }
+    val cmp = bigint_abs_cmp(a, b);
+    if (cmp == (0)) {
+        return bigint_zero();
+    }
+    if (cmp > (0)) {
+        return bigint_make(a.sign, bigint_sub_abs(a, b));
+    }
+    return bigint_make(b.sign, bigint_sub_abs(b, a));
+}
+
+pub fun bigint_sub(a: &BigInt, b: &BigInt): BigInt {
+    val neg_b = bigint_neg(b);
+    return bigint_add(a, &neg_b);
+}
+
+fun bigint_mul_abs(a: &BigInt, b: &BigInt): Vec<Int64> {
+    val n = a.limbs.len();
+    val m = b.limbs.len();
+    if (n == (0) || m == (0)) {
+        return vec![];
+    }
+    var out = Vec<Int64>::with_capacity(n + m);
+    val zero: Int64 = 0;
+    var z: Int64 = 0;
+    while (z < n + m) {
+        out.push(zero);
+        z = z + (1);
+    }
+    var i: Int64 = 0;
+    while (i < n) {
+        var carry: Int64 = 0;
+        var j: Int64 = 0;
+        while (j < m) {
+            val k = i + j;
+            val cur = out[k] + a.limbs[i] * b.limbs[j] + carry;
+            out[k] = cur % bigint_base();
+            carry = cur / bigint_base();
+            j = j + (1);
+        }
+        var k = i + m;
+        while (carry > (0) && k < out.len()) {
+            val cur = out[k] + carry;
+            out[k] = cur % bigint_base();
+            carry = cur / bigint_base();
+            k = k + (1);
+        }
+        i = i + (1);
+    }
+    return out;
+}
+
+pub fun bigint_mul(a: &BigInt, b: &BigInt): BigInt {
+    if (a.sign == (0) || b.sign == (0)) {
+        return bigint_zero();
+    }
+    return bigint_make(a.sign * b.sign, bigint_mul_abs(a, b));
+}
+
+fun bigint_mul_small(a: &BigInt, factor: Int64): BigInt {
+    if (factor == (0) || a.sign == (0)) {
+        return bigint_zero();
+    }
+    var out = Vec<Int64>::with_capacity(a.limbs.len() + (1));
+    var carry: Int64 = 0;
+    var i: Int64 = 0;
+    while (i < a.limbs.len()) {
+        val cur = a.limbs[i] * factor + carry;
+        out.push(cur % bigint_base());
+        carry = cur / bigint_base();
+        i = i + (1);
+    }
+    if (carry > (0)) {
+        out.push(carry);
+    }
+    return bigint_make(a.sign, out);
+}
+
+fun bigint_add_small(a: &BigInt, amount: Int64): BigInt {
+    if (amount == (0)) {
+        return bigint_clone(a);
+    }
+    var out = a.limbs.clone();
+    var carry = amount;
+    var i: Int64 = 0;
+    while (carry > (0) && i < out.len()) {
+        val cur = out[i] + carry;
+        out[i] = cur % bigint_base();
+        carry = cur / bigint_base();
+        i = i + (1);
+    }
+    if (carry > (0)) {
+        out.push(carry);
+    }
+    return bigint_make(1, out);
+}
+
+fun bigint_shift_base_add(a: &BigInt, digit: Int64): BigInt {
+    var out = Vec<Int64>::with_capacity(a.limbs.len() + (1));
+    out.push(digit);
+    var i: Int64 = 0;
+    while (i < a.limbs.len()) {
+        out.push(a.limbs[i]);
+        i = i + (1);
+    }
+    return bigint_make(1, out);
+}
+
+pub fun bigint_divmod(a: &BigInt, b: &BigInt): Option<BigIntDiv> {
+    if (b.sign == (0)) {
+        return None;
+    }
+    if (a.sign == (0)) {
+        return Some(BigIntDiv { quotient: bigint_zero(), remainder: bigint_zero() });
+    }
+    val aa = bigint_abs(a);
+    val bb = bigint_abs(b);
+    var qdigits = Vec<Int64>::with_capacity(aa.limbs.len());
+    val zero: Int64 = 0;
+    var z: Int64 = 0;
+    while (z < aa.limbs.len()) {
+        qdigits.push(zero);
+        z = z + (1);
+    }
+    var rem = bigint_zero();
+    var i = aa.limbs.len();
+    while (i > (0)) {
+        i = i - (1);
+        val shifted_rem = bigint_shift_base_add(&rem, aa.limbs[i]);
+        rem = shifted_rem;
+        var lo: Int64 = 0;
+        var hi = bigint_base() - (1);
+        var best: Int64 = 0;
+        while (lo <= hi) {
+            val mid = lo + (hi - lo) / (2);
+            val product = bigint_mul_small(&bb, mid);
+            if (bigint_abs_cmp(&product, &rem) <= (0)) {
+                best = mid;
+                lo = mid + (1);
+            } else if (mid == (0)) {
+                break;
+            } else {
+                hi = mid - (1);
+            }
+        }
+        qdigits[i] = best;
+        val product = bigint_mul_small(&bb, best);
+        val next_rem = bigint_make(1, bigint_sub_abs(&rem, &product));
+        rem = next_rem;
+    }
+    val qsign = a.sign * b.sign;
+    val quotient = bigint_make(qsign, qdigits);
+    val remainder = bigint_make(a.sign, rem.limbs.clone());
+    return Some(BigIntDiv { quotient: quotient, remainder: remainder });
+}
+
+pub fun bigint_div_exact(a: &BigInt, b: &BigInt): Option<BigInt> {
+    let Some(dm) = bigint_divmod(a, b) else {
+        return None;
+    };
+    if (dm.remainder.sign != (0)) {
+        return None;
+    }
+    return Some(dm.quotient);
+}
+
+// Integer Newton iteration. The initial power-of-base bound is above sqrt(n),
+// and iteration stops once the next integer estimate no longer decreases.
+pub fun bigint_isqrt_floor(n: &BigInt): Option<BigInt> {
+    if (n.sign < 0) {
+        return None;
+    }
+    if (n.sign == 0) {
+        return Some(bigint_zero());
+    }
+    val half_limbs = (n.limbs.len() + 1) / 2;
+    var seed_digits: Vec<Int64> = vec![];
+    seed_digits.reserve(half_limbs + 1);
+    val zero_limb: Int64 = 0;
+    val one_limb: Int64 = 1;
+    var i: Int64 = 0;
+    while (i < half_limbs) {
+        seed_digits.push(zero_limb);
+        i = i + 1;
+    }
+    seed_digits.push(one_limb);
+    var estimate = bigint_make(1, seed_digits);
+    val two = bigint_from_i64(2);
+    while (true) {
+        let Some(divided) = bigint_divmod(n, &estimate) else {
+            return None;
+        };
+        val total = bigint_add(&estimate, &divided.quotient);
+        let Some(halved) = bigint_divmod(&total, &two) else {
+            return None;
+        };
+        val next = halved.quotient;
+        if (bigint_cmp(&next, &estimate) >= 0) {
+            return Some(estimate);
+        }
+        estimate = next;
+    }
+    return None;
+}
+
+pub fun bigint_is_square(n: &BigInt): Bool {
+    let Some(root) = bigint_isqrt_floor(n) else {
+        return false;
+    };
+    val square = bigint_mul(&root, &root);
+    return bigint_cmp(&square, n) == 0;
+}
+
+pub fun bigint_gcd(a: &BigInt, b: &BigInt): BigInt {
+    var x = bigint_abs(a);
+    var y = bigint_abs(b);
+    while (y.sign != (0)) {
+        let Some(dm) = bigint_divmod(&x, &y) else {
+            return bigint_zero();
+        };
+        x = y;
+        y = bigint_abs(&dm.remainder);
+    }
+    return x;
+}
+
+pub fun bigint_to_i64(x: &BigInt): Option<Int64> {
+    var acc: Int64 = 0;
+    var i = x.limbs.len();
+    while (i > (0)) {
+        i = i - (1);
+        let Some(next) = bigint_accumulate_i64(acc, x.limbs[i], x.sign < (0)) else {
+            return None;
+        };
+        acc = next;
+    }
+    return Some(acc);
+}
+
+fun bigint_accumulate_i64(acc: Int64, digit: Int64, negative: Bool): Option<Int64> {
+    let Some(mul) = checked_mul_i64(acc, bigint_base()) else {
+        return None;
+    };
+    if (negative) {
+        return checked_sub_i64(mul, digit);
+    }
+    return checked_add_i64(mul, digit);
+}
+
+pub fun bigint_to_string(x: &BigInt): String {
+    if (x.sign == (0)) {
+        return "0";
+    }
+    var out = if (x.sign < (0)) { "-" } else { "" };
+    val top = x.limbs.len() - (1);
+    out = out + to_string(x.limbs[top]);
+    var i = top;
+    while (i > (0)) {
+        i = i - (1);
+        val part = to_string(x.limbs[i]);
+        var pad = (9) - part.len();
+        while (pad > (0)) {
+            out = out + "0";
+            pad = pad - (1);
+        }
+        out = out + part;
+    }
+    return out;
+}
+
+pub fun bigint_parse(s: String): Option<BigInt> {
+    val n = s.len();
+    if (n == (0)) {
+        return None;
+    }
+    var negative = false;
+    var i: Int64 = 0;
+    val first = s.byte_at(0);
+    if (first == 45) {
+        negative = true;
+        i = 1;
+    } else if (first == 43) {
+        i = 1;
+    } else {
+        i = 0;
+    }
+    if (i == n) {
+        return None;
+    }
+    var value = bigint_zero();
+    while (i < n) {
+        val code = s.byte_at(i);
+        if (code < 48 || code > 57) {
+            return None;
+        }
+        val scaled = bigint_mul_small(&value, 10);
+        value = bigint_add_small(&scaled, code - 48);
+        i = i + (1);
+    }
+    val sign: Int64 = if (negative) { -1 } else { 1 };
+    return Some(bigint_make(sign, value.limbs.clone()));
+}

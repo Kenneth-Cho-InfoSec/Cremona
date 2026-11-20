@@ -1,0 +1,67 @@
+import std::rational::Rational;
+import std::rational::rational_from_i64;
+import std::rational::rational_to_string;
+import std::rational::rational_zero;
+import std::exact_linalg::ExactMatrix;
+import std::exact_linalg::exact_matrix_new;
+import std::exact_linalg::exact_matrix_mul;
+import std::exact_linalg::exact_matrix_get;
+import std::exact_linalg::exact_solve;
+import std::exact_linalg::exact_determinant;
+
+fun r(n: Int64, d: Int64): Rational {
+    return match (rational_from_i64(n, d)) {
+        Some(x) -> x,
+        None -> rational_zero(),
+    };
+}
+
+fun main(): Int32 {
+    let Some(a) = exact_matrix_new(2, 2, vec![r(2, 1), r(1, 1), r(1, 1), r(-1, 1)]) else {
+        println("matrix construction failed");
+        return 1;
+    };
+    let Some(squared) = exact_matrix_mul(&a, &a) else {
+        println("matrix multiplication failed");
+        return 1;
+    };
+    println(match (exact_matrix_get(&squared, 0, 0)) { Some(x) -> rational_to_string(&x), None -> "out of bounds", });
+    println(match (exact_matrix_get(&squared, 0, 1)) { Some(x) -> rational_to_string(&x), None -> "out of bounds", });
+    println(match (exact_matrix_get(&squared, 1, 0)) { Some(x) -> rational_to_string(&x), None -> "out of bounds", });
+    println(match (exact_matrix_get(&squared, 1, 1)) { Some(x) -> rational_to_string(&x), None -> "out of bounds", });
+    println(match (exact_determinant(&a)) { Some(x) -> rational_to_string(&x), None -> "not square", });
+
+    val rhs = vec![r(5, 1), r(1, 1)];
+    println(match (exact_solve(&a, &rhs)) {
+        Some(x) -> {
+            val x0 = x[0];
+            val x1 = x[1];
+            rational_to_string(&x0) + "," + rational_to_string(&x1)
+        },
+        None -> "singular",
+    });
+
+    let Some(swapped) = exact_matrix_new(2, 2, vec![r(0, 1), r(1, 1), r(2, 1), r(3, 1)]) else {
+        println("matrix construction failed");
+        return 1;
+    };
+    val swapped_rhs = vec![r(1, 1), r(5, 1)];
+    println(match (exact_solve(&swapped, &swapped_rhs)) {
+        Some(x) -> {
+            val x0 = x[0];
+            val x1 = x[1];
+            rational_to_string(&x0) + "," + rational_to_string(&x1)
+        },
+        None -> "singular",
+    });
+    println(match (exact_determinant(&swapped)) { Some(x) -> rational_to_string(&x), None -> "not square", });
+
+    let Some(singular) = exact_matrix_new(2, 2, vec![r(1, 1), r(2, 1), r(2, 1), r(4, 1)]) else {
+        println("matrix construction failed");
+        return 1;
+    };
+    println(match (exact_solve(&singular, &rhs)) { Some(_) -> false, None -> true, });
+    println(match (exact_determinant(&singular)) { Some(x) -> rational_to_string(&x), None -> "not square", });
+    println(match (exact_matrix_new(2, 2, vec![r(1, 1)])) { Some(_) -> false, None -> true, });
+    return 0;
+}

@@ -1,0 +1,139 @@
+import std::integer::gcd_i64_checked;
+import std::integer::isqrt_i64;
+import std::integer::pow_i64_checked;
+import std::integer::abs_i64_checked;
+import std::integer::div_i64_checked;
+import std::integer::rem_i64_checked;
+import std::bigint::BigInt;
+import std::bigint::bigint_from_i64;
+import std::bigint::bigint_parse;
+import std::bigint::bigint_to_string;
+import std::bigint::bigint_add;
+import std::bigint::bigint_mul;
+import std::bigint::bigint_divmod;
+import std::bigint::bigint_gcd;
+import std::bigint::bigint_cmp;
+import std::bigint::bigint_abs;
+import std::bigint::bigint_to_i64;
+import std::bigint::bigint_isqrt_floor;
+import std::bigint::bigint_is_square;
+import std::rational::rational_from_i64;
+import std::rational::rational_new;
+import std::rational::rational_add;
+import std::rational::rational_mul;
+import std::rational::rational_div;
+import std::rational::rational_to_string;
+import std::rational::rational_cmp;
+
+fun get_big(s: String): BigInt {
+    return match (bigint_parse(s)) {
+        Some(x) -> x,
+        None -> bigint_from_i64(0),
+    };
+}
+
+fun main(): Int32 {
+    println(match (gcd_i64_checked(-48, 18)) { Some(x) -> x, None -> -1 as Int64, });
+    println(match (isqrt_i64(9223372036854775807)) { Some(x) -> x, None -> -1 as Int64, });
+    println(match (pow_i64_checked(3, 20)) { Some(x) -> x, None -> -1 as Int64, });
+    println(match (pow_i64_checked(3, 40)) { Some(_) -> true, None -> false, });
+    println(match (abs_i64_checked(-9223372036854775807 - 1)) { Some(_) -> true, None -> false, });
+    println(match (gcd_i64_checked(-9223372036854775807 - 1, 0)) { Some(_) -> false, None -> true, });
+    println(match (div_i64_checked(-9223372036854775807 - 1, -1)) { Some(_) -> false, None -> true, });
+    println(match (rem_i64_checked(-9223372036854775807 - 1, -1)) { Some(x) -> x == 0, None -> false, });
+    println(match (isqrt_i64(-1)) { Some(_) -> false, None -> true, });
+
+    val a = get_big("123456789012345678901234567890");
+    val one = bigint_from_i64(1);
+    val a_plus_one = bigint_add(&a, &one);
+    println(bigint_to_string(&a_plus_one));
+    val min_i64 = bigint_from_i64(-9223372036854775807 - 1);
+    println(bigint_to_string(&min_i64));
+    val parsed = get_big("-00000000000000000000000042");
+    println(bigint_to_string(&parsed));
+    val parsed_plus = get_big("+42");
+    println(bigint_to_string(&parsed_plus));
+    println(match (bigint_parse("12x")) { Some(_) -> false, None -> true, });
+    val nines = get_big("999999999999999999999");
+    val nines_squared = bigint_mul(&nines, &nines);
+    println(bigint_to_string(&nines_squared));
+    val large_square = get_big("15241578750190521");
+    println(match (bigint_isqrt_floor(&large_square)) { Some(x) -> bigint_to_string(&x), None -> "negative", });
+    println(bigint_is_square(&large_square));
+    val two_big = get_big("2");
+    println(bigint_is_square(&two_big));
+    val multi_limb_root = get_big("1234567890123456789");
+    val multi_limb_square = bigint_mul(&multi_limb_root, &multi_limb_root);
+    println(bigint_to_string(&multi_limb_square));
+    println(match (bigint_isqrt_floor(&multi_limb_square)) {
+        Some(x) -> bigint_to_string(&x),
+        None -> "negative",
+    });
+    val square_plus_one = bigint_add(&multi_limb_square, &one);
+    println(match (bigint_isqrt_floor(&square_plus_one)) {
+        Some(x) -> bigint_to_string(&x),
+        None -> "negative",
+    });
+    let Some(multi_limb_dm) = bigint_divmod(&multi_limb_square, &multi_limb_root) else {
+        println("division failed");
+        return 1;
+    };
+    println(bigint_to_string(&multi_limb_dm.quotient));
+    println(bigint_to_string(&multi_limb_dm.remainder));
+    println(match (bigint_to_i64(&min_i64)) { Some(x) -> x == -9223372036854775807 - 1, None -> false, });
+    val too_large_i64 = get_big("9223372036854775808");
+    println(match (bigint_to_i64(&too_large_i64)) { Some(_) -> false, None -> true, });
+    val b = get_big("987654321");
+    let Some(dm) = bigint_divmod(&a, &b) else {
+        println("division failed");
+        return 1;
+    };
+    println(bigint_to_string(&dm.quotient));
+    println(bigint_to_string(&dm.remainder));
+    val product_bq = bigint_mul(&b, &dm.quotient);
+    val recomposed = bigint_add(&product_bq, &dm.remainder);
+    println(bigint_cmp(&recomposed, &a) == 0);
+    val rem_abs = bigint_abs(&dm.remainder);
+    val b_abs = bigint_abs(&b);
+    println(bigint_cmp(&rem_abs, &b_abs) < 0);
+    val minus_seventeen = get_big("-17");
+    val five = get_big("5");
+    let Some(negative_dm) = bigint_divmod(&minus_seventeen, &five) else {
+        println("division failed");
+        return 1;
+    };
+    println(bigint_to_string(&negative_dm.quotient));
+    println(bigint_to_string(&negative_dm.remainder));
+    val zero_big = bigint_from_i64(0);
+    println(match (bigint_divmod(&a, &zero_big)) { Some(_) -> false, None -> true, });
+    val ga = get_big("1234567890");
+    val gb = get_big("987654321");
+    val gg = bigint_gcd(&ga, &gb);
+    println(bigint_to_string(&gg));
+
+    let Some(half) = rational_from_i64(2, -4) else {
+        println("rational construction failed");
+        return 1;
+    };
+    let Some(three_quarters) = rational_from_i64(3, 4) else {
+        println("rational construction failed");
+        return 1;
+    };
+    println(rational_to_string(&half));
+    val sum = rational_add(&half, &three_quarters);
+    val product = rational_mul(&half, &three_quarters);
+    println(rational_to_string(&sum));
+    println(rational_to_string(&product));
+    println(match (rational_div(&half, &three_quarters)) {
+        Some(x) -> rational_to_string(&x),
+        None -> "division by zero",
+    });
+    println(rational_cmp(&half, &three_quarters) < 0);
+    println(match (rational_new(bigint_from_i64(1), bigint_from_i64(0))) { Some(_) -> false, None -> true, });
+    let Some(zero) = rational_from_i64(0, 1) else {
+        println("rational construction failed");
+        return 1;
+    };
+    println(match (rational_div(&half, &zero)) { Some(_) -> false, None -> true, });
+    return 0;
+}

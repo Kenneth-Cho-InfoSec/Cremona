@@ -1,0 +1,75 @@
+// std::certificate: small exact verifiers for integer and planar certificates.
+// These check supplied witnesses; they do not prove global optimality claims.
+module std.certificate;
+
+import std::checked::add_i64;
+import std::bigint::BigInt;
+import std::bigint::bigint_from_i64;
+import std::bigint::bigint_clone;
+import std::bigint::bigint_sign;
+import std::bigint::bigint_add;
+import std::bigint::bigint_sub;
+import std::bigint::bigint_mul;
+import std::bigint::bigint_cmp;
+
+pub struct RootFloorCertificate { radicand: BigInt, root: BigInt }
+pub struct DiskRootCertificate { radius: Int64, roots: Vec<Int64>, point_count: BigInt }
+
+pub fun verify_root_floor(certificate: &RootFloorCertificate): Bool {
+    if (bigint_sign(&certificate.radicand) < 0 || bigint_sign(&certificate.root) < 0) {
+        return false;
+    }
+    val root_squared = bigint_mul(&certificate.root, &certificate.root);
+    if (bigint_cmp(&root_squared, &certificate.radicand) > 0) {
+        return false;
+    }
+    val one = bigint_from_i64(1);
+    val next_root = bigint_add(&certificate.root, &one);
+    val next_squared = bigint_mul(&next_root, &next_root);
+    return bigint_cmp(&certificate.radicand, &next_squared) < 0;
+}
+
+fun disk_radicand(radius: Int64, x: Int64): BigInt {
+    val r = bigint_from_i64(radius);
+    val xx = bigint_from_i64(x);
+    val r2 = bigint_mul(&r, &r);
+    val x2 = bigint_mul(&xx, &xx);
+    return bigint_sub(&r2, &x2);
+}
+
+// Verifies the lattice-point count in the closed disk of integral radius R:
+// (2R+1) + 2 * (root_0 + 2*sum(root_x, x=1..R)).
+pub fun verify_disk_root_certificate(certificate: &DiskRootCertificate): Bool {
+    if (certificate.radius < 0) {
+        return false;
+    }
+    let Some(expected_terms) = add_i64(certificate.radius, 1) else {
+        return false;
+    };
+    if (certificate.roots.len() != expected_terms) {
+        return false;
+    }
+    var weighted_roots = bigint_from_i64(0);
+    var x: Int64 = 0;
+    while (x < expected_terms) {
+        val radicand = disk_radicand(certificate.radius, x);
+        val root = bigint_from_i64(certificate.roots[x]);
+        val root_certificate = RootFloorCertificate { radicand: radicand, root: bigint_clone(&root) };
+        if (!verify_root_floor(&root_certificate)) {
+            return false;
+        }
+        val weight = if (x == 0) { bigint_from_i64(1) } else { bigint_from_i64(2) };
+        val weighted = bigint_mul(&root, &weight);
+        val next_weighted_roots = bigint_add(&weighted_roots, &weighted);
+        weighted_roots = next_weighted_roots;
+        x = x + 1;
+    }
+    val radius = bigint_from_i64(certificate.radius);
+    val two = bigint_from_i64(2);
+    val one = bigint_from_i64(1);
+    val twice_radius = bigint_mul(&two, &radius);
+    val column_count = bigint_add(&twice_radius, &one);
+    val twice_roots = bigint_mul(&two, &weighted_roots);
+    val exact_count = bigint_add(&column_count, &twice_roots);
+    return bigint_cmp(&exact_count, &certificate.point_count) == 0;
+}

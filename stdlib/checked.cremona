@@ -6,11 +6,11 @@
 module std.checked;
 
 fun i32_max(): Int64 {
-    return 2147483647 as Int64;
+    return 2147483647;
 }
 
 fun i32_min(): Int64 {
-    return (0 as Int64) - 2147483647 as Int64 - (1 as Int64);
+    return 0 - 2147483647 - 1;
 }
 
 pub fun add_i32(a: Int32, b: Int32): Option<Int32> {
@@ -38,47 +38,48 @@ pub fun mul_i32(a: Int32, b: Int32): Option<Int32> {
 }
 
 fun i64_max(): Int64 {
-    return 9223372036854775807 as Int64;
+    return 9223372036854775807;
 }
 
 fun i64_min(): Int64 {
-    return (0 as Int64) - 9223372036854775807 as Int64 - (1 as Int64);
+    return 0 - 9223372036854775807 - 1;
 }
 
 pub fun add_i64(a: Int64, b: Int64): Option<Int64> {
-    if (b > (0 as Int64) && a > i64_max() - b) {
+    if (b > 0 && a > i64_max() - b) {
         return None;
     }
-    if (b < (0 as Int64) && a < i64_min() - b) {
+    if (b < 0 && a < i64_min() - b) {
         return None;
     }
     return Some(a + b);
 }
 
 pub fun sub_i64(a: Int64, b: Int64): Option<Int64> {
-    if (b > (0 as Int64) && a < i64_min() + b) {
+    if (b > 0 && a < i64_min() + b) {
         return None;
     }
-    if (b < (0 as Int64) && a > i64_max() + b) {
+    if (b < 0 && a > i64_max() + b) {
         return None;
     }
     return Some(a - b);
 }
 
 pub fun mul_i64(a: Int64, b: Int64): Option<Int64> {
-    if (a == (0 as Int64) || b == (0 as Int64)) {
-        return Some(0 as Int64);
+    if (a == 0 || b == 0) {
+        val zero: Int64 = 0;
+        return Some(zero);
     }
-    if (a > (0 as Int64) && b > (0 as Int64) && a > i64_max() / b) {
+    if (a > 0 && b > 0 && a > i64_max() / b) {
         return None;
     }
-    if (a > (0 as Int64) && b < (0 as Int64) && b < i64_min() / a) {
+    if (a > 0 && b < 0 && b < i64_min() / a) {
         return None;
     }
-    if (a < (0 as Int64) && b > (0 as Int64) && a < i64_min() / b) {
+    if (a < 0 && b > 0 && a < i64_min() / b) {
         return None;
     }
-    if (a < (0 as Int64) && b < (0 as Int64) && a < (0 as Int64) - i64_max() / ((0 as Int64) - b)) {
+    if (a < 0 && b < 0 && a < 0 - i64_max() / (0 - b)) {
         return None;
     }
     return Some(a * b);

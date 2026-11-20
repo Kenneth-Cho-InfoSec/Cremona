@@ -1,0 +1,59 @@
+import std::rational::Rational;
+import std::rational::rational_from_i64;
+import std::rational::rational_zero;
+import std::rational::rational_to_string;
+import std::geometry::Point2Rat;
+import std::geometry::point2_rat;
+import std::geometry::unit_separated;
+import std::geometry::diameter_squared;
+import std::geometry::distance_exact;
+import std::geometry::distance_matrix;
+import std::geometry::distance_matrices_match;
+import std::algebraic::quadratic_to_string;
+
+fun r(n: Int64, d: Int64): Rational {
+    return match (rational_from_i64(n, d)) {
+        Some(x) -> x,
+        None -> rational_zero(),
+    };
+}
+
+fun p(x: Int64, y: Int64): Point2Rat {
+    return point2_rat(r(x, 1), r(y, 1));
+}
+
+fun main(): Int32 {
+    val square = vec![p(0, 0), p(1, 0), p(1, 1), p(0, 1)];
+    println(unit_separated(&square));
+    val square_diameter2 = diameter_squared(&square);
+    println(rational_to_string(&square_diameter2));
+
+    let Some(a) = distance_matrix(&square) else {
+        println("distance matrix failed");
+        return 1;
+    };
+    val rotation: Vec<Int64> = vec![1, 2, 3, 0];
+    println(distance_matrices_match(&a, &a, &rotation));
+
+    val rectangle = vec![p(0, 0), p(2, 0), p(2, 1), p(0, 1)];
+    let Some(b) = distance_matrix(&rectangle) else {
+        println("distance matrix failed");
+        return 1;
+    };
+    val identity: Vec<Int64> = vec![0, 1, 2, 3];
+    println(distance_matrices_match(&a, &b, &identity));
+    val rectangle_diameter2 = diameter_squared(&rectangle);
+    println(rational_to_string(&rectangle_diameter2));
+
+    val p0 = square[0];
+    val p2 = square[2];
+    let Some(diagonal) = distance_exact(&p0, &p2) else {
+        println("distance failed");
+        return 1;
+    };
+    println(quadratic_to_string(&diagonal));
+
+    val too_close = vec![p(0, 0), point2_rat(r(1, 2), r(0, 1))];
+    println(unit_separated(&too_close));
+    return 0;
+}
